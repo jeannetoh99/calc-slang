@@ -24,14 +24,6 @@ export const dummyLiteral = (): es.Literal => ({
 
 export const dummyExpression = (): es.Expression => dummyLiteral() as es.Expression
 
-export const dummyCallExpression = (): es.CallExpression => ({
-  type: 'CallExpression',
-  callee: dummyExpression(),
-  arguments: [],
-  loc: dummyLocation(),
-  optional: false
-})
-
 export const dummyExpressionStatement = (): es.ExpressionStatement => ({
   type: 'ExpressionStatement',
   expression: dummyExpression(),

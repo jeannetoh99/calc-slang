@@ -1,11 +1,11 @@
 import { LazyBuiltIn } from '../createContext'
 import {
-  CallingNonFunctionValue,
-  ExceptionError,
+  // CallingNonFunctionValue,
+  // ExceptionError,
   GetInheritedPropertyError,
-  InvalidNumberOfArguments
+  // InvalidNumberOfArguments
 } from '../errors/errors'
-import { RuntimeSourceError } from '../errors/runtimeSourceError'
+// import { RuntimeSourceError } from '../errors/runtimeSourceError'
 import { BinaryOperator, UnaryOperator } from '../estree'
 import { Thunk } from '../types'
 import { locationDummyNode } from './astCreator'
@@ -57,62 +57,62 @@ export function makeLazyFunction(candidate: any) {
   return new LazyBuiltIn(candidate, false)
 }
 
-export function callIfFuncAndRightArgs(
-  candidate: any,
-  line: number,
-  column: number,
-  ...args: any[]
-) {
-  const dummy = create.callExpression(create.locationDummyNode(line, column), args, {
-    start: { line, column },
-    end: { line, column }
-  })
+// export function callIfFuncAndRightArgs(
+//   candidate: any,
+//   line: number,
+//   column: number,
+//   ...args: any[]
+// ) {
+//   const dummy = create.callExpression(create.locationDummyNode(line, column), args, {
+//     start: { line, column },
+//     end: { line, column }
+//   })
 
-  if (typeof candidate === 'function') {
-    const originalCandidate = candidate
-    if (candidate.transformedFunction !== undefined) {
-      candidate = candidate.transformedFunction
-    }
-    const expectedLength = candidate.length
-    const receivedLength = args.length
-    const hasVarArgs = candidate.minArgsNeeded !== undefined
-    if (hasVarArgs ? candidate.minArgsNeeded > receivedLength : expectedLength !== receivedLength) {
-      throw new InvalidNumberOfArguments(
-        dummy,
-        hasVarArgs ? candidate.minArgsNeeded : expectedLength,
-        receivedLength,
-        hasVarArgs
-      )
-    }
-    try {
-      const forcedArgs = args.map(forceIt)
-      return originalCandidate(...forcedArgs)
-    } catch (error) {
-      // if we already handled the error, simply pass it on
-      if (!(error instanceof RuntimeSourceError || error instanceof ExceptionError)) {
-        throw new ExceptionError(error, dummy.loc!)
-      } else {
-        throw error
-      }
-    }
-  } else if (candidate instanceof LazyBuiltIn) {
-    try {
-      if (candidate.evaluateArgs) {
-        args = args.map(forceIt)
-      }
-      return candidate.func(...args)
-    } catch (error) {
-      // if we already handled the error, simply pass it on
-      if (!(error instanceof RuntimeSourceError || error instanceof ExceptionError)) {
-        throw new ExceptionError(error, dummy.loc!)
-      } else {
-        throw error
-      }
-    }
-  } else {
-    throw new CallingNonFunctionValue(candidate, dummy)
-  }
-}
+//   if (typeof candidate === 'function') {
+//     const originalCandidate = candidate
+//     if (candidate.transformedFunction !== undefined) {
+//       candidate = candidate.transformedFunction
+//     }
+//     const expectedLength = candidate.length
+//     const receivedLength = args.length
+//     const hasVarArgs = candidate.minArgsNeeded !== undefined
+//     if (hasVarArgs ? candidate.minArgsNeeded > receivedLength : expectedLength !== receivedLength) {
+//       throw new InvalidNumberOfArguments(
+//         dummy,
+//         hasVarArgs ? candidate.minArgsNeeded : expectedLength,
+//         receivedLength,
+//         hasVarArgs
+//       )
+//     }
+//     try {
+//       const forcedArgs = args.map(forceIt)
+//       return originalCandidate(...forcedArgs)
+//     } catch (error) {
+//       // if we already handled the error, simply pass it on
+//       if (!(error instanceof RuntimeSourceError || error instanceof ExceptionError)) {
+//         throw new ExceptionError(error, dummy.loc!)
+//       } else {
+//         throw error
+//       }
+//     }
+//   } else if (candidate instanceof LazyBuiltIn) {
+//     try {
+//       if (candidate.evaluateArgs) {
+//         args = args.map(forceIt)
+//       }
+//       return candidate.func(...args)
+//     } catch (error) {
+//       // if we already handled the error, simply pass it on
+//       if (!(error instanceof RuntimeSourceError || error instanceof ExceptionError)) {
+//         throw new ExceptionError(error, dummy.loc!)
+//       } else {
+//         throw error
+//       }
+//     }
+//   } else {
+//     throw new CallingNonFunctionValue(candidate, dummy)
+//   }
+// }
 
 export function boolOrErr(candidate: any, line: number, column: number) {
   candidate = forceIt(candidate)

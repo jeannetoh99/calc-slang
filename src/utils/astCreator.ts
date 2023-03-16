@@ -19,18 +19,6 @@ export const literal = (
   loc
 })
 
-export const callExpression = (
-  callee: es.Expression,
-  args: es.Expression[],
-  loc?: es.SourceLocation | null
-): es.CallExpression => ({
-  type: 'CallExpression',
-  callee,
-  arguments: args,
-  optional: false,
-  loc
-})
-
 export const expressionStatement = (expression: es.Expression): es.ExpressionStatement => ({
   type: 'ExpressionStatement',
   expression
@@ -46,17 +34,6 @@ export const program = (body: es.Statement[]): es.Program => ({
   sourceType: 'module',
   body
 })
-
-export const mutateToCallExpression = (
-  node: es.Node,
-  callee: es.Expression,
-  args: es.Expression[]
-) => {
-  node.type = 'CallExpression'
-  node = node as es.CallExpression
-  node.callee = callee
-  node.arguments = args
-}
 
 export const mutateToExpressionStatement = (node: es.Node, expr: es.Expression) => {
   node.type = 'ExpressionStatement'

@@ -45,15 +45,6 @@ export function validateAndAnnotate(
         validateIdentifier(node, ancestors)
       }
     },
-    CallExpression(call: es.CallExpression, ancestors: es.Node[]) {
-      for (let i = ancestors.length - 1; i >= 0; i--) {
-        const a = ancestors[i]
-        if (scopeHasCallExpressionMap.has(a)) {
-          scopeHasCallExpressionMap.set(a, true)
-          break
-        }
-      }
-    }
   })
 
   /*

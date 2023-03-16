@@ -98,7 +98,6 @@ export interface ExpressionStatement extends BaseStatement {
 
 export interface ExpressionMap {
   BinaryExpression: BinaryExpression
-  CallExpression: CallExpression
   Identifier: Identifier
   Literal: Literal
   SequenceExpression: SequenceExpression
@@ -126,17 +125,6 @@ export interface BinaryExpression extends BaseExpression {
   operator: BinaryOperator
   left: Expression
   right: Expression
-}
-
-interface BaseCallExpression extends BaseExpression {
-  callee: Expression
-  arguments: Array<Expression>
-}
-export type CallExpression = SimpleCallExpression
-
-export interface SimpleCallExpression extends BaseCallExpression {
-  type: 'CallExpression'
-  optional: boolean
 }
 
 export type Pattern = Identifier

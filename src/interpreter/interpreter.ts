@@ -90,10 +90,6 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
     throw new Error(`not supported yet: ${node.type}`)
   },
 
-  CallExpression: function* (node: es.CallExpression, context: Context) {
-    throw new Error(`not supported yet: ${node.type}`)
-  },
-
   UnaryExpression: function* (node: es.UnaryExpression, context: Context) {
     const value = yield* actualValue(node.argument, context)
 

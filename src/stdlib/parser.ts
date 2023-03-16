@@ -67,18 +67,7 @@ const transformers: ASTTransformers = new Map([
       return transform(node.expression)
     }
   ],
-
-  [
-    'CallExpression',
-    (node: es.CallExpression) => {
-      return vector_to_list([
-        'application',
-        transform(node.callee),
-        vector_to_list(node.arguments.map(transform))
-      ])
-    }
-  ],
-
+  
   [
     'UnaryExpression',
     (node: es.UnaryExpression) => {
@@ -110,8 +99,7 @@ const transformers: ASTTransformers = new Map([
     (node: es.Literal) => {
       return vector_to_list(['literal', node.value])
     }
-  ],
-
+  ]
 ])
 
 function transform(node: es.Node) {

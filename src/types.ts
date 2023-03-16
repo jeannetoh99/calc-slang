@@ -178,7 +178,7 @@ export interface Environment {
   id: string
   name: string
   tail: Environment | null
-  callExpression?: es.CallExpression
+  callExpression?: /* es.CallExpression */ undefined
   head: Frame
   thisContext?: Value
 }
@@ -350,11 +350,11 @@ export interface PredicateType {
   ifTrueType: Type | ForAll
 }
 
-export type PredicateTest = {
-  node: NodeWithInferredType<es.CallExpression>
-  ifTrueType: Type | ForAll
-  argVarName: string
-}
+// export type PredicateTest = {
+//   node: NodeWithInferredType<es.CallExpression>
+//   ifTrueType: Type | ForAll
+//   argVarName: string
+// }
 
 /**
  * Each element in the TypeEnvironment array represents a different scope
