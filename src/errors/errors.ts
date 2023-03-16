@@ -4,7 +4,6 @@ import { baseGenerator, generate } from 'astring'
 
 import * as es from '../ast'
 import { ErrorSeverity, ErrorType, SourceError, Value } from '../types'
-import { stringify } from '../utils/stringify'
 import { RuntimeSourceError } from './runtimeSourceError'
 
 export class InterruptedError extends RuntimeSourceError {
@@ -150,87 +149,40 @@ export class UnassignedVariable extends RuntimeSourceError {
 //   }
 // }
 
-export class VariableRedeclaration extends RuntimeSourceError {
-  constructor(private node: es.Node, private name: string, private writable?: boolean) {
+// export class VariableRedeclaration extends RuntimeSourceError {
+//   constructor(private node: es.Node, private name: string, private writable?: boolean) {
+//     super(node)
+//   }
+
+//   public explain() {
+//     return `Redeclaring name ${this.name}.`
+//   }
+
+//   public elaborate() {
+//     if (this.writable === true) {
+//       const elabStr = `Since ${this.name} has already been declared, you can assign a value to it without re-declaring.`
+
+//       const initStr = ''
+
+//       return `${elabStr} As such, you can just do\n\n\t${this.name} = ${initStr};\n`
+//     } else if (this.writable === false) {
+//       return `You will need to declare another variable, as ${this.name} is read-only.`
+//     } else {
+//       return ''
+//     }
+//   }
+// }
+
+export class DivisiionByZeroError extends RuntimeSourceError {
+  constructor(node: es.Node) {
     super(node)
   }
 
   public explain() {
-    return `Redeclaring name ${this.name}.`
+    return `Division by zero.`
   }
 
   public elaborate() {
-    if (this.writable === true) {
-      const elabStr = `Since ${this.name} has already been declared, you can assign a value to it without re-declaring.`
-
-      const initStr = ''
-
-      return `${elabStr} As such, you can just do\n\n\t${this.name} = ${initStr};\n`
-    } else if (this.writable === false) {
-      return `You will need to declare another variable, as ${this.name} is read-only.`
-    } else {
-      return ''
-    }
-  }
-}
-
-export class ConstAssignment extends RuntimeSourceError {
-  constructor(node: es.Node, private name: string) {
-    super(node)
-  }
-
-  public explain() {
-    return `Cannot assign new value to constant ${this.name}.`
-  }
-
-  public elaborate() {
-    return `As ${this.name} was declared as a constant, its value cannot be changed. You will have to declare a new variable.`
-  }
-}
-
-export class GetPropertyError extends RuntimeSourceError {
-  constructor(node: es.Node, private obj: Value, private prop: string) {
-    super(node)
-  }
-
-  public explain() {
-    return `Cannot read property ${this.prop} of ${stringify(this.obj)}.`
-  }
-
-  public elaborate() {
-    return 'TODO'
-  }
-}
-
-export class GetInheritedPropertyError extends RuntimeSourceError {
-  public type = ErrorType.RUNTIME
-  public severity = ErrorSeverity.ERROR
-  public location: es.SourceLocation
-
-  constructor(node: es.Node, private obj: Value, private prop: string) {
-    super(node)
-    this.location = node.loc!
-  }
-
-  public explain() {
-    return `Cannot read inherited property ${this.prop} of ${stringify(this.obj)}.`
-  }
-
-  public elaborate() {
-    return 'TODO'
-  }
-}
-
-export class SetPropertyError extends RuntimeSourceError {
-  constructor(node: es.Node, private obj: Value, private prop: string) {
-    super(node)
-  }
-
-  public explain() {
-    return `Cannot assign property ${this.prop} of ${stringify(this.obj)}.`
-  }
-
-  public elaborate() {
-    return 'TODO'
+    return `Division by zero is not allowed.`
   }
 }

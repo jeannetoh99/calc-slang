@@ -8,15 +8,12 @@ import { TerminalNode } from 'antlr4ts/tree/TerminalNode'
 import * as es from '../ast'
 import { CalcLexer } from '../lang/CalcLexer'
 import {
-  AdditionContext,
+  BinopContext,
   CalcParser,
-  DivisionContext,
   ExpressionContext,
-  MultiplicationContext,
-  NumberContext,
+  IntegerContext,
   ParenthesesContext,
-  StartContext,
-  SubtractionContext
+  StartContext
 } from '../lang/CalcParser'
 import { CalcVisitor } from '../lang/CalcVisitor'
 import { Context, ErrorSeverity, ErrorType, SourceError } from '../types'
@@ -120,7 +117,7 @@ function contextToLocation(ctx: ExpressionContext): es.SourceLocation {
   }
 }
 class ExpressionGenerator implements CalcVisitor<es.Expression> {
-  visitNumber(ctx: NumberContext): es.Expression {
+  visitInteger(ctx: IntegerContext): es.Expression {
     return {
       type: 'Literal',
       value: parseInt(ctx.text),
@@ -131,44 +128,16 @@ class ExpressionGenerator implements CalcVisitor<es.Expression> {
   visitParentheses(ctx: ParenthesesContext): es.Expression {
     return this.visit(ctx.expression())
   }
-  visitMultiplication(ctx: MultiplicationContext): es.Expression {
+  visitBinop(ctx: BinopContext): es.Expression {
     return {
       type: 'BinaryExpression',
-      operator: '*',
+      operator: ctx._operator.text as es.BinaryOperator,
       left: this.visit(ctx._left),
       right: this.visit(ctx._right),
       loc: contextToLocation(ctx)
     }
   }
-  visitDivision(ctx: DivisionContext): es.Expression {
-    return {
-      type: 'BinaryExpression',
-      operator: '/',
-      left: this.visit(ctx._left),
-      right: this.visit(ctx._right),
-      loc: contextToLocation(ctx)
-    }
-  }
-  visitAddition(ctx: AdditionContext): es.Expression {
-    return {
-      type: 'BinaryExpression',
-      operator: '+',
-      left: this.visit(ctx._left),
-      right: this.visit(ctx._right),
-      loc: contextToLocation(ctx)
-    }
-  }
-
-  visitSubtraction(ctx: SubtractionContext): es.Expression {
-    return {
-      type: 'BinaryExpression',
-      operator: '-',
-      left: this.visit(ctx._left),
-      right: this.visit(ctx._right),
-      loc: contextToLocation(ctx)
-    }
-  }
-
+  
   visitExpression?: ((ctx: ExpressionContext) => es.Expression) | undefined
   visitStart?: ((ctx: StartContext) => es.Expression) | undefined
 

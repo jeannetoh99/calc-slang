@@ -4,7 +4,6 @@ import { LazyBuiltIn } from '../createContext'
 import {
   // CallingNonFunctionValue,
   // ExceptionError,
-  GetInheritedPropertyError
   // InvalidNumberOfArguments
 } from '../errors/errors'
 import { Thunk } from '../types'
@@ -182,6 +181,10 @@ export function evaluateBinaryExpression(operator: BinaryOperator, left: any, ri
       return left * right
     case '/':
       return left / right
+    case 'div':
+      return Math.floor(left / right)
+    case 'mod':
+      return left % right
     default:
       return undefined
   }
@@ -201,11 +204,7 @@ export const getProp = (obj: any, prop: any, line: number, column: number) => {
   const dummy = locationDummyNode(line, column)
   const error = rttc.checkMemberAccess(dummy, obj, prop)
   if (error === undefined) {
-    if (obj[prop] !== undefined && !obj.hasOwnProperty(prop)) {
-      throw new GetInheritedPropertyError(dummy, obj, prop)
-    } else {
-      return obj[prop]
-    }
+    return obj[prop]
   } else {
     throw error
   }

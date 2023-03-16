@@ -7,7 +7,9 @@ MUL: '*';
 DIV: '/';
 ADD: '+';
 SUB: '-';
-NUMBER: [0-9]+;
+INTDIV: 'div';
+MOD: 'mod';
+INTEGER: [0-9]+;
 WHITESPACE: [ \r\n\t]+ -> skip;
 
 /*
@@ -16,10 +18,8 @@ WHITESPACE: [ \r\n\t]+ -> skip;
 start : expression;
 
 expression
-   : NUMBER                                         # Number
-   | '(' inner=expression ')'                       # Parentheses
-   | left=expression operator=MUL right=expression  # Multiplication
-   | left=expression operator=DIV right=expression  # Division
-   | left=expression operator=ADD right=expression  # Addition
-   | left=expression operator=SUB right=expression  # Subtraction
+   : INTEGER                                                         # Integer
+   | '(' inner=expression ')'                                        # Parentheses
+   | left=expression operator=(MUL|DIV|INTDIV|MOD) right=expression  # Binop
+   | left=expression operator=(ADD|SUB) right=expression             # Binop
    ;
