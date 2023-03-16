@@ -1,8 +1,7 @@
 import { ConstAssignment } from '../errors/errors'
 import * as es from '../estree'
 import { Context, NodeWithInferredType } from '../types'
-import { getVariableDecarationName } from '../utils/astCreator'
-import { ancestor, base, FullWalkerCallback } from '../utils/walkers'
+import { ancestor } from '../utils/walkers'
 
 class Declaration {
   public accessedBeforeDeclaration: boolean = false
@@ -17,14 +16,6 @@ export function validateAndAnnotate(
   const scopeHasCallExpressionMap = new Map<es.Node, boolean>()
   function processBlock(node: es.Program) {
     const initialisedIdentifiers = new Map<string, Declaration>()
-    for (const statement of node.body) {
-      if (statement.type === 'VariableDeclaration') {
-        initialisedIdentifiers.set(
-          getVariableDecarationName(statement),
-          new Declaration(statement.kind === 'const')
-        )
-      }
-    }
     scopeHasCallExpressionMap.set(node, false)
     accessedBeforeDeclarationMap.set(node, initialisedIdentifiers)
   }
@@ -52,29 +43,9 @@ export function validateAndAnnotate(
       }
     }
   }
-  const customWalker = {
-    ...base,
-    VariableDeclarator(node: es.VariableDeclarator, st: never, c: FullWalkerCallback<never>) {
-      // don't visit the id
-      if (node.init) {
-        c(node.init, st, 'Expression')
-      }
-    }
-  }
   ancestor(
     program,
     {
-      VariableDeclaration(
-        node: NodeWithInferredType<es.VariableDeclaration>,
-        ancestors: es.Node[]
-      ) {
-        const lastAncestor = ancestors[ancestors.length - 2]
-        const name = getVariableDecarationName(node)
-        const accessedBeforeDeclaration = accessedBeforeDeclarationMap
-          .get(lastAncestor)!
-          .get(name)!.accessedBeforeDeclaration
-        node.typability = accessedBeforeDeclaration ? 'Untypable' : 'NotYetTyped'
-      },
       Identifier: validateIdentifier,
       Pattern(node: es.Pattern, ancestors: es.Node[]) {
         if (node.type === 'Identifier') {
@@ -91,7 +62,6 @@ export function validateAndAnnotate(
         }
       }
     },
-    customWalker
   )
 
   /*

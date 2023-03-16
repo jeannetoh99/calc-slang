@@ -116,10 +116,3 @@ export const dummyBlockExpression = (): BlockExpression => ({
   body: [],
   loc: dummyLocation()
 })
-
-export const dummyVariableDeclarator = (): es.VariableDeclarator => ({
-  type: 'VariableDeclarator',
-  id: dummyIdentifier(),
-  init: dummyExpression(),
-  loc: dummyLocation()
-})

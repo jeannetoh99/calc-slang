@@ -40,7 +40,7 @@ function makeBlockIfNeeded(exs: es.Node[]) {
 // checks if sequence has declaration at toplevel
 // (outside of any block)
 function hasDeclarationAtToplevel(exs: es.Node[]) {
-  return exs.reduce((b, ex) => b || ex.type === 'VariableDeclaration', false)
+  return exs.reduce((b, ex) => b, false)
 }
 
 type ASTTransformers = Map<string, (node: es.Node) => Value>
@@ -65,28 +65,6 @@ const transformers: ASTTransformers = new Map([
     'ExpressionStatement',
     (node: es.ExpressionStatement) => {
       return transform(node.expression)
-    }
-  ],
-
-  [
-    'VariableDeclaration',
-    (node: es.VariableDeclaration) => {
-      if (node.kind === 'let') {
-        return vector_to_list([
-          'variable_declaration',
-          transform(node.declarations[0].id),
-          transform(node.declarations[0].init as es.Expression)
-        ])
-      } else if (node.kind === 'const') {
-        return vector_to_list([
-          'constant_declaration',
-          transform(node.declarations[0].id),
-          transform(node.declarations[0].init as es.Expression)
-        ])
-      } else {
-        unreachable()
-        throw new ParseError('Invalid declaration kind')
-      }
     }
   ],
 

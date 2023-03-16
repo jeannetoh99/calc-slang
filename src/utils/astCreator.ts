@@ -1,9 +1,6 @@
 import * as es from '../estree'
 import { AllowedDeclarations, BlockExpression } from '../types'
 
-export const getVariableDecarationName = (decl: es.VariableDeclaration) =>
-  (decl.declarations[0].id as es.Identifier).name
-
 export const locationDummyNode = (line: number, column: number) =>
   literal('Dummy', { start: { line, column }, end: { line, column } })
 
@@ -21,30 +18,6 @@ export const literal = (
   value,
   loc
 })
-
-export const declaration = (
-  name: string,
-  kind: AllowedDeclarations,
-  init: es.Expression,
-  loc?: es.SourceLocation | null
-): es.VariableDeclaration => ({
-  type: 'VariableDeclaration',
-  declarations: [
-    {
-      type: 'VariableDeclarator',
-      id: identifier(name),
-      init
-    }
-  ],
-  kind,
-  loc
-})
-
-export const constantDeclaration = (
-  name: string,
-  init: es.Expression,
-  loc?: es.SourceLocation | null
-) => declaration(name, 'const', init, loc)
 
 export const callExpression = (
   callee: es.Expression,
@@ -160,26 +133,5 @@ export const blockExpression = (
 ): BlockExpression => ({
   type: 'BlockExpression',
   body,
-  loc
-})
-
-export const variableDeclaration = (
-  declarations: es.VariableDeclarator[],
-  loc?: es.SourceLocation | null
-): es.VariableDeclaration => ({
-  type: 'VariableDeclaration',
-  kind: 'const',
-  declarations,
-  loc
-})
-
-export const variableDeclarator = (
-  id: es.Pattern,
-  init: es.Expression,
-  loc?: es.SourceLocation | null
-): es.VariableDeclarator => ({
-  type: 'VariableDeclarator',
-  id,
-  init,
   loc
 })

@@ -118,10 +118,6 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
     return evaluateBinaryExpression(node.operator, left, right)
   },
 
-  VariableDeclaration: function* (node: es.VariableDeclaration, context: Context) {
-    throw new Error(`not supported yet: ${node.type}`)
-  },
-
   AssignmentExpression: function* (node: es.AssignmentExpression, context: Context) {
     throw new Error(`not supported yet: ${node.type}`)
   },

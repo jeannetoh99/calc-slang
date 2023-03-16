@@ -165,10 +165,6 @@ export class VariableRedeclaration extends RuntimeSourceError {
 
       let initStr = ''
 
-      if (this.node.type === 'VariableDeclaration') {
-        initStr = generate((this.node as es.VariableDeclaration).declarations[0].init)
-      }
-
       return `${elabStr} As such, you can just do\n\n\t${this.name} = ${initStr};\n`
     } else if (this.writable === false) {
       return `You will need to declare another variable, as ${this.name} is read-only.`

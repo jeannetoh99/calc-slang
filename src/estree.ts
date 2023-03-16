@@ -42,7 +42,6 @@ interface NodeMap {
   Pattern: Pattern
   Program: Program
   Statement: Statement
-  VariableDeclarator: VariableDeclarator
 }
 
 export type Node = NodeMap[keyof NodeMap]
@@ -83,7 +82,6 @@ export type Statement =
   | BlockStatement
   | EmptyStatement
   | ReturnStatement
-  | Declaration
 
 type BaseStatement = BaseNode
 
@@ -105,22 +103,6 @@ export interface ExpressionStatement extends BaseStatement {
 export interface ReturnStatement extends BaseStatement {
   type: 'ReturnStatement'
   argument?: Expression | null | undefined
-}
-
-export type Declaration = VariableDeclaration
-
-type BaseDeclaration = BaseStatement
-
-export interface VariableDeclaration extends BaseDeclaration {
-  type: 'VariableDeclaration'
-  declarations: Array<VariableDeclarator>
-  kind: 'var' | 'let' | 'const'
-}
-
-export interface VariableDeclarator extends BaseNode {
-  type: 'VariableDeclarator'
-  id: Pattern
-  init?: Expression | null | undefined
 }
 
 export interface ExpressionMap {
