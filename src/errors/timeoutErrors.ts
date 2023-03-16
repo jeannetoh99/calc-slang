@@ -1,5 +1,5 @@
 /* tslint:disable:max-classes-per-file */
-import * as es from 'estree'
+import * as es from '../estree'
 
 import { JSSLANG_PROPERTIES } from '../constants'
 import { ErrorSeverity, ErrorType } from '../types'

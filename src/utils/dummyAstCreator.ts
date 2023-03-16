@@ -1,4 +1,4 @@
-import * as es from 'estree'
+import * as es from '../estree'
 
 import { BlockExpression } from '../types'
 
@@ -47,15 +47,6 @@ export const dummyBlockStatement = (): es.BlockStatement => ({
   loc: dummyLocation()
 })
 
-export const dummyArrowFunctionExpression = (): es.ArrowFunctionExpression => ({
-  type: 'ArrowFunctionExpression',
-  expression: false,
-  generator: false,
-  params: [],
-  body: dummyBlockStatement(),
-  loc: dummyLocation()
-})
-
 export const dummyProgram = (): es.Program => ({
   type: 'Program',
   body: [],
@@ -97,22 +88,6 @@ export const mutateToCallExpression = (
 }
 */
 
-export const dummyLogicalExpression = (): es.LogicalExpression => ({
-  type: 'LogicalExpression',
-  operator: DUMMY_LOGICAL_OPERATOR,
-  left: dummyExpression(),
-  right: dummyExpression(),
-  loc: dummyLocation()
-})
-
-export const dummyConditionalExpression = (): es.ConditionalExpression => ({
-  type: 'ConditionalExpression',
-  test: dummyExpression(),
-  consequent: dummyExpression(),
-  alternate: dummyExpression(),
-  loc: dummyLocation()
-})
-
 export const dummyArrayExpression = (): es.ArrayExpression => ({
   type: 'ArrayExpression',
   elements: []
@@ -136,22 +111,6 @@ export const dummyUnaryExpression = (): es.UnaryExpression => ({
 
 // primitive: undefined is a possible value
 export const dummyPrimitive = (): es.Expression => dummyLiteral()
-
-export const dummyFunctionExpression = (): es.FunctionExpression => ({
-  type: 'FunctionExpression',
-  id: dummyIdentifier(),
-  params: [],
-  body: dummyBlockStatement(),
-  loc: dummyLocation()
-})
-
-export const dummyFunctionDeclaration = (): es.FunctionDeclaration => ({
-  type: 'FunctionDeclaration',
-  id: dummyIdentifier(),
-  params: [],
-  body: dummyBlockStatement(),
-  loc: dummyLocation()
-})
 
 export const dummyBlockExpression = (): BlockExpression => ({
   type: 'BlockExpression',

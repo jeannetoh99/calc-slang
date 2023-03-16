@@ -1,7 +1,7 @@
 /* tslint:disable: max-classes-per-file */
 /* tslint:disable:max-line-length */
 import { baseGenerator, generate } from 'astring'
-import * as es from 'estree'
+import * as es from '../estree'
 
 import { ErrorSeverity, ErrorType, SourceError, Value } from '../types'
 import { stringify } from '../utils/stringify'
@@ -165,10 +165,7 @@ export class VariableRedeclaration extends RuntimeSourceError {
 
       let initStr = ''
 
-      if (this.node.type === 'FunctionDeclaration') {
-        initStr =
-          '(' + (this.node as es.FunctionDeclaration).params.map(generate).join(',') + ') => {...'
-      } else if (this.node.type === 'VariableDeclaration') {
+      if (this.node.type === 'VariableDeclaration') {
         initStr = generate((this.node as es.VariableDeclaration).declarations[0].init)
       }
 

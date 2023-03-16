@@ -1,5 +1,5 @@
 import { Options } from 'acorn'
-import * as es from 'estree'
+import * as es from './estree'
 
 import { Chapter, Language, Variant } from './types'
 

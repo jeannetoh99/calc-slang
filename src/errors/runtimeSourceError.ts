@@ -1,4 +1,4 @@
-import * as es from 'estree'
+import * as es from '../estree'
 
 import { UNKNOWN_LOCATION } from '../constants'
 import { ErrorSeverity, ErrorType, SourceError } from '../types'

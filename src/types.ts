@@ -6,7 +6,7 @@
 /* tslint:disable:max-classes-per-file */
 
 import { SourceLocation } from 'acorn'
-import * as es from 'estree'
+import * as es from './estree'
 
 import { EnvTree } from './createContext'
 
@@ -226,14 +226,6 @@ export interface Directive extends es.ExpressionStatement {
   directive: string
 }
 
-/** For use in the substituter, to differentiate between a function declaration in the expression position,
- * which has an id, as opposed to function expressions.
- */
-export interface FunctionDeclarationExpression extends es.FunctionExpression {
-  id: es.Identifier
-  body: es.BlockStatement
-}
-
 /**
  * For use in the substituter: call expressions can be reduced into an expression if the block
  * only contains a single return statement; or a block, but has to be in the expression position.
@@ -267,9 +259,6 @@ export type TSBasicType = PrimitiveType | TSAllowedTypes | TSDisallowedTypes
 
 // Types for nodes used in type inference
 export type NodeWithInferredType<T extends es.Node> = InferredType & T
-
-export type FuncDeclWithInferredTypeAnnotation = NodeWithInferredType<es.FunctionDeclaration> &
-  TypedFuncDecl
 
 export type InferredType = Untypable | Typed | NotYetTyped
 

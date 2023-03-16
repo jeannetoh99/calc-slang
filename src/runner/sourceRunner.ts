@@ -1,4 +1,4 @@
-import * as es from 'estree'
+import * as es from '../estree'
 
 import { IOptions, Result } from '..'
 import { CannotFindModuleError } from '../errors/localImportErrors'
