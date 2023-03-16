@@ -11,11 +11,6 @@ export const dummyLocation = (): es.SourceLocation => ({
   end: { line: -1, column: -1 }
 })
 
-export const dummyIdentifier = (): es.Identifier => ({
-  type: 'Identifier',
-  name: DUMMY_STRING
-})
-
 export const dummyLiteral = (): es.Literal => ({
   type: 'Literal',
   value: DUMMY_STRING,

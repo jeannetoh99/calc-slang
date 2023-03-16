@@ -21,18 +21,13 @@
 // but it has the notable advantage of making ESTree much easier to use as
 // an end user.
 
-interface BaseNodeWithoutComments {
+interface BaseNode {
   // Every leaf interface that extends BaseNode must specify a type property.
   // The type property should be a string literal. For example, Identifier
   // has: `type: "Identifier"`
   type: string
   loc?: SourceLocation | null | undefined
   range?: [number, number] | undefined
-}
-
-interface BaseNode extends BaseNodeWithoutComments {
-  leadingComments?: Array<Comment> | undefined
-  trailingComments?: Array<Comment> | undefined
 }
 
 interface NodeMap {
@@ -45,11 +40,6 @@ interface NodeMap {
 }
 
 export type Node = NodeMap[keyof NodeMap]
-
-export interface Comment extends BaseNodeWithoutComments {
-  type: 'Line' | 'Block'
-  value: string
-}
 
 export interface SourceLocation {
   source?: string | null | undefined
@@ -68,7 +58,6 @@ export interface Program extends BaseNode {
   type: 'Program'
   sourceType: 'script' | 'module'
   body: Array<Directive | Statement>
-  comments?: Array<Comment> | undefined
 }
 
 export interface Directive extends BaseNode {
@@ -141,5 +130,3 @@ export interface SimpleLiteral extends BaseNode, BaseExpression {
 export type UnaryOperator = '!'
 
 export type BinaryOperator = '+' | '-' | '*' | '/'
-
-export type AssignmentOperator = '='

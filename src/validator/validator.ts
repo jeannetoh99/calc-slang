@@ -1,4 +1,3 @@
-import { ConstAssignment } from '../errors/errors'
 import * as es from '../estree'
 import { Context, NodeWithInferredType } from '../types'
 import { ancestor } from '../utils/walkers'
@@ -40,11 +39,6 @@ export function validateAndAnnotate(
   }
   ancestor(program, {
     Identifier: validateIdentifier,
-    Pattern(node: es.Pattern, ancestors: es.Node[]) {
-      if (node.type === 'Identifier') {
-        validateIdentifier(node, ancestors)
-      }
-    }
   })
 
   /*
