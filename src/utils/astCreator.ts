@@ -24,11 +24,6 @@ export const expressionStatement = (expression: es.Expression): es.ExpressionSta
   expression
 })
 
-export const blockStatement = (body: es.Statement[]): es.BlockStatement => ({
-  type: 'BlockStatement',
-  body
-})
-
 export const program = (body: es.Statement[]): es.Program => ({
   type: 'Program',
   sourceType: 'module',

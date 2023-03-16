@@ -32,12 +32,6 @@ export const dummyExpressionStatement = (): es.ExpressionStatement => ({
 
 export const dummyStatement = (): es.Statement => dummyExpressionStatement() as es.Statement
 
-export const dummyBlockStatement = (): es.BlockStatement => ({
-  type: 'BlockStatement',
-  body: [],
-  loc: dummyLocation()
-})
-
 export const dummyProgram = (): es.Program => ({
   type: 'Program',
   body: [],

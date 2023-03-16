@@ -2,7 +2,7 @@ import { LazyBuiltIn } from '../createContext'
 import {
   // CallingNonFunctionValue,
   // ExceptionError,
-  GetInheritedPropertyError,
+  GetInheritedPropertyError
   // InvalidNumberOfArguments
 } from '../errors/errors'
 // import { RuntimeSourceError } from '../errors/runtimeSourceError'

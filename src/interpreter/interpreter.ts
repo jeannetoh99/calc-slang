@@ -60,14 +60,6 @@ export const pushEnvironment = (context: Context, environment: Environment) => {
 
 export type Evaluator<T extends es.Node> = (node: T, context: Context) => IterableIterator<Value>
 
-function* evaluateBlockSatement(context: Context, node: es.BlockStatement) {
-  let result
-  for (const statement of node.body) {
-    result = yield* evaluate(statement, context)
-  }
-  return result
-}
-
 /**
  * WARNING: Do not use object literal shorthands, e.g.
  *   {
@@ -114,12 +106,11 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
     return yield* evaluate(node.expression, context)
   },
 
-  BlockStatement: function* (node: es.BlockStatement, context: Context) {
-    throw new Error(`not supported yet: ${node.type}`)
-  },
-
-  Program: function* (node: es.BlockStatement, context: Context) {
-    const result = yield* forceIt(yield* evaluateBlockSatement(context, node), context);
+  Program: function* (node: es.Program, context: Context) {
+    let result
+    for (const statement of node.body) {
+      result = yield* evaluate(statement, context);
+    }
     return result;
   }
 }

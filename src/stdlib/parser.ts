@@ -55,19 +55,12 @@ const transformers: ASTTransformers = new Map([
   ],
 
   [
-    'BlockStatement',
-    (node: es.BlockStatement) => {
-      return makeBlockIfNeeded(node.body)
-    }
-  ],
-
-  [
     'ExpressionStatement',
     (node: es.ExpressionStatement) => {
       return transform(node.expression)
     }
   ],
-  
+
   [
     'UnaryExpression',
     (node: es.UnaryExpression) => {

@@ -44,7 +44,7 @@ export function validateAndAnnotate(
       if (node.type === 'Identifier') {
         validateIdentifier(node, ancestors)
       }
-    },
+    }
   })
 
   /*

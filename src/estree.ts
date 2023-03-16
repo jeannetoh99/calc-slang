@@ -77,18 +77,12 @@ export interface Directive extends BaseNode {
   directive: string
 }
 
-export type Statement = ExpressionStatement | BlockStatement | EmptyStatement
+export type Statement = ExpressionStatement | EmptyStatement
 
 type BaseStatement = BaseNode
 
 export interface EmptyStatement extends BaseStatement {
   type: 'EmptyStatement'
-}
-
-export interface BlockStatement extends BaseStatement {
-  type: 'BlockStatement'
-  body: Array<Statement>
-  innerComments?: Array<Comment> | undefined
 }
 
 export interface ExpressionStatement extends BaseStatement {
