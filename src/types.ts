@@ -238,10 +238,6 @@ export interface BlockExpression extends es.BaseExpression {
 
 export type substituterNodes = es.Node | BlockExpression
 
-export type ContiguousArrayElementExpression = Exclude<es.ArrayExpression['elements'][0], null>
-
-export type ContiguousArrayElements = ContiguousArrayElementExpression[]
-
 // =======================================
 // Types used in type checker for type inference/type error checker for Source Typed variant
 // =======================================

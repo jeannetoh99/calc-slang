@@ -163,7 +163,7 @@ export class VariableRedeclaration extends RuntimeSourceError {
     if (this.writable === true) {
       const elabStr = `Since ${this.name} has already been declared, you can assign a value to it without re-declaring.`
 
-      let initStr = ''
+      const initStr = ''
 
       return `${elabStr} As such, you can just do\n\n\t${this.name} = ${initStr};\n`
     } else if (this.writable === false) {

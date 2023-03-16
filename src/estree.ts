@@ -77,11 +77,7 @@ export interface Directive extends BaseNode {
   directive: string
 }
 
-export type Statement =
-  | ExpressionStatement
-  | BlockStatement
-  | EmptyStatement
-  | ReturnStatement
+export type Statement = ExpressionStatement | BlockStatement | EmptyStatement
 
 type BaseStatement = BaseNode
 
@@ -100,17 +96,9 @@ export interface ExpressionStatement extends BaseStatement {
   expression: Expression
 }
 
-export interface ReturnStatement extends BaseStatement {
-  type: 'ReturnStatement'
-  argument?: Expression | null | undefined
-}
-
 export interface ExpressionMap {
-  ArrayExpression: ArrayExpression
-  AssignmentExpression: AssignmentExpression
   BinaryExpression: BinaryExpression
   CallExpression: CallExpression
-  ChainExpression: ChainExpression
   Identifier: Identifier
   Literal: Literal
   SequenceExpression: SequenceExpression
@@ -120,18 +108,6 @@ export interface ExpressionMap {
 export type Expression = ExpressionMap[keyof ExpressionMap]
 
 export type BaseExpression = BaseNode
-
-type ChainElement = SimpleCallExpression
-
-export interface ChainExpression extends BaseExpression {
-  type: 'ChainExpression'
-  expression: ChainElement
-}
-
-export interface ArrayExpression extends BaseExpression {
-  type: 'ArrayExpression'
-  elements: Array<Expression | null>
-}
 
 export interface SequenceExpression extends BaseExpression {
   type: 'SequenceExpression'
@@ -149,13 +125,6 @@ export interface BinaryExpression extends BaseExpression {
   type: 'BinaryExpression'
   operator: BinaryOperator
   left: Expression
-  right: Expression
-}
-
-export interface AssignmentExpression extends BaseExpression {
-  type: 'AssignmentExpression'
-  operator: AssignmentOperator
-  left: Pattern
   right: Expression
 }
 

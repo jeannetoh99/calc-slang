@@ -34,35 +34,27 @@ export function validateAndAnnotate(
       const map = accessedBeforeDeclarationMap.get(a)
       if (map?.has(name)) {
         map.get(name)!.accessedBeforeDeclaration = true
-        if (lastAncestor.type === 'AssignmentExpression' && lastAncestor.left === id) {
-          if (map.get(name)!.isConstant) {
-            context.errors.push(new ConstAssignment(lastAncestor, name))
-          }
-        }
         break
       }
     }
   }
-  ancestor(
-    program,
-    {
-      Identifier: validateIdentifier,
-      Pattern(node: es.Pattern, ancestors: es.Node[]) {
-        if (node.type === 'Identifier') {
-          validateIdentifier(node, ancestors)
-        }
-      },
-      CallExpression(call: es.CallExpression, ancestors: es.Node[]) {
-        for (let i = ancestors.length - 1; i >= 0; i--) {
-          const a = ancestors[i]
-          if (scopeHasCallExpressionMap.has(a)) {
-            scopeHasCallExpressionMap.set(a, true)
-            break
-          }
-        }
+  ancestor(program, {
+    Identifier: validateIdentifier,
+    Pattern(node: es.Pattern, ancestors: es.Node[]) {
+      if (node.type === 'Identifier') {
+        validateIdentifier(node, ancestors)
       }
     },
-  )
+    CallExpression(call: es.CallExpression, ancestors: es.Node[]) {
+      for (let i = ancestors.length - 1; i >= 0; i--) {
+        const a = ancestors[i]
+        if (scopeHasCallExpressionMap.has(a)) {
+          scopeHasCallExpressionMap.set(a, true)
+          break
+        }
+      }
+    }
+  })
 
   /*
   simple(program, {

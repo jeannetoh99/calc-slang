@@ -1,6 +1,6 @@
 import * as es from '../estree'
 import { parse as sourceParse } from '../parser/parser'
-import { Context, ContiguousArrayElements, Value } from '../types'
+import { Context, Value } from '../types'
 import { oneLine } from '../utils/formatters'
 import { vector_to_list } from './list'
 
@@ -69,13 +69,6 @@ const transformers: ASTTransformers = new Map([
   ],
 
   [
-    'ReturnStatement',
-    (node: es.ReturnStatement) => {
-      return vector_to_list(['return_statement', transform(node.argument as es.Expression)])
-    }
-  ],
-
-  [
     'CallExpression',
     (node: es.CallExpression) => {
       return vector_to_list([
@@ -119,37 +112,6 @@ const transformers: ASTTransformers = new Map([
     }
   ],
 
-  [
-    'ArrayExpression',
-    (node: es.ArrayExpression) => {
-      return vector_to_list([
-        'array_expression',
-        vector_to_list((node.elements as ContiguousArrayElements).map(transform))
-      ])
-    }
-  ],
-
-  [
-    'AssignmentExpression',
-    (node: es.AssignmentExpression) => {
-      if (node.left.type === 'Identifier') {
-        return vector_to_list([
-          'assignment',
-          transform(node.left as es.Identifier),
-          transform(node.right)
-        ])
-      } else if (node.left.type === 'MemberExpression') {
-        return vector_to_list([
-          'object_assignment',
-          transform(node.left as es.Expression),
-          transform(node.right)
-        ])
-      } else {
-        unreachable()
-        throw new ParseError('Invalid assignment')
-      }
-    }
-  ]
 ])
 
 function transform(node: es.Node) {

@@ -53,12 +53,6 @@ export const dummyProgram = (): es.Program => ({
   sourceType: 'module'
 })
 
-export const dummyReturnStatement = (): es.ReturnStatement => ({
-  type: 'ReturnStatement',
-  argument: dummyExpression(),
-  loc: dummyLocation()
-})
-
 /*
 export const property = (): es.Property => ({
   type: 'Property',
@@ -86,11 +80,6 @@ export const mutateToCallExpression = (
   node.arguments = args
 }
 */
-
-export const dummyArrayExpression = (): es.ArrayExpression => ({
-  type: 'ArrayExpression',
-  elements: []
-})
 
 export const dummyBinaryExpression = (): es.BinaryExpression => ({
   type: 'BinaryExpression',

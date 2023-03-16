@@ -1,5 +1,5 @@
 import * as es from '../estree'
-import { AllowedDeclarations, BlockExpression } from '../types'
+import { BlockExpression } from '../types'
 
 export const locationDummyNode = (line: number, column: number) =>
   literal('Dummy', { start: { line, column }, end: { line, column } })
@@ -58,44 +58,11 @@ export const mutateToCallExpression = (
   node.arguments = args
 }
 
-export const mutateToAssignmentExpression = (
-  node: es.Node,
-  left: es.Pattern,
-  right: es.Expression
-) => {
-  node.type = 'AssignmentExpression'
-  node = node as es.AssignmentExpression
-  node.operator = '='
-  node.left = left
-  node.right = right
-}
-
 export const mutateToExpressionStatement = (node: es.Node, expr: es.Expression) => {
   node.type = 'ExpressionStatement'
   node = node as es.ExpressionStatement
   node.expression = expr
 }
-
-export const mutateToReturnStatement = (node: es.Node, expr: es.Expression) => {
-  node.type = 'ReturnStatement'
-  node = node as es.ReturnStatement
-  node.argument = expr
-}
-
-export const arrayExpression = (elements: es.Expression[]): es.ArrayExpression => ({
-  type: 'ArrayExpression',
-  elements
-})
-
-export const assignmentExpression = (
-  left: es.Identifier,
-  right: es.Expression
-): es.AssignmentExpression => ({
-  type: 'AssignmentExpression',
-  operator: '=',
-  left,
-  right
-})
 
 export const binaryExpression = (
   operator: es.BinaryOperator,

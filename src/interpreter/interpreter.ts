@@ -86,10 +86,6 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
     return node.value
   },
 
-  ArrayExpression: function* (node: es.ArrayExpression, context: Context) {
-    throw new Error(`not supported yet: ${node.type}`)
-  },
-
   Identifier: function* (node: es.Identifier, context: Context) {
     throw new Error(`not supported yet: ${node.type}`)
   },
@@ -116,10 +112,6 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
       return handleRuntimeError(context, error)
     }
     return evaluateBinaryExpression(node.operator, left, right)
-  },
-
-  AssignmentExpression: function* (node: es.AssignmentExpression, context: Context) {
-    throw new Error(`not supported yet: ${node.type}`)
   },
 
   ExpressionStatement: function* (node: es.ExpressionStatement, context: Context) {
