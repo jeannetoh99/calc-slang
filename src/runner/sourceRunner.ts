@@ -1,6 +1,6 @@
 import { IOptions, Result } from '..'
-import { CannotFindModuleError } from '../errors/localImportErrors'
 import * as es from '../ast'
+import { CannotFindModuleError } from '../errors/localImportErrors'
 import { evaluate } from '../interpreter/interpreter'
 import { parse } from '../parser/parser'
 import { PreemptiveScheduler } from '../schedulers'

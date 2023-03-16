@@ -3,6 +3,7 @@ acorn.Node differs from ast.Node, so we have this file to handle the `as any` ty
  */
 
 import * as walkers from 'acorn-walk'
+
 import { Node } from '../ast'
 export type FullWalkerCallback<TState> = (node: Node, state: TState, type: string) => void
 

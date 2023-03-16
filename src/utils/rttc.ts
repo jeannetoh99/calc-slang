@@ -1,5 +1,5 @@
-import { RuntimeSourceError } from '../errors/runtimeSourceError'
 import * as es from '../ast'
+import { RuntimeSourceError } from '../errors/runtimeSourceError'
 import { ErrorSeverity, ErrorType, Value } from '../types'
 
 const LHS = ' on left hand side of operation'

@@ -5,8 +5,8 @@
 
 /* tslint:disable:max-classes-per-file */
 
-import { EnvTree } from './createContext'
 import * as es from './ast'
+import { EnvTree } from './createContext'
 
 /**
  * Defines functions that act as built-ins, but might rely on

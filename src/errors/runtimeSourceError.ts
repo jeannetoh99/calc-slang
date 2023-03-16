@@ -1,5 +1,5 @@
-import { UNKNOWN_LOCATION } from '../constants'
 import * as es from '../ast'
+import { UNKNOWN_LOCATION } from '../constants'
 import { ErrorSeverity, ErrorType, SourceError } from '../types'
 
 export class RuntimeSourceError implements SourceError {

@@ -1,6 +1,6 @@
-import { SourceLocation } from './ast'
 import { SourceMapConsumer } from 'source-map'
 
+import { SourceLocation } from './ast'
 import createContext from './createContext'
 import { InterruptedError } from './errors/errors'
 // import { findDeclarationNode, findIdentifierNode } from './finder'
