@@ -1,4 +1,4 @@
-import * as es from '../estree'
+import * as es from '../ast'
 import { parse as sourceParse } from '../parser/parser'
 import { Context, Value } from '../types'
 import { oneLine } from '../utils/formatters'

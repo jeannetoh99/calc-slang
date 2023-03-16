@@ -1,9 +1,9 @@
 /*
-acorn.Node differs from estree.Node, so we have this file to handle the `as any` type coercions.
+acorn.Node differs from ast.Node, so we have this file to handle the `as any` type coercions.
  */
 
 import * as walkers from 'acorn-walk'
-import { Node } from 'estree'
+import { Node } from '../ast'
 export type FullWalkerCallback<TState> = (node: Node, state: TState, type: string) => void
 
 type FullAncestorWalkerCallback<TState> = (

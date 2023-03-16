@@ -1,4 +1,4 @@
-import * as es from '../estree'
+import * as es from '../ast'
 import { Context, NodeWithInferredType } from '../types'
 import { ancestor } from '../utils/walkers'
 
@@ -38,7 +38,7 @@ export function validateAndAnnotate(
     }
   }
   ancestor(program, {
-    Identifier: validateIdentifier,
+    Identifier: validateIdentifier
   })
 
   /*

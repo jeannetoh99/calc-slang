@@ -5,7 +5,7 @@ import { ParseTree } from 'antlr4ts/tree/ParseTree'
 import { RuleNode } from 'antlr4ts/tree/RuleNode'
 import { TerminalNode } from 'antlr4ts/tree/TerminalNode'
 
-import * as es from '../estree'
+import * as es from '../ast'
 import { CalcLexer } from '../lang/CalcLexer'
 import {
   AdditionContext,
@@ -46,7 +46,7 @@ export class DisallowedConstructError implements SourceError {
   }
 
   /**
-   * Converts estree node.type into english
+   * Converts ast node.type into english
    * e.g. ThisExpression -> 'this' expressions
    *      Property -> Properties
    *      EmptyStatement -> Empty Statements

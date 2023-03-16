@@ -1,5 +1,5 @@
 /* tslint:disable: max-classes-per-file */
-import * as es from '../estree'
+import * as es from '../ast'
 import { RuntimeSourceError } from './runtimeSourceError'
 
 export class ModuleConnectionError extends RuntimeSourceError {

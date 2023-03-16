@@ -5,10 +5,8 @@
 
 /* tslint:disable:max-classes-per-file */
 
-import { SourceLocation } from 'acorn'
-
 import { EnvTree } from './createContext'
-import * as es from './estree'
+import * as es from './ast'
 
 /**
  * Defines functions that act as built-ins, but might rely on
@@ -48,14 +46,6 @@ export interface Rule<T extends es.Node> {
   checkers: {
     [name: string]: (node: T, ancestors: es.Node[]) => SourceError[]
   }
-}
-
-export interface Comment {
-  type: 'Line' | 'Block'
-  value: string
-  start: number
-  end: number
-  loc: SourceLocation | undefined
 }
 
 export type ExecutionMethod = 'native' | 'interpreter' | 'auto'
@@ -214,16 +204,6 @@ export type Result = Suspended | SuspendedNonDet | Finished | Error
 
 export interface Scheduler {
   run(it: IterableIterator<Value>, context: Context): Promise<Result>
-}
-
-/*
-	Although the ESTree specifications supposedly provide a Directive interface, the index file does not seem to export it.
-	As such this interface was created here to fulfil the same purpose.
- */
-export interface Directive extends es.ExpressionStatement {
-  type: 'ExpressionStatement'
-  expression: es.Literal
-  directive: string
 }
 
 /**

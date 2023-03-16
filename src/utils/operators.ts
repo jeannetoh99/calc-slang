@@ -6,7 +6,7 @@ import {
   // InvalidNumberOfArguments
 } from '../errors/errors'
 // import { RuntimeSourceError } from '../errors/runtimeSourceError'
-import { BinaryOperator, UnaryOperator } from '../estree'
+import { BinaryOperator, UnaryOperator } from '../ast'
 import { Thunk } from '../types'
 import { locationDummyNode } from './astCreator'
 import * as create from './astCreator'
