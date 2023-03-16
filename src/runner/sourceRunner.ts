@@ -1,7 +1,6 @@
-import * as es from '../estree'
-
 import { IOptions, Result } from '..'
 import { CannotFindModuleError } from '../errors/localImportErrors'
+import * as es from '../estree'
 import { evaluate } from '../interpreter/interpreter'
 import { hoistAndMergeImports } from '../localImports/transformers/hoistAndMergeImports'
 import { removeExports } from '../localImports/transformers/removeExports'

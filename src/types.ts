@@ -6,9 +6,9 @@
 /* tslint:disable:max-classes-per-file */
 
 import { SourceLocation } from 'acorn'
-import * as es from './estree'
 
 import { EnvTree } from './createContext'
+import * as es from './estree'
 
 /**
  * Defines functions that act as built-ins, but might rely on

@@ -1,5 +1,4 @@
 import * as es from '../estree'
-
 import { BlockExpression } from '../types'
 
 const DUMMY_STRING = '__DUMMY__'

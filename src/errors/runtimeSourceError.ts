@@ -1,6 +1,5 @@
-import * as es from '../estree'
-
 import { UNKNOWN_LOCATION } from '../constants'
+import * as es from '../estree'
 import { ErrorSeverity, ErrorType, SourceError } from '../types'
 
 export class RuntimeSourceError implements SourceError {

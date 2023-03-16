@@ -1,7 +1,6 @@
 /* tslint:disable:max-classes-per-file */
-import * as es from '../estree'
-
 import { RuntimeSourceError } from '../errors/runtimeSourceError'
+import * as es from '../estree'
 import { Context, Environment, Value } from '../types'
 import { evaluateBinaryExpression, evaluateUnaryExpression } from '../utils/operators'
 import * as rttc from '../utils/rttc'

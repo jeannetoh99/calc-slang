@@ -1,5 +1,4 @@
 import * as es from '../estree'
-
 import { AllowedDeclarations, BlockExpression } from '../types'
 
 export const getVariableDecarationName = (decl: es.VariableDeclaration) =>

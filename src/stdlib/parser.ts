@@ -1,5 +1,4 @@
 import * as es from '../estree'
-
 import { parse as sourceParse } from '../parser/parser'
 import { Context, ContiguousArrayElements, Value } from '../types'
 import { oneLine } from '../utils/formatters'
@@ -41,10 +40,7 @@ function makeBlockIfNeeded(exs: es.Node[]) {
 // checks if sequence has declaration at toplevel
 // (outside of any block)
 function hasDeclarationAtToplevel(exs: es.Node[]) {
-  return exs.reduce(
-    (b, ex) => b || ex.type === 'VariableDeclaration',
-    false
-  )
+  return exs.reduce((b, ex) => b || ex.type === 'VariableDeclaration', false)
 }
 
 type ASTTransformers = Map<string, (node: es.Node) => Value>
@@ -117,7 +113,7 @@ const transformers: ASTTransformers = new Map([
     (node: es.UnaryExpression) => {
       return vector_to_list([
         'unary_operator_combination',
-        node.operator === '-' ? '-unary' : node.operator,
+        node.operator,
         transform(node.argument)
       ])
     }
@@ -179,7 +175,7 @@ const transformers: ASTTransformers = new Map([
         throw new ParseError('Invalid assignment')
       }
     }
-  ],
+  ]
 ])
 
 function transform(node: es.Node) {

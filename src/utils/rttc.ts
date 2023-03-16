@@ -1,6 +1,5 @@
-import * as es from '../estree'
-
 import { RuntimeSourceError } from '../errors/runtimeSourceError'
+import * as es from '../estree'
 import { ErrorSeverity, ErrorType, Value } from '../types'
 
 const LHS = ' on left hand side of operation'
@@ -46,9 +45,7 @@ const isObject = (v: Value) => typeOf(v) === 'object'
 const isArray = (v: Value) => typeOf(v) === 'array'
 
 export const checkUnaryExpression = (node: es.Node, operator: es.UnaryOperator, value: Value) => {
-  if ((operator === '+' || operator === '-') && !isNumber(value)) {
-    return new TypeError(node, '', 'number', typeOf(value))
-  } else if (operator === '!' && !isBool(value)) {
+  if (operator === '!' && !isBool(value)) {
     return new TypeError(node, '', 'boolean', typeOf(value))
   } else {
     return undefined
@@ -65,27 +62,13 @@ export const checkBinaryExpression = (
     case '-':
     case '*':
     case '/':
-    case '%':
+    case '+':
       if (!isNumber(left)) {
         return new TypeError(node, LHS, 'number', typeOf(left))
       } else if (!isNumber(right)) {
         return new TypeError(node, RHS, 'number', typeOf(right))
       } else {
         return
-      }
-    case '+':
-    case '<':
-    case '<=':
-    case '>':
-    case '>=':
-    case '!==':
-    case '===':
-      if (isNumber(left)) {
-        return isNumber(right) ? undefined : new TypeError(node, RHS, 'number', typeOf(right))
-      } else if (isString(left)) {
-        return isString(right) ? undefined : new TypeError(node, RHS, 'string', typeOf(right))
-      } else {
-        return new TypeError(node, LHS, 'string or number', typeOf(left))
       }
     default:
       return

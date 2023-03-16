@@ -1,6 +1,5 @@
-import * as es from '../estree'
-
 import { ConstAssignment } from '../errors/errors'
+import * as es from '../estree'
 import { Context, NodeWithInferredType } from '../types'
 import { getVariableDecarationName } from '../utils/astCreator'
 import { ancestor, base, FullWalkerCallback } from '../utils/walkers'
@@ -33,7 +32,7 @@ export function validateAndAnnotate(
   // initialise scope of variables
   ancestor(program as es.Node, {
     Program: processBlock,
-    BlockStatement: processBlock,
+    BlockStatement: processBlock
   })
 
   function validateIdentifier(id: es.Identifier, ancestors: es.Node[]) {
