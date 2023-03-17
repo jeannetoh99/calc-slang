@@ -1,6 +1,4 @@
-import { Options } from 'acorn'
-import * as es from 'estree'
-
+import * as es from './ast'
 import { Chapter, Language, Variant } from './types'
 
 export const CUT = 'cut' // cut operator for Source 4.3
@@ -26,5 +24,3 @@ export const JSSLANG_PROPERTIES = {
 }
 
 export const sourceLanguages: Language[] = [{ chapter: Chapter.CALC, variant: Variant.DEFAULT }]
-
-export const ACORN_PARSE_OPTIONS: Options = { ecmaVersion: 2015 }

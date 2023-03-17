@@ -1,8 +1,8 @@
 /* tslint:disable: max-classes-per-file */
 /* tslint:disable:max-line-length */
 import { baseGenerator, generate } from 'astring'
-import * as es from 'estree'
 
+import * as es from '../ast'
 import { ErrorSeverity, ErrorType, SourceError, Value } from '../types'
 import { stringify } from '../utils/stringify'
 import { RuntimeSourceError } from './runtimeSourceError'
@@ -36,64 +36,64 @@ export class ExceptionError implements SourceError {
   }
 }
 
-export class MaximumStackLimitExceeded extends RuntimeSourceError {
-  public static MAX_CALLS_TO_SHOW = 3
+// export class MaximumStackLimitExceeded extends RuntimeSourceError {
+//   public static MAX_CALLS_TO_SHOW = 3
 
-  private customGenerator = {
-    ...baseGenerator,
-    CallExpression(node: any, state: any) {
-      state.write(generate(node.callee))
-      state.write('(')
-      const argsRepr = node.arguments.map((arg: any) => stringify(arg.value))
-      state.write(argsRepr.join(', '))
-      state.write(')')
-    }
-  }
+//   private customGenerator = {
+//     ...baseGenerator,
+//     CallExpression(node: any, state: any) {
+//       state.write(generate(node.callee))
+//       state.write('(')
+//       const argsRepr = node.arguments.map((arg: any) => stringify(arg.value))
+//       state.write(argsRepr.join(', '))
+//       state.write(')')
+//     }
+//   }
 
-  constructor(node: es.Node, private calls: es.CallExpression[]) {
-    super(node)
-  }
+//   constructor(node: es.Node, private calls: es.CallExpression[]) {
+//     super(node)
+//   }
 
-  public explain() {
-    const repr = (call: es.CallExpression) => generate(call, { generator: this.customGenerator })
-    return (
-      'Maximum call stack size exceeded\n  ' + this.calls.map(call => repr(call) + '..').join('  ')
-    )
-  }
+//   public explain() {
+//     const repr = (call: es.CallExpression) => generate(call, { generator: this.customGenerator })
+//     return (
+//       'Maximum call stack size exceeded\n  ' + this.calls.map(call => repr(call) + '..').join('  ')
+//     )
+//   }
 
-  public elaborate() {
-    return 'TODO'
-  }
-}
+//   public elaborate() {
+//     return 'TODO'
+//   }
+// }
 
-export class CallingNonFunctionValue extends RuntimeSourceError {
-  constructor(private callee: Value, private node: es.Node) {
-    super(node)
-  }
+// export class CallingNonFunctionValue extends RuntimeSourceError {
+//   constructor(private callee: Value, private node: es.Node) {
+//     super(node)
+//   }
 
-  public explain() {
-    return `Calling non-function value ${stringify(this.callee)}.`
-  }
+//   public explain() {
+//     return `Calling non-function value ${stringify(this.callee)}.`
+//   }
 
-  public elaborate() {
-    const calleeVal = this.callee
-    const calleeStr = stringify(calleeVal)
-    let argStr = ''
+//   public elaborate() {
+//     const calleeVal = this.callee
+//     const calleeStr = stringify(calleeVal)
+//     let argStr = ''
 
-    const callArgs = (this.node as es.CallExpression).arguments
+//     const callArgs = (this.node as es.CallExpression).arguments
 
-    argStr = callArgs.map(generate).join(', ')
+//     argStr = callArgs.map(generate).join(', ')
 
-    const elabStr = `Because ${calleeStr} is not a function, you cannot run ${calleeStr}(${argStr}).`
-    const multStr = `If you were planning to perform multiplication by ${calleeStr}, you need to use the * operator.`
+//     const elabStr = `Because ${calleeStr} is not a function, you cannot run ${calleeStr}(${argStr}).`
+//     const multStr = `If you were planning to perform multiplication by ${calleeStr}, you need to use the * operator.`
 
-    if (Number.isFinite(calleeVal)) {
-      return `${elabStr} ${multStr}`
-    } else {
-      return elabStr
-    }
-  }
-}
+//     if (Number.isFinite(calleeVal)) {
+//       return `${elabStr} ${multStr}`
+//     } else {
+//       return elabStr
+//     }
+//   }
+// }
 
 export class UndefinedVariable extends RuntimeSourceError {
   constructor(public name: string, node: es.Node) {
@@ -123,32 +123,32 @@ export class UnassignedVariable extends RuntimeSourceError {
   }
 }
 
-export class InvalidNumberOfArguments extends RuntimeSourceError {
-  private calleeStr: string
+// export class InvalidNumberOfArguments extends RuntimeSourceError {
+//   private calleeStr: string
 
-  constructor(
-    node: es.Node,
-    private expected: number,
-    private got: number,
-    private hasVarArgs = false
-  ) {
-    super(node)
-    this.calleeStr = generate((node as es.CallExpression).callee)
-  }
+//   constructor(
+//     node: es.Node,
+//     private expected: number,
+//     private got: number,
+//     private hasVarArgs = false
+//   ) {
+//     super(node)
+//     this.calleeStr = generate((node as es.CallExpression).callee)
+//   }
 
-  public explain() {
-    return `Expected ${this.expected} ${this.hasVarArgs ? 'or more ' : ''}arguments, but got ${
-      this.got
-    }.`
-  }
+//   public explain() {
+//     return `Expected ${this.expected} ${this.hasVarArgs ? 'or more ' : ''}arguments, but got ${
+//       this.got
+//     }.`
+//   }
 
-  public elaborate() {
-    const calleeStr = this.calleeStr
-    const pluralS = this.expected === 1 ? '' : 's'
+//   public elaborate() {
+//     const calleeStr = this.calleeStr
+//     const pluralS = this.expected === 1 ? '' : 's'
 
-    return `Try calling function ${calleeStr} again, but with ${this.expected} argument${pluralS} instead. Remember that arguments are separated by a ',' (comma).`
-  }
-}
+//     return `Try calling function ${calleeStr} again, but with ${this.expected} argument${pluralS} instead. Remember that arguments are separated by a ',' (comma).`
+//   }
+// }
 
 export class VariableRedeclaration extends RuntimeSourceError {
   constructor(private node: es.Node, private name: string, private writable?: boolean) {
@@ -163,14 +163,7 @@ export class VariableRedeclaration extends RuntimeSourceError {
     if (this.writable === true) {
       const elabStr = `Since ${this.name} has already been declared, you can assign a value to it without re-declaring.`
 
-      let initStr = ''
-
-      if (this.node.type === 'FunctionDeclaration') {
-        initStr =
-          '(' + (this.node as es.FunctionDeclaration).params.map(generate).join(',') + ') => {...'
-      } else if (this.node.type === 'VariableDeclaration') {
-        initStr = generate((this.node as es.VariableDeclaration).declarations[0].init)
-      }
+      const initStr = ''
 
       return `${elabStr} As such, you can just do\n\n\t${this.name} = ${initStr};\n`
     } else if (this.writable === false) {

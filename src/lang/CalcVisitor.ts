@@ -4,7 +4,6 @@ import { ParseTreeVisitor } from 'antlr4ts/tree/ParseTreeVisitor'
 
 import { NumberContext } from './CalcParser'
 import { ParenthesesContext } from './CalcParser'
-import { PowerContext } from './CalcParser'
 import { MultiplicationContext } from './CalcParser'
 import { DivisionContext } from './CalcParser'
 import { AdditionContext } from './CalcParser'
@@ -35,14 +34,6 @@ export interface CalcVisitor<Result> extends ParseTreeVisitor<Result> {
    * @return the visitor result
    */
   visitParentheses?: (ctx: ParenthesesContext) => Result
-
-  /**
-   * Visit a parse tree produced by the `Power`
-   * labeled alternative in `CalcParser.expression`.
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  visitPower?: (ctx: PowerContext) => Result
 
   /**
    * Visit a parse tree produced by the `Multiplication`

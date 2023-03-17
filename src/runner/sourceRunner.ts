@@ -1,11 +1,7 @@
-import * as es from 'estree'
-
 import { IOptions, Result } from '..'
+import * as es from '../ast'
 import { CannotFindModuleError } from '../errors/localImportErrors'
 import { evaluate } from '../interpreter/interpreter'
-import { hoistAndMergeImports } from '../localImports/transformers/hoistAndMergeImports'
-import { removeExports } from '../localImports/transformers/removeExports'
-import { removeNonSourceModuleImports } from '../localImports/transformers/removeNonSourceModuleImports'
 import { parse } from '../parser/parser'
 import { PreemptiveScheduler } from '../schedulers'
 import { Context, Scheduler, Variant } from '../types'
@@ -44,13 +40,6 @@ export async function sourceRunner(
   if (!program) {
     return resolvedErrorPromise
   }
-
-  // TODO: Remove this after runners have been refactored.
-  //       These should be done as part of the local imports
-  //       preprocessing step.
-  removeExports(program)
-  removeNonSourceModuleImports(program)
-  hoistAndMergeImports(program)
 
   validateAndAnnotate(program, context)
   context.unTypecheckedCode.push(code)

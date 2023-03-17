@@ -4,8 +4,8 @@ import { ErrorNode } from 'antlr4ts/tree/ErrorNode'
 import { ParseTree } from 'antlr4ts/tree/ParseTree'
 import { RuleNode } from 'antlr4ts/tree/RuleNode'
 import { TerminalNode } from 'antlr4ts/tree/TerminalNode'
-import * as es from 'estree'
 
+import * as es from '../ast'
 import { CalcLexer } from '../lang/CalcLexer'
 import {
   AdditionContext,
@@ -15,7 +15,6 @@ import {
   MultiplicationContext,
   NumberContext,
   ParenthesesContext,
-  PowerContext,
   StartContext,
   SubtractionContext
 } from '../lang/CalcParser'
@@ -47,7 +46,7 @@ export class DisallowedConstructError implements SourceError {
   }
 
   /**
-   * Converts estree node.type into english
+   * Converts ast node.type into english
    * e.g. ThisExpression -> 'this' expressions
    *      Property -> Properties
    *      EmptyStatement -> Empty Statements
@@ -132,16 +131,6 @@ class ExpressionGenerator implements CalcVisitor<es.Expression> {
   visitParentheses(ctx: ParenthesesContext): es.Expression {
     return this.visit(ctx.expression())
   }
-  visitPower(ctx: PowerContext): es.Expression {
-    return {
-      type: 'BinaryExpression',
-      operator: '^',
-      left: this.visit(ctx._left),
-      right: this.visit(ctx._right),
-      loc: contextToLocation(ctx)
-    }
-  }
-
   visitMultiplication(ctx: MultiplicationContext): es.Expression {
     return {
       type: 'BinaryExpression',

@@ -1,6 +1,5 @@
 /* tslint:disable:max-classes-per-file */
-import * as es from 'estree'
-
+import * as es from '../ast'
 import { RuntimeSourceError } from '../errors/runtimeSourceError'
 import { Context, Environment, Value } from '../types'
 import { evaluateBinaryExpression, evaluateUnaryExpression } from '../utils/operators'
@@ -61,14 +60,6 @@ export const pushEnvironment = (context: Context, environment: Environment) => {
 
 export type Evaluator<T extends es.Node> = (node: T, context: Context) => IterableIterator<Value>
 
-function* evaluateBlockSatement(context: Context, node: es.BlockStatement) {
-  let result
-  for (const statement of node.body) {
-    result = yield* evaluate(statement, context)
-  }
-  return result
-}
-
 /**
  * WARNING: Do not use object literal shorthands, e.g.
  *   {
@@ -87,37 +78,7 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
     return node.value
   },
 
-  TemplateLiteral: function* (node: es.TemplateLiteral) {
-    // Expressions like `${1}` are not allowed, so no processing needed
-    return node.quasis[0].value.cooked
-  },
-
-  ThisExpression: function* (node: es.ThisExpression, context: Context) {
-    throw new Error(`not supported yet: ${node.type}`)
-  },
-
-  ArrayExpression: function* (node: es.ArrayExpression, context: Context) {
-    throw new Error(`not supported yet: ${node.type}`)
-  },
-
-
-  FunctionExpression: function* (node: es.FunctionExpression, context: Context) {
-    throw new Error(`not supported yet: ${node.type}`)
-  },
-
-  ArrowFunctionExpression: function* (node: es.ArrowFunctionExpression, context: Context) {
-    throw new Error(`not supported yet: ${node.type}`)
-  },
-
   Identifier: function* (node: es.Identifier, context: Context) {
-    throw new Error(`not supported yet: ${node.type}`)
-  },
-
-  CallExpression: function* (node: es.CallExpression, context: Context) {
-    throw new Error(`not supported yet: ${node.type}`)
-  },
-
-  NewExpression: function* (node: es.NewExpression, context: Context) {
     throw new Error(`not supported yet: ${node.type}`)
   },
 
@@ -141,62 +102,15 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
     return evaluateBinaryExpression(node.operator, left, right)
   },
 
-  ConditionalExpression: function* (node: es.ConditionalExpression, context: Context) {
-    throw new Error(`not supported yet: ${node.type}`)
-  },
-
-  LogicalExpression: function* (node: es.LogicalExpression, context: Context) {
-    throw new Error(`not supported yet: ${node.type}`)
-  },
-
-  VariableDeclaration: function* (node: es.VariableDeclaration, context: Context) {
-    throw new Error(`not supported yet: ${node.type}`)
-  },
-
-  ContinueStatement: function* (_node: es.ContinueStatement, _context: Context) {
-    throw new Error(`not supported yet: ${_node.type}`)
-  },
-
-  BreakStatement: function* (_node: es.BreakStatement, _context: Context) {
-    throw new Error(`not supported yet: ${_node.type}`)
-  },
-
-  ForStatement: function* (node: es.ForStatement, context: Context) {
-    throw new Error(`not supported yet: ${node.type}`)
-  },
-
-
-  AssignmentExpression: function* (node: es.AssignmentExpression, context: Context) {
-    throw new Error(`not supported yet: ${node.type}`)
-  },
-
-  FunctionDeclaration: function* (node: es.FunctionDeclaration, context: Context) {
-    throw new Error(`not supported yet: ${node.type}`)
-  },
-
-  IfStatement: function* (node: es.IfStatement | es.ConditionalExpression, context: Context) {
-    throw new Error(`not supported yet: ${node.type}`)
-  },
-
   ExpressionStatement: function* (node: es.ExpressionStatement, context: Context) {
     return yield* evaluate(node.expression, context)
   },
 
-  ReturnStatement: function* (node: es.ReturnStatement, context: Context) {
-    throw new Error(`not supported yet: ${node.type}`)
-  },
-
-  WhileStatement: function* (node: es.WhileStatement, context: Context) {
-    throw new Error(`not supported yet: ${node.type}`)
-  },
-
-
-  BlockStatement: function* (node: es.BlockStatement, context: Context) {
-    throw new Error(`not supported yet: ${node.type}`)
-  },
-
-  Program: function* (node: es.BlockStatement, context: Context) {
-    const result = yield* forceIt(yield* evaluateBlockSatement(context, node), context);
+  Program: function* (node: es.Program, context: Context) {
+    let result
+    for (const statement of node.body) {
+      result = yield* evaluate(statement, context);
+    }
     return result;
   }
 }

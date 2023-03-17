@@ -5,9 +5,7 @@
 
 /* tslint:disable:max-classes-per-file */
 
-import { SourceLocation } from 'acorn'
-import * as es from 'estree'
-
+import * as es from './ast'
 import { EnvTree } from './createContext'
 
 /**
@@ -48,14 +46,6 @@ export interface Rule<T extends es.Node> {
   checkers: {
     [name: string]: (node: T, ancestors: es.Node[]) => SourceError[]
   }
-}
-
-export interface Comment {
-  type: 'Line' | 'Block'
-  value: string
-  start: number
-  end: number
-  loc: SourceLocation | undefined
 }
 
 export type ExecutionMethod = 'native' | 'interpreter' | 'auto'
@@ -178,7 +168,7 @@ export interface Environment {
   id: string
   name: string
   tail: Environment | null
-  callExpression?: es.CallExpression
+  callExpression?: /* es.CallExpression */ undefined
   head: Frame
   thisContext?: Value
 }
@@ -216,24 +206,6 @@ export interface Scheduler {
   run(it: IterableIterator<Value>, context: Context): Promise<Result>
 }
 
-/*
-	Although the ESTree specifications supposedly provide a Directive interface, the index file does not seem to export it.
-	As such this interface was created here to fulfil the same purpose.
- */
-export interface Directive extends es.ExpressionStatement {
-  type: 'ExpressionStatement'
-  expression: es.Literal
-  directive: string
-}
-
-/** For use in the substituter, to differentiate between a function declaration in the expression position,
- * which has an id, as opposed to function expressions.
- */
-export interface FunctionDeclarationExpression extends es.FunctionExpression {
-  id: es.Identifier
-  body: es.BlockStatement
-}
-
 /**
  * For use in the substituter: call expressions can be reduced into an expression if the block
  * only contains a single return statement; or a block, but has to be in the expression position.
@@ -245,10 +217,6 @@ export interface BlockExpression extends es.BaseExpression {
 }
 
 export type substituterNodes = es.Node | BlockExpression
-
-export type ContiguousArrayElementExpression = Exclude<es.ArrayExpression['elements'][0], null>
-
-export type ContiguousArrayElements = ContiguousArrayElementExpression[]
 
 // =======================================
 // Types used in type checker for type inference/type error checker for Source Typed variant
@@ -267,9 +235,6 @@ export type TSBasicType = PrimitiveType | TSAllowedTypes | TSDisallowedTypes
 
 // Types for nodes used in type inference
 export type NodeWithInferredType<T extends es.Node> = InferredType & T
-
-export type FuncDeclWithInferredTypeAnnotation = NodeWithInferredType<es.FunctionDeclaration> &
-  TypedFuncDecl
 
 export type InferredType = Untypable | Typed | NotYetTyped
 
@@ -365,11 +330,11 @@ export interface PredicateType {
   ifTrueType: Type | ForAll
 }
 
-export type PredicateTest = {
-  node: NodeWithInferredType<es.CallExpression>
-  ifTrueType: Type | ForAll
-  argVarName: string
-}
+// export type PredicateTest = {
+//   node: NodeWithInferredType<es.CallExpression>
+//   ifTrueType: Type | ForAll
+//   argVarName: string
+// }
 
 /**
  * Each element in the TypeEnvironment array represents a different scope
