@@ -137,7 +137,7 @@ class ExpressionGenerator implements CalcVisitor<es.Expression> {
       loc: contextToLocation(ctx)
     }
   }
-  
+
   visitExpression?: ((ctx: ExpressionContext) => es.Expression) | undefined
   visitStart?: ((ctx: StartContext) => es.Expression) | undefined
 

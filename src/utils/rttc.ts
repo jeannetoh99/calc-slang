@@ -1,4 +1,5 @@
 import { isInteger } from 'lodash'
+
 import * as es from '../ast'
 import { DivisiionByZeroError } from '../errors/errors'
 import { RuntimeSourceError } from '../errors/runtimeSourceError'
@@ -74,21 +75,21 @@ export const checkBinaryExpression = (
     case 'div':
     case 'mod':
       if (!isInteger(left)) {
-        return new TypeError(node, LHS, 'int', isNumber(left) ? 'real' : typeof(left))
+        return new TypeError(node, LHS, 'int', isNumber(left) ? 'real' : typeof left)
       } else if (!isInteger(right)) {
-        return new TypeError(node, RHS, 'int', isNumber(left) ? 'real' : typeof(left))
+        return new TypeError(node, RHS, 'int', isNumber(left) ? 'real' : typeof left)
       } else if (operator == 'div' && right == 0) {
-        return new DivisiionByZeroError(node);
+        return new DivisiionByZeroError(node)
       } else {
         return
       }
     case '/':
       if (!isNumber(left) || isInteger(left)) {
-        return new TypeError(node, LHS, 'real', isNumber(left) ? 'int' : typeof(left))
+        return new TypeError(node, LHS, 'real', isNumber(left) ? 'int' : typeof left)
       } else if (!isNumber(right) || isInteger(right)) {
-        return new TypeError(node, RHS, 'real', isNumber(right) ? 'int' : typeof(right))
+        return new TypeError(node, RHS, 'real', isNumber(right) ? 'int' : typeof right)
       } else if (right == 0) {
-        return new DivisiionByZeroError(node);
+        return new DivisiionByZeroError(node)
       } else {
         return
       }
