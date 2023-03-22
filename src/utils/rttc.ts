@@ -47,66 +47,6 @@ const isBool = (v: Value) => typeOf(v) === 'boolean'
 const isObject = (v: Value) => typeOf(v) === 'object'
 const isArray = (v: Value) => typeOf(v) === 'array'
 
-export const checkUnaryExpression = (node: es.Node, operator: es.UnaryOperator, value: Value) => {
-  if (operator === '!' && !isBool(value)) {
-    return new TypeError(node, '', 'boolean', typeOf(value))
-  } else {
-    return undefined
-  }
-}
-
-export const checkBinaryExpression = (
-  node: es.Node,
-  operator: es.BinaryOperator,
-  left: Value,
-  right: Value
-) => {
-  switch (operator) {
-    case '-':
-    case '*':
-    case '+':
-    case '<>':
-    case '<':
-    case '>':
-    case '=':
-    case '<=':
-    case '>=':
-      // SUPPORTED: REAL, INTEGER
-      if (!isNumber(left)) {
-        return new TypeError(node, LHS, 'number', typeOf(left))
-      } else if (!isNumber(right)) {
-        return new TypeError(node, RHS, 'number', typeOf(right))
-      } else {
-        return
-      }
-    case 'div':
-    case 'mod':
-      // SUPPORTED: REAL
-      if (!isInteger(left)) {
-        return new TypeError(node, LHS, 'int', isNumber(left) ? 'real' : typeof left)
-      } else if (!isInteger(right)) {
-        return new TypeError(node, RHS, 'int', isNumber(left) ? 'real' : typeof left)
-      } else if (operator == 'div' && right == 0) {
-        return new DivisiionByZeroError(node)
-      } else {
-        return
-      }
-    case '/':
-      // SUPPORTED: INT
-      if (!isNumber(left) || isInteger(left)) {
-        return new TypeError(node, LHS, 'real', isNumber(left) ? 'int' : typeof left)
-      } else if (!isNumber(right) || isInteger(right)) {
-        return new TypeError(node, RHS, 'real', isNumber(right) ? 'int' : typeof right)
-      } else if (right == 0) {
-        return new DivisiionByZeroError(node)
-      } else {
-        return
-      }
-    default:
-      return
-  }
-}
-
 export const checkIfStatement = (node: es.Node, test: Value) => {
   return isBool(test) ? undefined : new TypeError(node, ' as condition', 'boolean', typeOf(test))
 }

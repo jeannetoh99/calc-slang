@@ -7,6 +7,7 @@
 
 import * as es from './ast'
 import { EnvTree } from './createContext'
+import { Agenda, Stash } from './ec-evaluator/interpreter'
 
 /**
  * Defines functions that act as built-ins, but might rely on
@@ -91,6 +92,8 @@ export interface Context<T = any> {
     environmentTree: EnvTree
     environments: Environment[]
     nodes: es.Node[]
+    agenda?: Agenda
+    stash?: Stash
   }
 
   numberOfOuterEnvironments: number

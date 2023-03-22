@@ -3,33 +3,43 @@ grammar Calc;
 /*
  * Tokens (terminal)
  */
-MUL: '*';
-DIV: '/';
-ADD: '+';
-SUB: '-';
+INTEGER_LITERAL: [0-9]+;
 
-INTDIV: 'div';
-MOD: 'mod';
+fragment SYMBOLIC_IDENTIFIER: [!%&$#+-/:<=>?@\\~'^|*]+;
+fragment ALPHANUMERIC_IDENTIFIER: [a-zA-Z][a-zA-Z0-9'_]*;
+IDENTIFIER: ALPHANUMERIC_IDENTIFIER | SYMBOLIC_IDENTIFIER;
 
-NEQ: '<>';
-LT: '<';
-GT: '>';
-EQ: '=';
-LTE: '<=';
-GTE: '>=';
-
-INTEGER: [0-9]+;
 WHITESPACE: [ \r\n\t]+ -> skip;
 
 /*
  * Productions
  */
-start : expression;
+
+/*
+ * Productions
+ */
+
+literal
+   : INTEGER_LITERAL                            # Integer
+   ;
 
 expression
-   : INTEGER                                                            # Integer
-   | '(' inner=expression ')'                                           # Parentheses
-   | left=expression operator=(MUL|DIV|INTDIV|MOD) right=expression     # Binop
-   | left=expression operator=(ADD|SUB) right=expression                # Binop
-   | left=expression operator=(NEQ|LT|GT|EQ|LTE|GTE) right=expression   # Binop
+   : literal                                    # Lit
+   | IDENTIFIER                                 # Identifier
+   | '(' inner=expression ')'                   # Parentheses
    ;
+
+pattern
+   : IDENTIFIER                                 # IdentifierPat
+   ;
+
+declaration
+   : 'val' id=pattern '=' val=expression        # ValueDeclaration
+   ;
+
+statement
+   : expr=expression ';'                        # ExpressionStatement
+   | decl=declaration ';'                       # DeclarationStatement
+   ;
+
+program : statement*;
