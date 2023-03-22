@@ -65,6 +65,13 @@ export const checkBinaryExpression = (
     case '-':
     case '*':
     case '+':
+    case '<>':
+    case '<':
+    case '>':
+    case '=':
+    case '<=':
+    case '>=':
+      // SUPPORTED: REAL, INTEGER
       if (!isNumber(left)) {
         return new TypeError(node, LHS, 'number', typeOf(left))
       } else if (!isNumber(right)) {
@@ -74,6 +81,7 @@ export const checkBinaryExpression = (
       }
     case 'div':
     case 'mod':
+      // SUPPORTED: REAL
       if (!isInteger(left)) {
         return new TypeError(node, LHS, 'int', isNumber(left) ? 'real' : typeof left)
       } else if (!isInteger(right)) {
@@ -84,6 +92,7 @@ export const checkBinaryExpression = (
         return
       }
     case '/':
+      // SUPPORTED: INT
       if (!isNumber(left) || isInteger(left)) {
         return new TypeError(node, LHS, 'real', isNumber(left) ? 'int' : typeof left)
       } else if (!isNumber(right) || isInteger(right)) {

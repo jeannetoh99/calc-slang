@@ -185,6 +185,18 @@ export function evaluateBinaryExpression(operator: BinaryOperator, left: any, ri
       return Math.floor(left / right)
     case 'mod':
       return left % right
+    case '<>':
+      return left !== right
+    case '<':
+      return left < right
+    case '>':
+      return left > right
+    case '=':
+      return left === right
+    case '<=':
+      return left <= right
+    case '>=':
+      return left >= right
     default:
       return undefined
   }
