@@ -1,10 +1,11 @@
 // import { RuntimeSourceError } from '../errors/runtimeSourceError'
-import { BinaryOperator, UnaryOperator } from '../ast'
-import { LazyBuiltIn } from '../createContext'
 import // CallingNonFunctionValue,
 // ExceptionError,
 // InvalidNumberOfArguments
 '../errors/errors'
+
+import { BinaryOperator, UnaryOperator } from '../ast'
+import { LazyBuiltIn } from '../createContext'
 import { Thunk } from '../types'
 import { locationDummyNode } from './astCreator'
 import * as create from './astCreator'
