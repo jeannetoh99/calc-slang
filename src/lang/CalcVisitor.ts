@@ -11,6 +11,7 @@ import { ExpressionStatementContext } from "./CalcParser";
 import { DeclarationStatementContext } from "./CalcParser";
 import { ValueDeclarationContext } from "./CalcParser";
 import { IntegerContext } from "./CalcParser";
+import { BooleanContext } from "./CalcParser";
 import { LiteralContext } from "./CalcParser";
 import { ExpressionContext } from "./CalcParser";
 import { PatternContext } from "./CalcParser";
@@ -90,6 +91,14 @@ export interface CalcVisitor<Result> extends ParseTreeVisitor<Result> {
 	 * @return the visitor result
 	 */
 	visitInteger?: (ctx: IntegerContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by the `Boolean`
+	 * labeled alternative in `CalcParser.literal`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitBoolean?: (ctx: BooleanContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `CalcParser.literal`.

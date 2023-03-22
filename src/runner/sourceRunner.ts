@@ -1,7 +1,7 @@
 import { IOptions, Result } from '..'
 import * as es from '../ast'
-import { CannotFindModuleError } from '../errors/localImportErrors'
 import { ECEResultPromise, evaluate as ECEvaluate } from '../ec-evaluator/interpreter'
+import { CannotFindModuleError } from '../errors/localImportErrors'
 import { parse } from '../parser/parser'
 import { Context, Variant } from '../types'
 import { validateAndAnnotate } from '../validator/validator'

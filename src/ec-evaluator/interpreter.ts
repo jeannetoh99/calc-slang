@@ -7,18 +7,9 @@
 
 /* tslint:disable:max-classes-per-file */
 import * as es from '../ast'
-
 import { Context, Result, Value } from '../types'
 import * as instr from './instrCreator'
-import {
-  AgendaItem,
-  AssmtInstr,
-  CmdEvaluator,
-  ECError,
-  EnvInstr,
-  Instr,
-  InstrType,
-} from './types'
+import { AgendaItem, AssmtInstr, CmdEvaluator, ECError, EnvInstr, Instr, InstrType } from './types'
 import {
   createBlockEnvironment,
   currentEnvironment,
@@ -66,6 +57,8 @@ export class Stash extends Stack<Value> {
  */
 export function evaluate(program: es.Program, context: Context): Value {
   try {
+    // populateBuiltInIdentifiers(context)
+
     context.runtime.isRunning = true
     context.runtime.agenda = new Agenda(program)
     context.runtime.stash = new Stash()
@@ -178,17 +171,13 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     agenda.push(command.expression)
   },
 
-  ValueDeclaration: function (
-    command: es.ValueDeclaration,
-    context: Context,
-    agenda: Agenda
-  ) {
+  ValueDeclaration: function (command: es.ValueDeclaration, context: Context, agenda: Agenda) {
     const declaration: es.ValueDeclarator = command.declarations[0]
     const id = declaration.id as es.Identifier
 
     // Parser enforces initialisation during variable declaration
     const init = declaration.init!
-    
+
     agenda.push(instr.assmtInstr(id.name, true, command))
     agenda.push(init)
   },
@@ -244,5 +233,5 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     if (stash.size() === 0) {
       stash.push(undefined)
     }
-  },
+  }
 }

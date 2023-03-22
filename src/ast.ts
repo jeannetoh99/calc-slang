@@ -56,7 +56,7 @@ export interface ExpressionStatement extends BaseStatement {
   expression: Expression
 }
 
-export type Declaration = ValueDeclaration;
+export type Declaration = ValueDeclaration
 
 type BaseDeclaration = BaseStatement
 

@@ -8,6 +8,7 @@ import { TerminalNode } from 'antlr4ts/tree/TerminalNode'
 import * as es from '../ast'
 import { CalcLexer } from '../lang/CalcLexer'
 import {
+  BooleanContext,
   CalcParser,
   DeclarationContext,
   DeclarationStatementContext,
@@ -22,7 +23,7 @@ import {
   PatternContext,
   ProgramContext,
   StatementContext,
-  ValueDeclarationContext,
+  ValueDeclarationContext
 } from '../lang/CalcParser'
 import { CalcVisitor } from '../lang/CalcVisitor'
 import { Context, ErrorSeverity, ErrorType, SourceError } from '../types'
@@ -133,7 +134,7 @@ class ExpressionGenerator implements CalcVisitor<es.Expression> {
   visitIdentifier(ctx: IdentifierContext): es.Expression {
     return {
       type: 'Identifier',
-      name: ctx.text,
+      name: ctx.text
     }
   }
   visitParentheses(ctx: ParenthesesContext): es.Expression {
@@ -147,9 +148,17 @@ class ExpressionGenerator implements CalcVisitor<es.Expression> {
       loc: contextToLocation(ctx)
     }
   }
+  visitBoolean(ctx: BooleanContext): es.Expression {
+    return {
+      type: 'Literal',
+      value: ctx.text === 'true',
+      raw: ctx.text,
+      loc: contextToLocation(ctx)
+    }
+  }
 
-  visitLiteral?: ((ctx: LiteralContext) => es.Expression) | undefined;
-  visitExpression?: ((ctx: ExpressionContext) => es.Expression) | undefined;
+  visitLiteral?: ((ctx: LiteralContext) => es.Expression) | undefined
+  visitExpression?: ((ctx: ExpressionContext) => es.Expression) | undefined
   visit(tree: ParseTree): es.Expression {
     return tree.accept(this)
   }
@@ -185,15 +194,14 @@ class ExpressionGenerator implements CalcVisitor<es.Expression> {
 }
 
 class PatternGenerator implements CalcVisitor<es.Pattern> {
-
   visitIdentifierPat(ctx: IdentifierPatContext): es.Pattern {
     return {
       type: 'Identifier',
-      name: ctx.text,
+      name: ctx.text
     }
   }
 
-  visitPattern?: ((ctx: PatternContext) => es.Pattern) | undefined;
+  visitPattern?: ((ctx: PatternContext) => es.Pattern) | undefined
 
   visit(tree: ParseTree): es.Pattern {
     return tree.accept(this)
@@ -229,7 +237,7 @@ class PatternGenerator implements CalcVisitor<es.Pattern> {
 }
 
 class StatementGenerator implements CalcVisitor<es.Statement> {
-  expressionGenerator_ : ExpressionGenerator = new ExpressionGenerator() 
+  expressionGenerator_: ExpressionGenerator = new ExpressionGenerator()
   patternGenerator_: PatternGenerator = new PatternGenerator()
 
   visitExpressionStatement(ctx: ExpressionStatementContext): es.Statement {
@@ -239,7 +247,7 @@ class StatementGenerator implements CalcVisitor<es.Statement> {
     }
   }
   visitDeclarationStatement(ctx: DeclarationStatementContext): es.Statement {
-    return ctx._decl.accept(this);
+    return ctx._decl.accept(this)
   }
   visitValueDeclaration(ctx: ValueDeclarationContext): es.Declaration {
     return {
@@ -248,13 +256,13 @@ class StatementGenerator implements CalcVisitor<es.Statement> {
         {
           type: 'ValueDeclarator',
           id: ctx._id.accept(this.patternGenerator_),
-          init: ctx.expression().accept(this.expressionGenerator_),
+          init: ctx.expression().accept(this.expressionGenerator_)
         }
       ]
     }
   }
-  visitDeclaration?: ((ctx: DeclarationContext) => es.Declaration) | undefined;
-  visitStatement?: ((ctx: StatementContext) => es.Declaration) | undefined;
+  visitDeclaration?: ((ctx: DeclarationContext) => es.Declaration) | undefined
+  visitStatement?: ((ctx: StatementContext) => es.Declaration) | undefined
 
   visit(tree: ParseTree): es.Statement {
     return tree.accept(this)
@@ -270,7 +278,7 @@ class StatementGenerator implements CalcVisitor<es.Statement> {
     }
   }
   visitTerminal(node: TerminalNode): es.Statement {
-    return node.accept(this);
+    return node.accept(this)
   }
   visitErrorNode(node: ErrorNode): es.Statement {
     throw new FatalSyntaxError(
@@ -296,8 +304,8 @@ function convertStatement(statement: StatementContext): es.Statement {
 
 function convertSource(program: ProgramContext): es.Program {
   const statements: es.Statement[] = []
-  for (let statement of program.statement()) {
-    statements.push(convertStatement(statement));
+  for (const statement of program.statement()) {
+    statements.push(convertStatement(statement))
   }
   return {
     type: 'Program',

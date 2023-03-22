@@ -1,6 +1,5 @@
-import * as es from '../ast'
-
 import { Context } from '..'
+import * as es from '../ast'
 import { Environment } from '../types'
 import { Agenda, Stash } from './interpreter'
 
@@ -8,7 +7,7 @@ export enum InstrType {
   ASSIGNMENT = 'Assignment',
   POP = 'Pop',
   ENVIRONMENT = 'Environment',
-  PUSH_UNDEFINED_IF_NEEDED = 'PushUndefinedIfNeeded',
+  PUSH_UNDEFINED_IF_NEEDED = 'PushUndefinedIfNeeded'
 }
 
 interface BaseInstr {
@@ -25,10 +24,7 @@ export interface EnvInstr extends BaseInstr {
   env: Environment
 }
 
-export type Instr =
-  | BaseInstr
-  | AssmtInstr
-  | EnvInstr
+export type Instr = BaseInstr | AssmtInstr | EnvInstr
 
 export type AgendaItem = es.Node | Instr
 

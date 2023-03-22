@@ -1,7 +1,7 @@
-import * as es from '../ast'
 import { uniqueId } from 'lodash'
 
 import { Context } from '..'
+import * as es from '../ast'
 import * as errors from '../errors/errors'
 import { RuntimeSourceError } from '../errors/runtimeSourceError'
 import { Environment, Frame, Value } from '../types'

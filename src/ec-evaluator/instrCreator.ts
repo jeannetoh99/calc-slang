@@ -3,20 +3,10 @@
  */
 
 import * as es from '../ast'
-
 import { Environment } from '../types'
-import {
-  AssmtInstr,
-  EnvInstr,
-  Instr,
-  InstrType,
-} from './types'
+import { AssmtInstr, EnvInstr, Instr, InstrType } from './types'
 
-export const assmtInstr = (
-  symbol: string,
-  declaration: boolean,
-  srcNode: es.Node
-): AssmtInstr => ({
+export const assmtInstr = (symbol: string, declaration: boolean, srcNode: es.Node): AssmtInstr => ({
   instrType: InstrType.ASSIGNMENT,
   symbol,
   declaration,

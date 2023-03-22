@@ -34,8 +34,9 @@ export class CalcParser extends Parser {
 	public static readonly T__3 = 4;
 	public static readonly T__4 = 5;
 	public static readonly INTEGER_LITERAL = 6;
-	public static readonly IDENTIFIER = 7;
-	public static readonly WHITESPACE = 8;
+	public static readonly BOOLEAN_LITERAL = 7;
+	public static readonly IDENTIFIER = 8;
+	public static readonly WHITESPACE = 9;
 	public static readonly RULE_literal = 0;
 	public static readonly RULE_expression = 1;
 	public static readonly RULE_pattern = 2;
@@ -52,7 +53,7 @@ export class CalcParser extends Parser {
 	];
 	private static readonly _SYMBOLIC_NAMES: Array<string | undefined> = [
 		undefined, undefined, undefined, undefined, undefined, undefined, "INTEGER_LITERAL", 
-		"IDENTIFIER", "WHITESPACE",
+		"BOOLEAN_LITERAL", "IDENTIFIER", "WHITESPACE",
 	];
 	public static readonly VOCABULARY: Vocabulary = new VocabularyImpl(CalcParser._LITERAL_NAMES, CalcParser._SYMBOLIC_NAMES, []);
 
@@ -85,11 +86,27 @@ export class CalcParser extends Parser {
 		let _localctx: LiteralContext = new LiteralContext(this._ctx, this.state);
 		this.enterRule(_localctx, 0, CalcParser.RULE_literal);
 		try {
-			_localctx = new IntegerContext(_localctx);
-			this.enterOuterAlt(_localctx, 1);
-			{
-			this.state = 12;
-			this.match(CalcParser.INTEGER_LITERAL);
+			this.state = 14;
+			this._errHandler.sync(this);
+			switch (this._input.LA(1)) {
+			case CalcParser.INTEGER_LITERAL:
+				_localctx = new IntegerContext(_localctx);
+				this.enterOuterAlt(_localctx, 1);
+				{
+				this.state = 12;
+				this.match(CalcParser.INTEGER_LITERAL);
+				}
+				break;
+			case CalcParser.BOOLEAN_LITERAL:
+				_localctx = new BooleanContext(_localctx);
+				this.enterOuterAlt(_localctx, 2);
+				{
+				this.state = 13;
+				this.match(CalcParser.BOOLEAN_LITERAL);
+				}
+				break;
+			default:
+				throw new NoViableAltException(this);
 			}
 		}
 		catch (re) {
@@ -111,14 +128,15 @@ export class CalcParser extends Parser {
 		let _localctx: ExpressionContext = new ExpressionContext(this._ctx, this.state);
 		this.enterRule(_localctx, 2, CalcParser.RULE_expression);
 		try {
-			this.state = 20;
+			this.state = 22;
 			this._errHandler.sync(this);
 			switch (this._input.LA(1)) {
 			case CalcParser.INTEGER_LITERAL:
+			case CalcParser.BOOLEAN_LITERAL:
 				_localctx = new LitContext(_localctx);
 				this.enterOuterAlt(_localctx, 1);
 				{
-				this.state = 14;
+				this.state = 16;
 				this.literal();
 				}
 				break;
@@ -126,7 +144,7 @@ export class CalcParser extends Parser {
 				_localctx = new IdentifierContext(_localctx);
 				this.enterOuterAlt(_localctx, 2);
 				{
-				this.state = 15;
+				this.state = 17;
 				this.match(CalcParser.IDENTIFIER);
 				}
 				break;
@@ -134,11 +152,11 @@ export class CalcParser extends Parser {
 				_localctx = new ParenthesesContext(_localctx);
 				this.enterOuterAlt(_localctx, 3);
 				{
-				this.state = 16;
-				this.match(CalcParser.T__0);
-				this.state = 17;
-				(_localctx as ParenthesesContext)._inner = this.expression();
 				this.state = 18;
+				this.match(CalcParser.T__0);
+				this.state = 19;
+				(_localctx as ParenthesesContext)._inner = this.expression();
+				this.state = 20;
 				this.match(CalcParser.T__1);
 				}
 				break;
@@ -168,7 +186,7 @@ export class CalcParser extends Parser {
 			_localctx = new IdentifierPatContext(_localctx);
 			this.enterOuterAlt(_localctx, 1);
 			{
-			this.state = 22;
+			this.state = 24;
 			this.match(CalcParser.IDENTIFIER);
 			}
 		}
@@ -194,13 +212,13 @@ export class CalcParser extends Parser {
 			_localctx = new ValueDeclarationContext(_localctx);
 			this.enterOuterAlt(_localctx, 1);
 			{
-			this.state = 24;
-			this.match(CalcParser.T__2);
-			this.state = 25;
-			(_localctx as ValueDeclarationContext)._id = this.pattern();
 			this.state = 26;
-			this.match(CalcParser.T__3);
+			this.match(CalcParser.T__2);
 			this.state = 27;
+			(_localctx as ValueDeclarationContext)._id = this.pattern();
+			this.state = 28;
+			this.match(CalcParser.T__3);
+			this.state = 29;
 			(_localctx as ValueDeclarationContext)._val = this.expression();
 			}
 		}
@@ -223,18 +241,19 @@ export class CalcParser extends Parser {
 		let _localctx: StatementContext = new StatementContext(this._ctx, this.state);
 		this.enterRule(_localctx, 8, CalcParser.RULE_statement);
 		try {
-			this.state = 35;
+			this.state = 37;
 			this._errHandler.sync(this);
 			switch (this._input.LA(1)) {
 			case CalcParser.T__0:
 			case CalcParser.INTEGER_LITERAL:
+			case CalcParser.BOOLEAN_LITERAL:
 			case CalcParser.IDENTIFIER:
 				_localctx = new ExpressionStatementContext(_localctx);
 				this.enterOuterAlt(_localctx, 1);
 				{
-				this.state = 29;
+				this.state = 31;
 				(_localctx as ExpressionStatementContext)._expr = this.expression();
-				this.state = 30;
+				this.state = 32;
 				this.match(CalcParser.T__4);
 				}
 				break;
@@ -242,9 +261,9 @@ export class CalcParser extends Parser {
 				_localctx = new DeclarationStatementContext(_localctx);
 				this.enterOuterAlt(_localctx, 2);
 				{
-				this.state = 32;
+				this.state = 34;
 				(_localctx as DeclarationStatementContext)._decl = this.declaration();
-				this.state = 33;
+				this.state = 35;
 				this.match(CalcParser.T__4);
 				}
 				break;
@@ -274,17 +293,17 @@ export class CalcParser extends Parser {
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
-			this.state = 40;
+			this.state = 42;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			while ((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << CalcParser.T__0) | (1 << CalcParser.T__2) | (1 << CalcParser.INTEGER_LITERAL) | (1 << CalcParser.IDENTIFIER))) !== 0)) {
+			while ((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << CalcParser.T__0) | (1 << CalcParser.T__2) | (1 << CalcParser.INTEGER_LITERAL) | (1 << CalcParser.BOOLEAN_LITERAL) | (1 << CalcParser.IDENTIFIER))) !== 0)) {
 				{
 				{
-				this.state = 37;
+				this.state = 39;
 				this.statement();
 				}
 				}
-				this.state = 42;
+				this.state = 44;
 				this._errHandler.sync(this);
 				_la = this._input.LA(1);
 			}
@@ -306,26 +325,27 @@ export class CalcParser extends Parser {
 	}
 
 	public static readonly _serializedATN: string =
-		"\x03\uC91D\uCABA\u058D\uAFBA\u4F53\u0607\uEA8B\uC241\x03\n.\x04\x02\t" +
+		"\x03\uC91D\uCABA\u058D\uAFBA\u4F53\u0607\uEA8B\uC241\x03\v0\x04\x02\t" +
 		"\x02\x04\x03\t\x03\x04\x04\t\x04\x04\x05\t\x05\x04\x06\t\x06\x04\x07\t" +
-		"\x07\x03\x02\x03\x02\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x05" +
-		"\x03\x17\n\x03\x03\x04\x03\x04\x03\x05\x03\x05\x03\x05\x03\x05\x03\x05" +
-		"\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x05\x06&\n\x06\x03\x07" +
-		"\x07\x07)\n\x07\f\x07\x0E\x07,\v\x07\x03\x07\x02\x02\x02\b\x02\x02\x04" +
-		"\x02\x06\x02\b\x02\n\x02\f\x02\x02\x02\x02+\x02\x0E\x03\x02\x02\x02\x04" +
-		"\x16\x03\x02\x02\x02\x06\x18\x03\x02\x02\x02\b\x1A\x03\x02\x02\x02\n%" +
-		"\x03\x02\x02\x02\f*\x03\x02\x02\x02\x0E\x0F\x07\b\x02\x02\x0F\x03\x03" +
-		"\x02\x02\x02\x10\x17\x05\x02\x02\x02\x11\x17\x07\t\x02\x02\x12\x13\x07" +
-		"\x03\x02\x02\x13\x14\x05\x04\x03\x02\x14\x15\x07\x04\x02\x02\x15\x17\x03" +
-		"\x02\x02\x02\x16\x10\x03\x02\x02\x02\x16\x11\x03\x02\x02\x02\x16\x12\x03" +
-		"\x02\x02\x02\x17\x05\x03\x02\x02\x02\x18\x19\x07\t\x02\x02\x19\x07\x03" +
-		"\x02\x02\x02\x1A\x1B\x07\x05\x02\x02\x1B\x1C\x05\x06\x04\x02\x1C\x1D\x07" +
-		"\x06\x02\x02\x1D\x1E\x05\x04\x03\x02\x1E\t\x03\x02\x02\x02\x1F \x05\x04" +
-		"\x03\x02 !\x07\x07\x02\x02!&\x03\x02\x02\x02\"#\x05\b\x05\x02#$\x07\x07" +
-		"\x02\x02$&\x03\x02\x02\x02%\x1F\x03\x02\x02\x02%\"\x03\x02\x02\x02&\v" +
-		"\x03\x02\x02\x02\')\x05\n\x06\x02(\'\x03\x02\x02\x02),\x03\x02\x02\x02" +
-		"*(\x03\x02\x02\x02*+\x03\x02\x02\x02+\r\x03\x02\x02\x02,*\x03\x02\x02" +
-		"\x02\x05\x16%*";
+		"\x07\x03\x02\x03\x02\x05\x02\x11\n\x02\x03\x03\x03\x03\x03\x03\x03\x03" +
+		"\x03\x03\x03\x03\x05\x03\x19\n\x03\x03\x04\x03\x04\x03\x05\x03\x05\x03" +
+		"\x05\x03\x05\x03\x05\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x05" +
+		"\x06(\n\x06\x03\x07\x07\x07+\n\x07\f\x07\x0E\x07.\v\x07\x03\x07\x02\x02" +
+		"\x02\b\x02\x02\x04\x02\x06\x02\b\x02\n\x02\f\x02\x02\x02\x02.\x02\x10" +
+		"\x03\x02\x02\x02\x04\x18\x03\x02\x02\x02\x06\x1A\x03\x02\x02\x02\b\x1C" +
+		"\x03\x02\x02\x02\n\'\x03\x02\x02\x02\f,\x03\x02\x02\x02\x0E\x11\x07\b" +
+		"\x02\x02\x0F\x11\x07\t\x02\x02\x10\x0E\x03\x02\x02\x02\x10\x0F\x03\x02" +
+		"\x02\x02\x11\x03\x03\x02\x02\x02\x12\x19\x05\x02\x02\x02\x13\x19\x07\n" +
+		"\x02\x02\x14\x15\x07\x03\x02\x02\x15\x16\x05\x04\x03\x02\x16\x17\x07\x04" +
+		"\x02\x02\x17\x19\x03\x02\x02\x02\x18\x12\x03\x02\x02\x02\x18\x13\x03\x02" +
+		"\x02\x02\x18\x14\x03\x02\x02\x02\x19\x05\x03\x02\x02\x02\x1A\x1B\x07\n" +
+		"\x02\x02\x1B\x07\x03\x02\x02\x02\x1C\x1D\x07\x05\x02\x02\x1D\x1E\x05\x06" +
+		"\x04\x02\x1E\x1F\x07\x06\x02\x02\x1F \x05\x04\x03\x02 \t\x03\x02\x02\x02" +
+		"!\"\x05\x04\x03\x02\"#\x07\x07\x02\x02#(\x03\x02\x02\x02$%\x05\b\x05\x02" +
+		"%&\x07\x07\x02\x02&(\x03\x02\x02\x02\'!\x03\x02\x02\x02\'$\x03\x02\x02" +
+		"\x02(\v\x03\x02\x02\x02)+\x05\n\x06\x02*)\x03\x02\x02\x02+.\x03\x02\x02" +
+		"\x02,*\x03\x02\x02\x02,-\x03\x02\x02\x02-\r\x03\x02\x02\x02.,\x03\x02" +
+		"\x02\x02\x06\x10\x18\',";
 	public static __ATN: ATN;
 	public static get _ATN(): ATN {
 		if (!CalcParser.__ATN) {
@@ -369,6 +389,33 @@ export class IntegerContext extends LiteralContext {
 	public accept<Result>(visitor: CalcVisitor<Result>): Result {
 		if (visitor.visitInteger) {
 			return visitor.visitInteger(this);
+		} else {
+			return visitor.visitChildren(this);
+		}
+	}
+}
+export class BooleanContext extends LiteralContext {
+	public BOOLEAN_LITERAL(): TerminalNode { return this.getToken(CalcParser.BOOLEAN_LITERAL, 0); }
+	constructor(ctx: LiteralContext) {
+		super(ctx.parent, ctx.invokingState);
+		this.copyFrom(ctx);
+	}
+	// @Override
+	public enterRule(listener: CalcListener): void {
+		if (listener.enterBoolean) {
+			listener.enterBoolean(this);
+		}
+	}
+	// @Override
+	public exitRule(listener: CalcListener): void {
+		if (listener.exitBoolean) {
+			listener.exitBoolean(this);
+		}
+	}
+	// @Override
+	public accept<Result>(visitor: CalcVisitor<Result>): Result {
+		if (visitor.visitBoolean) {
+			return visitor.visitBoolean(this);
 		} else {
 			return visitor.visitChildren(this);
 		}

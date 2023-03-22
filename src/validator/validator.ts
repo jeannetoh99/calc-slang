@@ -19,10 +19,7 @@ export function validateAndAnnotate(
     const initialisedIdentifiers = new Map<string, Declaration>()
     for (const statement of node.body) {
       if (statement.type === 'ValueDeclaration') {
-        initialisedIdentifiers.set(
-          getValueDeclarationName(statement),
-          new Declaration()
-        )
+        initialisedIdentifiers.set(getValueDeclarationName(statement), new Declaration())
       }
     }
     scopeHasCallExpressionMap.set(node, false)
@@ -56,12 +53,9 @@ export function validateAndAnnotate(
     }
   }
   ancestor(
-    program, 
+    program,
     {
-      ValueDeclaration(
-        node: NodeWithInferredType<es.ValueDeclaration>,
-        ancestors: es.Node[]
-      ) {
+      ValueDeclaration(node: NodeWithInferredType<es.ValueDeclaration>, ancestors: es.Node[]) {
         const lastAncestor = ancestors[ancestors.length - 2]
         const name = getValueDeclarationName(node)
         const accessedBeforeDeclaration = accessedBeforeDeclarationMap
@@ -74,7 +68,7 @@ export function validateAndAnnotate(
         if (node.type === 'Identifier') {
           validateIdentifier(node, ancestors)
         }
-      },
+      }
     },
     customWalker
   )

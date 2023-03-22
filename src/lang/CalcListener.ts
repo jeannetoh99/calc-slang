@@ -11,6 +11,7 @@ import { ExpressionStatementContext } from "./CalcParser";
 import { DeclarationStatementContext } from "./CalcParser";
 import { ValueDeclarationContext } from "./CalcParser";
 import { IntegerContext } from "./CalcParser";
+import { BooleanContext } from "./CalcParser";
 import { LiteralContext } from "./CalcParser";
 import { ExpressionContext } from "./CalcParser";
 import { PatternContext } from "./CalcParser";
@@ -127,6 +128,19 @@ export interface CalcListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	exitInteger?: (ctx: IntegerContext) => void;
+
+	/**
+	 * Enter a parse tree produced by the `Boolean`
+	 * labeled alternative in `CalcParser.literal`.
+	 * @param ctx the parse tree
+	 */
+	enterBoolean?: (ctx: BooleanContext) => void;
+	/**
+	 * Exit a parse tree produced by the `Boolean`
+	 * labeled alternative in `CalcParser.literal`.
+	 * @param ctx the parse tree
+	 */
+	exitBoolean?: (ctx: BooleanContext) => void;
 
 	/**
 	 * Enter a parse tree produced by `CalcParser.literal`.
