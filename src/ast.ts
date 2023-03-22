@@ -100,6 +100,16 @@ export interface SimpleLiteral extends BaseNode, BaseExpression {
 
 export type UnaryOperator = '!'
 
-export type BinaryOperator = 
-    '+' | '-' | '*' | '/' | 'div' | 'mod' |
-    '<>' | '<' | '>' | '=' | '<=' | '>=';
+export type BinaryOperator =
+  | '+'
+  | '-'
+  | '*'
+  | '/'
+  | 'div'
+  | 'mod'
+  | '<>'
+  | '<'
+  | '>'
+  | '='
+  | '<='
+  | '>='
