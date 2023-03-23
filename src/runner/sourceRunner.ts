@@ -39,7 +39,7 @@ export async function sourceRunner(
     return resolvedErrorPromise
   }
 
-  // TODO: Fix validateAndAnnotate
+  // TODO: Fix validateAndAnnotate and modify/add type checking
   // validateAndAnnotate(program, context)
   context.unTypecheckedCode.push(code)
 
