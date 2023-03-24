@@ -1,10 +1,9 @@
 import { IOptions, Result } from '..'
 import * as es from '../ast'
+import { ECEResultPromise, evaluate as ECEvaluate } from '../ec-evaluator/interpreter'
 import { CannotFindModuleError } from '../errors/localImportErrors'
-import { evaluate } from '../interpreter/interpreter'
 import { parse } from '../parser/parser'
-import { PreemptiveScheduler } from '../schedulers'
-import { Context, Scheduler, Variant } from '../types'
+import { Context, Variant } from '../types'
 import { validateAndAnnotate } from '../validator/validator'
 import { determineVariant, resolvedErrorPromise } from './utils'
 
@@ -20,10 +19,9 @@ const DEFAULT_SOURCE_OPTIONS: IOptions = {
   throwInfiniteLoops: true
 }
 
-function runInterpreter(program: es.Program, context: Context, options: IOptions): Promise<Result> {
-  const it = evaluate(program, context)
-  const scheduler: Scheduler = new PreemptiveScheduler(options.steps)
-  return scheduler.run(it, context)
+function runECEvaluator(program: es.Program, context: Context, options: IOptions): Promise<Result> {
+  const value = ECEvaluate(program, context)
+  return ECEResultPromise(context, value)
 }
 
 export async function sourceRunner(
@@ -41,22 +39,15 @@ export async function sourceRunner(
     return resolvedErrorPromise
   }
 
-  validateAndAnnotate(program, context)
+  // TODO: Fix validateAndAnnotate and modify/add type checking
+  // validateAndAnnotate(program, context)
   context.unTypecheckedCode.push(code)
 
   if (context.errors.length > 0) {
     return resolvedErrorPromise
   }
 
-  // Handle preludes
-  if (context.prelude !== null) {
-    const prelude = context.prelude
-    context.prelude = null
-    await sourceRunner(prelude, context, { ...options, isPrelude: true })
-    return sourceRunner(code, context, options)
-  }
-
-  return runInterpreter(program, context, theOptions)
+  return runECEvaluator(program, context, theOptions)
 }
 
 export async function sourceFilesRunner(

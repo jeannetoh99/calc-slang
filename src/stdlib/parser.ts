@@ -62,25 +62,6 @@ const transformers: ASTTransformers = new Map([
   ],
 
   [
-    'UnaryExpression',
-    (node: es.UnaryExpression) => {
-      return vector_to_list(['unary_operator_combination', node.operator, transform(node.argument)])
-    }
-  ],
-
-  [
-    'BinaryExpression',
-    (node: es.BinaryExpression) => {
-      return vector_to_list([
-        'binary_operator_combination',
-        node.operator,
-        transform(node.left),
-        transform(node.right)
-      ])
-    }
-  ],
-
-  [
     'Identifier',
     (node: es.Identifier) => {
       return vector_to_list(['name', node.name])

@@ -8,15 +8,22 @@ import { TerminalNode } from 'antlr4ts/tree/TerminalNode'
 import * as es from '../ast'
 import { CalcLexer } from '../lang/CalcLexer'
 import {
-  AdditionContext,
+  BooleanContext,
   CalcParser,
-  DivisionContext,
+  DeclarationContext,
+  DeclarationStatementContext,
   ExpressionContext,
-  MultiplicationContext,
-  NumberContext,
+  ExpressionStatementContext,
+  IdentifierContext,
+  IdentifierPatContext,
+  IntegerContext,
+  LitContext,
+  LiteralContext,
   ParenthesesContext,
-  StartContext,
-  SubtractionContext
+  PatternContext,
+  ProgramContext,
+  StatementContext,
+  ValueDeclarationContext
 } from '../lang/CalcParser'
 import { CalcVisitor } from '../lang/CalcVisitor'
 import { Context, ErrorSeverity, ErrorType, SourceError } from '../types'
@@ -119,8 +126,21 @@ function contextToLocation(ctx: ExpressionContext): es.SourceLocation {
     }
   }
 }
+
 class ExpressionGenerator implements CalcVisitor<es.Expression> {
-  visitNumber(ctx: NumberContext): es.Expression {
+  visitLit(ctx: LitContext): es.Expression {
+    return this.visit(ctx.literal())
+  }
+  visitIdentifier(ctx: IdentifierContext): es.Expression {
+    return {
+      type: 'Identifier',
+      name: ctx.text
+    }
+  }
+  visitParentheses(ctx: ParenthesesContext): es.Expression {
+    return this.visit(ctx.expression())
+  }
+  visitInteger(ctx: IntegerContext): es.Expression {
     return {
       type: 'Literal',
       value: parseInt(ctx.text),
@@ -128,50 +148,17 @@ class ExpressionGenerator implements CalcVisitor<es.Expression> {
       loc: contextToLocation(ctx)
     }
   }
-  visitParentheses(ctx: ParenthesesContext): es.Expression {
-    return this.visit(ctx.expression())
-  }
-  visitMultiplication(ctx: MultiplicationContext): es.Expression {
+  visitBoolean(ctx: BooleanContext): es.Expression {
     return {
-      type: 'BinaryExpression',
-      operator: '*',
-      left: this.visit(ctx._left),
-      right: this.visit(ctx._right),
-      loc: contextToLocation(ctx)
-    }
-  }
-  visitDivision(ctx: DivisionContext): es.Expression {
-    return {
-      type: 'BinaryExpression',
-      operator: '/',
-      left: this.visit(ctx._left),
-      right: this.visit(ctx._right),
-      loc: contextToLocation(ctx)
-    }
-  }
-  visitAddition(ctx: AdditionContext): es.Expression {
-    return {
-      type: 'BinaryExpression',
-      operator: '+',
-      left: this.visit(ctx._left),
-      right: this.visit(ctx._right),
+      type: 'Literal',
+      value: ctx.text === 'true',
+      raw: ctx.text,
       loc: contextToLocation(ctx)
     }
   }
 
-  visitSubtraction(ctx: SubtractionContext): es.Expression {
-    return {
-      type: 'BinaryExpression',
-      operator: '-',
-      left: this.visit(ctx._left),
-      right: this.visit(ctx._right),
-      loc: contextToLocation(ctx)
-    }
-  }
-
+  visitLiteral?: ((ctx: LiteralContext) => es.Expression) | undefined
   visitExpression?: ((ctx: ExpressionContext) => es.Expression) | undefined
-  visitStart?: ((ctx: StartContext) => es.Expression) | undefined
-
   visit(tree: ParseTree): es.Expression {
     return tree.accept(this)
   }
@@ -206,21 +193,124 @@ class ExpressionGenerator implements CalcVisitor<es.Expression> {
   }
 }
 
-function convertExpression(expression: ExpressionContext): es.Expression {
-  const generator = new ExpressionGenerator()
-  return expression.accept(generator)
+class PatternGenerator implements CalcVisitor<es.Pattern> {
+  visitIdentifierPat(ctx: IdentifierPatContext): es.Pattern {
+    return {
+      type: 'Identifier',
+      name: ctx.text
+    }
+  }
+
+  visitPattern?: ((ctx: PatternContext) => es.Pattern) | undefined
+
+  visit(tree: ParseTree): es.Pattern {
+    return tree.accept(this)
+  }
+  visitChildren(node: RuleNode): es.Pattern {
+    const pattern: es.Pattern[] = []
+    for (let i = 0; i < node.childCount; i++) {
+      pattern.push(node.getChild(i).accept(this))
+    }
+    return {
+      type: 'ArrayPattern',
+      elements: pattern
+    }
+  }
+  visitTerminal(node: TerminalNode): es.Pattern {
+    return node.accept(this)
+  }
+  visitErrorNode(node: ErrorNode): es.Pattern {
+    throw new FatalSyntaxError(
+      {
+        start: {
+          line: node.symbol.line,
+          column: node.symbol.charPositionInLine
+        },
+        end: {
+          line: node.symbol.line,
+          column: node.symbol.charPositionInLine + 1
+        }
+      },
+      `invalid syntax ${node.text}`
+    )
+  }
 }
 
-function convertSource(expression: ExpressionContext): es.Program {
+class StatementGenerator implements CalcVisitor<es.Statement> {
+  expressionGenerator_: ExpressionGenerator = new ExpressionGenerator()
+  patternGenerator_: PatternGenerator = new PatternGenerator()
+
+  visitExpressionStatement(ctx: ExpressionStatementContext): es.Statement {
+    return {
+      type: 'ExpressionStatement',
+      expression: ctx.expression().accept(this.expressionGenerator_)
+    }
+  }
+  visitDeclarationStatement(ctx: DeclarationStatementContext): es.Statement {
+    return ctx._decl.accept(this)
+  }
+  visitValueDeclaration(ctx: ValueDeclarationContext): es.Declaration {
+    return {
+      type: 'ValueDeclaration',
+      declarations: [
+        {
+          type: 'ValueDeclarator',
+          id: ctx._id.accept(this.patternGenerator_),
+          init: ctx.expression().accept(this.expressionGenerator_)
+        }
+      ]
+    }
+  }
+  visitDeclaration?: ((ctx: DeclarationContext) => es.Declaration) | undefined
+  visitStatement?: ((ctx: StatementContext) => es.Declaration) | undefined
+
+  visit(tree: ParseTree): es.Statement {
+    return tree.accept(this)
+  }
+  visitChildren(node: RuleNode): es.Statement {
+    const statements: es.Statement[] = []
+    for (let i = 0; i < node.childCount; i++) {
+      statements.push(node.getChild(i).accept(this))
+    }
+    return {
+      type: 'BlockStatement',
+      body: statements
+    }
+  }
+  visitTerminal(node: TerminalNode): es.Statement {
+    return node.accept(this)
+  }
+  visitErrorNode(node: ErrorNode): es.Statement {
+    throw new FatalSyntaxError(
+      {
+        start: {
+          line: node.symbol.line,
+          column: node.symbol.charPositionInLine
+        },
+        end: {
+          line: node.symbol.line,
+          column: node.symbol.charPositionInLine + 1
+        }
+      },
+      `invalid syntax ${node.text}`
+    )
+  }
+}
+
+function convertStatement(statement: StatementContext): es.Statement {
+  const generator = new StatementGenerator()
+  return statement.accept(generator)
+}
+
+function convertSource(program: ProgramContext): es.Program {
+  const statements: es.Statement[] = []
+  for (const statement of program.statement()) {
+    statements.push(convertStatement(statement))
+  }
   return {
     type: 'Program',
     sourceType: 'script',
-    body: [
-      {
-        type: 'ExpressionStatement',
-        expression: convertExpression(expression)
-      }
-    ]
+    body: statements
   }
 }
 
@@ -234,7 +324,7 @@ export function parse(source: string, context: Context) {
     const parser = new CalcParser(tokenStream)
     parser.buildParseTree = true
     try {
-      const tree = parser.expression()
+      const tree = parser.program()
       program = convertSource(tree)
     } catch (error) {
       if (error instanceof FatalSyntaxError) {

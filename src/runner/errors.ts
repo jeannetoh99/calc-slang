@@ -1,7 +1,7 @@
 import { NullableMappedPosition, RawSourceMap, SourceMapConsumer } from 'source-map'
 
 import { UNKNOWN_LOCATION } from '../constants'
-import { ConstAssignment, ExceptionError, UndefinedVariable } from '../errors/errors'
+import { ExceptionError, UndefinedVariable } from '../errors/errors'
 import { SourceError } from '../types'
 import { locationDummyNode } from '../utils/astCreator'
 
@@ -29,16 +29,6 @@ const FireFoxEvalErrorLocator = {
 const EVAL_LOCATORS: EvalErrorLocator[] = [ChromeEvalErrorLocator, FireFoxEvalErrorLocator]
 
 const UNDEFINED_VARIABLE_MESSAGES: string[] = ['is not defined']
-
-// brute-forced from MDN website for phrasing of errors from different browsers
-// FWIW node and chrome uses V8 so they'll have the same error messages
-// unable to test on other engines
-const ASSIGNMENT_TO_CONST_ERROR_MESSAGES: string[] = [
-  'invalid assignment to const',
-  'Assignment to constant variable',
-  'Assignment to const',
-  'Redeclaration of const'
-]
 
 function getBrowserType(): BrowserType {
   const userAgent: string = navigator.userAgent.toLowerCase()
@@ -118,9 +108,7 @@ export async function toSourceError(error: Error, sourceMap?: RawSourceMap): Pro
   const errorMessageContains = (possibleMessages: string[]) =>
     possibleMessages.some(possibleMessage => errorMessage.includes(possibleMessage))
 
-  if (errorMessageContains(ASSIGNMENT_TO_CONST_ERROR_MESSAGES)) {
-    return new ConstAssignment(locationDummyNode(line, column), identifier)
-  } else if (errorMessageContains(UNDEFINED_VARIABLE_MESSAGES)) {
+  if (errorMessageContains(UNDEFINED_VARIABLE_MESSAGES)) {
     return new UndefinedVariable(identifier, locationDummyNode(line, column))
   } else {
     const location =

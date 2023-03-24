@@ -3,23 +3,45 @@ grammar Calc;
 /*
  * Tokens (terminal)
  */
-MUL: '*';
-DIV: '/';
-ADD: '+';
-SUB: '-';
-NUMBER: [0-9]+;
+INTEGER_LITERAL: [0-9]+;
+BOOLEAN_LITERAL: 'true' | 'false';
+
+fragment SYMBOLIC_IDENTIFIER: [!%&$#+-/:<=>?@\\~'^|*]+;
+fragment ALPHANUMERIC_IDENTIFIER: [a-zA-Z][a-zA-Z0-9'_]*;
+IDENTIFIER: ALPHANUMERIC_IDENTIFIER | SYMBOLIC_IDENTIFIER;
+
 WHITESPACE: [ \r\n\t]+ -> skip;
 
 /*
  * Productions
  */
-start : expression;
+
+/*
+ * Productions
+ */
+
+literal
+   : INTEGER_LITERAL                            # Integer
+   | BOOLEAN_LITERAL                            # Boolean
+   ;
 
 expression
-   : NUMBER                                         # Number
-   | '(' inner=expression ')'                       # Parentheses
-   | left=expression operator=MUL right=expression  # Multiplication
-   | left=expression operator=DIV right=expression  # Division
-   | left=expression operator=ADD right=expression  # Addition
-   | left=expression operator=SUB right=expression  # Subtraction
+   : literal                                    # Lit
+   | IDENTIFIER                                 # Identifier
+   | '(' inner=expression ')'                   # Parentheses
    ;
+
+pattern
+   : IDENTIFIER                                 # IdentifierPat
+   ;
+
+declaration
+   : 'val' id=pattern '=' val=expression        # ValueDeclaration
+   ;
+
+statement
+   : expr=expression ';'                        # ExpressionStatement
+   | decl=declaration ';'                       # DeclarationStatement
+   ;
+
+program : statement*;

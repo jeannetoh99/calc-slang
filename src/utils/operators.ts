@@ -1,12 +1,10 @@
 // import { RuntimeSourceError } from '../errors/runtimeSourceError'
-import { BinaryOperator, UnaryOperator } from '../ast'
+import // CallingNonFunctionValue,
+// ExceptionError,
+// InvalidNumberOfArguments
+'../errors/errors'
+
 import { LazyBuiltIn } from '../createContext'
-import {
-  // CallingNonFunctionValue,
-  // ExceptionError,
-  GetInheritedPropertyError
-  // InvalidNumberOfArguments
-} from '../errors/errors'
 import { Thunk } from '../types'
 import { locationDummyNode } from './astCreator'
 import * as create from './astCreator'
@@ -114,78 +112,101 @@ export function makeLazyFunction(candidate: any) {
 //   }
 // }
 
-export function boolOrErr(candidate: any, line: number, column: number) {
-  candidate = forceIt(candidate)
-  const error = rttc.checkIfStatement(create.locationDummyNode(line, column), candidate)
-  if (error === undefined) {
-    return candidate
-  } else {
-    throw error
-  }
-}
+// export function boolOrErr(candidate: any, line: number, column: number) {
+//   candidate = forceIt(candidate)
+//   const error = rttc.checkIfStatement(create.locationDummyNode(line, column), candidate)
+//   if (error === undefined) {
+//     return candidate
+//   } else {
+//     throw error
+//   }
+// }
 
-export function unaryOp(operator: UnaryOperator, argument: any, line: number, column: number) {
-  argument = forceIt(argument)
-  const error = rttc.checkUnaryExpression(
-    create.locationDummyNode(line, column),
-    operator,
-    argument
-  )
-  if (error === undefined) {
-    return evaluateUnaryExpression(operator, argument)
-  } else {
-    throw error
-  }
-}
+// export function unaryOp(operator: UnaryOperator, argument: any, line: number, column: number) {
+//   argument = forceIt(argument)
+//   const error = rttc.checkUnaryExpression(
+//     create.locationDummyNode(line, column),
+//     operator,
+//     argument
+//   )
+//   if (error === undefined) {
+//     return evaluateUnaryExpression(operator, argument)
+//   } else {
+//     throw error
+//   }
+// }
 
-export function evaluateUnaryExpression(operator: UnaryOperator, value: any) {
-  if (operator === '!') {
-    return !value
-  } else if (operator === '-') {
-    return -value
-  } else if (operator === 'typeof') {
-    return typeof value
-  } else {
-    return +value
-  }
-}
+// export function evaluateUnaryExpression(operator: UnaryOperator, value: any) {
+//   if (operator === 'not') {
+//     return !value
+//   } else {
+//     return undefined
+//   }
+// }
 
-export function binaryOp(
-  operator: BinaryOperator,
-  left: any,
-  right: any,
-  line: number,
-  column: number
-) {
-  left = forceIt(left)
-  right = forceIt(right)
-  const error = rttc.checkBinaryExpression(
-    create.locationDummyNode(line, column),
-    operator,
-    left,
-    right
-  )
-  if (error === undefined) {
-    return evaluateBinaryExpression(operator, left, right)
-  } else {
-    throw error
-  }
-}
+// export function binaryOp(
+//   operator: BinaryOperator,
+//   left: any,
+//   right: any,
+//   line: number,
+//   column: number
+// ) {
+//   left = forceIt(left)
+//   right = forceIt(right)
+//   const error = rttc.checkBinaryExpression(
+//     create.locationDummyNode(line, column),
+//     operator,
+//     left,
+//     right
+//   )
+//   if (error === undefined) {
+//     return evaluateBinaryExpression(operator, left, right)
+//   } else {
+//     throw error
+//   }
+// }
 
-export function evaluateBinaryExpression(operator: BinaryOperator, left: any, right: any) {
-  switch (operator) {
-    case '+':
-      return left + right
-    case '-':
-      return left - right
-    case '*':
-      return left * right
-    case '/':
-      return left / right
-    default:
-      return undefined
-  }
-}
+// export function evaluateBinaryExpression(operator: BinaryOperator, left: any, right: any) {
+//   switch (operator) {
+//     case '+':
+//       return left + right
+//     case '-':
+//       return left - right
+//     case '*':
+//       return left * right
+//     case '/':
+//       return left / right
+//     case 'div':
+//       return Math.floor(left / right)
+//     case 'mod':
+//       return left % right
+//     case '<>':
+//       return left !== right
+//     case '<':
+//       return left < right
+//     case '>':
+//       return left > right
+//     case '=':
+//       return left === right
+//     case '<=':
+//       return left <= right
+//     case '>=':
+//       return left >= right
+//     default:
+//       return undefined
+//   }
+// }
+
+// export function evaluateLogicalExpression(operator: LogicalOperator, left: any, right: any) {
+//   switch (operator) {
+//     case 'andalso':
+//       return left && right
+//     case 'orelse':
+//       return left || right
+//     default:
+//       return undefined
+//   }
+// }
 
 export const setProp = (obj: any, prop: any, value: any, line: number, column: number) => {
   const dummy = locationDummyNode(line, column)
@@ -201,11 +222,7 @@ export const getProp = (obj: any, prop: any, line: number, column: number) => {
   const dummy = locationDummyNode(line, column)
   const error = rttc.checkMemberAccess(dummy, obj, prop)
   if (error === undefined) {
-    if (obj[prop] !== undefined && !obj.hasOwnProperty(prop)) {
-      throw new GetInheritedPropertyError(dummy, obj, prop)
-    } else {
-      return obj[prop]
-    }
+    return obj[prop]
   } else {
     throw error
   }

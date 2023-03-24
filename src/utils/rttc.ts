@@ -1,4 +1,7 @@
+import { isInteger } from 'lodash'
+
 import * as es from '../ast'
+import { DivisiionByZeroError } from '../errors/errors'
 import { RuntimeSourceError } from '../errors/runtimeSourceError'
 import { ErrorSeverity, ErrorType, Value } from '../types'
 
@@ -43,37 +46,6 @@ const isString = (v: Value) => typeOf(v) === 'string'
 const isBool = (v: Value) => typeOf(v) === 'boolean'
 const isObject = (v: Value) => typeOf(v) === 'object'
 const isArray = (v: Value) => typeOf(v) === 'array'
-
-export const checkUnaryExpression = (node: es.Node, operator: es.UnaryOperator, value: Value) => {
-  if (operator === '!' && !isBool(value)) {
-    return new TypeError(node, '', 'boolean', typeOf(value))
-  } else {
-    return undefined
-  }
-}
-
-export const checkBinaryExpression = (
-  node: es.Node,
-  operator: es.BinaryOperator,
-  left: Value,
-  right: Value
-) => {
-  switch (operator) {
-    case '-':
-    case '*':
-    case '/':
-    case '+':
-      if (!isNumber(left)) {
-        return new TypeError(node, LHS, 'number', typeOf(left))
-      } else if (!isNumber(right)) {
-        return new TypeError(node, RHS, 'number', typeOf(right))
-      } else {
-        return
-      }
-    default:
-      return
-  }
-}
 
 export const checkIfStatement = (node: es.Node, test: Value) => {
   return isBool(test) ? undefined : new TypeError(node, ' as condition', 'boolean', typeOf(test))

@@ -2,14 +2,21 @@
 
 import { ParseTreeListener } from 'antlr4ts/tree/ParseTreeListener'
 
-import { NumberContext } from './CalcParser'
+import { LitContext } from './CalcParser'
+import { IdentifierContext } from './CalcParser'
 import { ParenthesesContext } from './CalcParser'
-import { MultiplicationContext } from './CalcParser'
-import { DivisionContext } from './CalcParser'
-import { AdditionContext } from './CalcParser'
-import { SubtractionContext } from './CalcParser'
-import { StartContext } from './CalcParser'
+import { IdentifierPatContext } from './CalcParser'
+import { ExpressionStatementContext } from './CalcParser'
+import { DeclarationStatementContext } from './CalcParser'
+import { ValueDeclarationContext } from './CalcParser'
+import { IntegerContext } from './CalcParser'
+import { BooleanContext } from './CalcParser'
+import { LiteralContext } from './CalcParser'
 import { ExpressionContext } from './CalcParser'
+import { PatternContext } from './CalcParser'
+import { DeclarationContext } from './CalcParser'
+import { StatementContext } from './CalcParser'
+import { ProgramContext } from './CalcParser'
 
 /**
  * This interface defines a complete listener for a parse tree produced by
@@ -17,17 +24,30 @@ import { ExpressionContext } from './CalcParser'
  */
 export interface CalcListener extends ParseTreeListener {
   /**
-   * Enter a parse tree produced by the `Number`
+   * Enter a parse tree produced by the `Lit`
    * labeled alternative in `CalcParser.expression`.
    * @param ctx the parse tree
    */
-  enterNumber?: (ctx: NumberContext) => void
+  enterLit?: (ctx: LitContext) => void
   /**
-   * Exit a parse tree produced by the `Number`
+   * Exit a parse tree produced by the `Lit`
    * labeled alternative in `CalcParser.expression`.
    * @param ctx the parse tree
    */
-  exitNumber?: (ctx: NumberContext) => void
+  exitLit?: (ctx: LitContext) => void
+
+  /**
+   * Enter a parse tree produced by the `Identifier`
+   * labeled alternative in `CalcParser.expression`.
+   * @param ctx the parse tree
+   */
+  enterIdentifier?: (ctx: IdentifierContext) => void
+  /**
+   * Exit a parse tree produced by the `Identifier`
+   * labeled alternative in `CalcParser.expression`.
+   * @param ctx the parse tree
+   */
+  exitIdentifier?: (ctx: IdentifierContext) => void
 
   /**
    * Enter a parse tree produced by the `Parentheses`
@@ -43,67 +63,93 @@ export interface CalcListener extends ParseTreeListener {
   exitParentheses?: (ctx: ParenthesesContext) => void
 
   /**
-   * Enter a parse tree produced by the `Multiplication`
-   * labeled alternative in `CalcParser.expression`.
+   * Enter a parse tree produced by the `IdentifierPat`
+   * labeled alternative in `CalcParser.pattern`.
    * @param ctx the parse tree
    */
-  enterMultiplication?: (ctx: MultiplicationContext) => void
+  enterIdentifierPat?: (ctx: IdentifierPatContext) => void
   /**
-   * Exit a parse tree produced by the `Multiplication`
-   * labeled alternative in `CalcParser.expression`.
+   * Exit a parse tree produced by the `IdentifierPat`
+   * labeled alternative in `CalcParser.pattern`.
    * @param ctx the parse tree
    */
-  exitMultiplication?: (ctx: MultiplicationContext) => void
+  exitIdentifierPat?: (ctx: IdentifierPatContext) => void
 
   /**
-   * Enter a parse tree produced by the `Division`
-   * labeled alternative in `CalcParser.expression`.
+   * Enter a parse tree produced by the `ExpressionStatement`
+   * labeled alternative in `CalcParser.statement`.
    * @param ctx the parse tree
    */
-  enterDivision?: (ctx: DivisionContext) => void
+  enterExpressionStatement?: (ctx: ExpressionStatementContext) => void
   /**
-   * Exit a parse tree produced by the `Division`
-   * labeled alternative in `CalcParser.expression`.
+   * Exit a parse tree produced by the `ExpressionStatement`
+   * labeled alternative in `CalcParser.statement`.
    * @param ctx the parse tree
    */
-  exitDivision?: (ctx: DivisionContext) => void
+  exitExpressionStatement?: (ctx: ExpressionStatementContext) => void
 
   /**
-   * Enter a parse tree produced by the `Addition`
-   * labeled alternative in `CalcParser.expression`.
+   * Enter a parse tree produced by the `DeclarationStatement`
+   * labeled alternative in `CalcParser.statement`.
    * @param ctx the parse tree
    */
-  enterAddition?: (ctx: AdditionContext) => void
+  enterDeclarationStatement?: (ctx: DeclarationStatementContext) => void
   /**
-   * Exit a parse tree produced by the `Addition`
-   * labeled alternative in `CalcParser.expression`.
+   * Exit a parse tree produced by the `DeclarationStatement`
+   * labeled alternative in `CalcParser.statement`.
    * @param ctx the parse tree
    */
-  exitAddition?: (ctx: AdditionContext) => void
+  exitDeclarationStatement?: (ctx: DeclarationStatementContext) => void
 
   /**
-   * Enter a parse tree produced by the `Subtraction`
-   * labeled alternative in `CalcParser.expression`.
+   * Enter a parse tree produced by the `ValueDeclaration`
+   * labeled alternative in `CalcParser.declaration`.
    * @param ctx the parse tree
    */
-  enterSubtraction?: (ctx: SubtractionContext) => void
+  enterValueDeclaration?: (ctx: ValueDeclarationContext) => void
   /**
-   * Exit a parse tree produced by the `Subtraction`
-   * labeled alternative in `CalcParser.expression`.
+   * Exit a parse tree produced by the `ValueDeclaration`
+   * labeled alternative in `CalcParser.declaration`.
    * @param ctx the parse tree
    */
-  exitSubtraction?: (ctx: SubtractionContext) => void
+  exitValueDeclaration?: (ctx: ValueDeclarationContext) => void
 
   /**
-   * Enter a parse tree produced by `CalcParser.start`.
+   * Enter a parse tree produced by the `Integer`
+   * labeled alternative in `CalcParser.literal`.
    * @param ctx the parse tree
    */
-  enterStart?: (ctx: StartContext) => void
+  enterInteger?: (ctx: IntegerContext) => void
   /**
-   * Exit a parse tree produced by `CalcParser.start`.
+   * Exit a parse tree produced by the `Integer`
+   * labeled alternative in `CalcParser.literal`.
    * @param ctx the parse tree
    */
-  exitStart?: (ctx: StartContext) => void
+  exitInteger?: (ctx: IntegerContext) => void
+
+  /**
+   * Enter a parse tree produced by the `Boolean`
+   * labeled alternative in `CalcParser.literal`.
+   * @param ctx the parse tree
+   */
+  enterBoolean?: (ctx: BooleanContext) => void
+  /**
+   * Exit a parse tree produced by the `Boolean`
+   * labeled alternative in `CalcParser.literal`.
+   * @param ctx the parse tree
+   */
+  exitBoolean?: (ctx: BooleanContext) => void
+
+  /**
+   * Enter a parse tree produced by `CalcParser.literal`.
+   * @param ctx the parse tree
+   */
+  enterLiteral?: (ctx: LiteralContext) => void
+  /**
+   * Exit a parse tree produced by `CalcParser.literal`.
+   * @param ctx the parse tree
+   */
+  exitLiteral?: (ctx: LiteralContext) => void
 
   /**
    * Enter a parse tree produced by `CalcParser.expression`.
@@ -115,4 +161,48 @@ export interface CalcListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   exitExpression?: (ctx: ExpressionContext) => void
+
+  /**
+   * Enter a parse tree produced by `CalcParser.pattern`.
+   * @param ctx the parse tree
+   */
+  enterPattern?: (ctx: PatternContext) => void
+  /**
+   * Exit a parse tree produced by `CalcParser.pattern`.
+   * @param ctx the parse tree
+   */
+  exitPattern?: (ctx: PatternContext) => void
+
+  /**
+   * Enter a parse tree produced by `CalcParser.declaration`.
+   * @param ctx the parse tree
+   */
+  enterDeclaration?: (ctx: DeclarationContext) => void
+  /**
+   * Exit a parse tree produced by `CalcParser.declaration`.
+   * @param ctx the parse tree
+   */
+  exitDeclaration?: (ctx: DeclarationContext) => void
+
+  /**
+   * Enter a parse tree produced by `CalcParser.statement`.
+   * @param ctx the parse tree
+   */
+  enterStatement?: (ctx: StatementContext) => void
+  /**
+   * Exit a parse tree produced by `CalcParser.statement`.
+   * @param ctx the parse tree
+   */
+  exitStatement?: (ctx: StatementContext) => void
+
+  /**
+   * Enter a parse tree produced by `CalcParser.program`.
+   * @param ctx the parse tree
+   */
+  enterProgram?: (ctx: ProgramContext) => void
+  /**
+   * Exit a parse tree produced by `CalcParser.program`.
+   * @param ctx the parse tree
+   */
+  exitProgram?: (ctx: ProgramContext) => void
 }
