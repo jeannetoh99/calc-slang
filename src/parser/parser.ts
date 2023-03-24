@@ -73,20 +73,6 @@ class ThrowingErrorListener implements ANTLRErrorListener {
   }
 }
 
-export class TypeAnnotationError implements SourceError {
-  public type = ErrorType.SYNTAX
-  public severity = ErrorSeverity.ERROR
-  public constructor(public location: es.SourceLocation, public message: string) {}
-
-  public explain() {
-    return this.message
-  }
-
-  public elaborate() {
-    return 'Type annotation does not match inferred type'
-  }
-}
-
 export class MissingSemicolonError implements SourceError {
   public type = ErrorType.SYNTAX
   public severity = ErrorSeverity.ERROR
