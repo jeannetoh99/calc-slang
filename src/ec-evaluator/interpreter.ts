@@ -215,6 +215,15 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     agenda.push(command.pred)
   },
 
+  LambdaExpression: function (
+    command: es.LambdaExpression,
+    context: Context,
+    agenda: Agenda,
+    stash: Stash
+  ) {
+    stash.push(instr.closureInstr(currentEnvironment(context), command))
+  },
+
   /**
    * Instructions
    */

@@ -79,6 +79,7 @@ export interface ValueDeclarator extends BaseNode {
 export interface ExpressionMap {
   ConditionalExpression: ConditionalExpression
   Identifier: Identifier
+  LambdaExpression: LambdaExpression
   Literal: Literal
 }
 
@@ -108,6 +109,12 @@ export interface ConditionalExpression extends BaseExpression {
   pred: Expression
   cons: Expression
   alt: Expression
+}
+
+export interface LambdaExpression extends BaseExpression {
+  type: 'LambdaExpression'
+  params: Pattern
+  body: Expression
 }
 
 export interface Identifier extends BaseExpression, BasePattern {

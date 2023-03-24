@@ -20,6 +20,7 @@ import {
   IdentifierExpressionContext,
   IdentifierPatternContext,
   IntegerContext,
+  LambdaExpressionContext,
   LiteralContext,
   LiteralExpressionContext,
   LiteralPatternContext,
@@ -122,6 +123,13 @@ class AstConverter implements CalcVisitor<es.Node> {
   }
   visitIdentifierExpression(ctx: IdentifierExpressionContext): es.Identifier {
     return this.visit(ctx.identifier()) as es.Identifier
+  }
+  visitLambdaExpression(ctx: LambdaExpressionContext): es.LambdaExpression {
+    return {
+      type: 'LambdaExpression',
+      params: this.visit(ctx.pattern()) as es.Pattern,
+      body: this.visit(ctx.expression()) as es.Expression
+    }
   }
   visitConditionalExpression(ctx: ConditionalExpressionContext): es.ConditionalExpression {
     return {

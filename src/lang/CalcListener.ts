@@ -5,6 +5,7 @@ import { ParseTreeListener } from "antlr4ts/tree/ParseTreeListener";
 
 import { LiteralExpressionContext } from "./CalcParser";
 import { IdentifierExpressionContext } from "./CalcParser";
+import { LambdaExpressionContext } from "./CalcParser";
 import { ConditionalExpressionContext } from "./CalcParser";
 import { ParenthesizedExpressionContext } from "./CalcParser";
 import { TypedExpressionContext } from "./CalcParser";
@@ -56,6 +57,19 @@ export interface CalcListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	exitIdentifierExpression?: (ctx: IdentifierExpressionContext) => void;
+
+	/**
+	 * Enter a parse tree produced by the `LambdaExpression`
+	 * labeled alternative in `CalcParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	enterLambdaExpression?: (ctx: LambdaExpressionContext) => void;
+	/**
+	 * Exit a parse tree produced by the `LambdaExpression`
+	 * labeled alternative in `CalcParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	exitLambdaExpression?: (ctx: LambdaExpressionContext) => void;
 
 	/**
 	 * Enter a parse tree produced by the `ConditionalExpression`

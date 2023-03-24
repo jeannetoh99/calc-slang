@@ -28,6 +28,7 @@ literal
 expression
    : literal                                                            # LiteralExpression
    | identifier                                                         # IdentifierExpression
+   | 'fn' pattern '=>' expression                                       # LambdaExpression
    | 'if' pred=expression 'then' cons=expression 'else' alt=expression  # ConditionalExpression
    | '(' expression ')'                                                 # ParenthesizedExpression
    | expression ':' TYPE                                                # TypedExpression

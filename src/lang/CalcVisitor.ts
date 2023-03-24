@@ -5,6 +5,7 @@ import { ParseTreeVisitor } from "antlr4ts/tree/ParseTreeVisitor";
 
 import { LiteralExpressionContext } from "./CalcParser";
 import { IdentifierExpressionContext } from "./CalcParser";
+import { LambdaExpressionContext } from "./CalcParser";
 import { ConditionalExpressionContext } from "./CalcParser";
 import { ParenthesizedExpressionContext } from "./CalcParser";
 import { TypedExpressionContext } from "./CalcParser";
@@ -49,6 +50,14 @@ export interface CalcVisitor<Result> extends ParseTreeVisitor<Result> {
 	 * @return the visitor result
 	 */
 	visitIdentifierExpression?: (ctx: IdentifierExpressionContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by the `LambdaExpression`
+	 * labeled alternative in `CalcParser.expression`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitLambdaExpression?: (ctx: LambdaExpressionContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by the `ConditionalExpression`

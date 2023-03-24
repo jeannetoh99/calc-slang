@@ -6,6 +6,7 @@ import { Agenda, Stash } from './interpreter'
 export enum InstrType {
   ASSIGNMENT = 'Assignment',
   BRANCH = 'Branch',
+  CLOSURE = 'Closure',
   ENVIRONMENT = 'Environment',
   POP = 'Pop',
   PUSH_UNDEFINED_IF_NEEDED = 'PushUndefinedIfNeeded'
@@ -27,11 +28,16 @@ export interface BranchInstr extends BaseInstr {
   srcNode: es.Node
 }
 
+export interface ClosureInstr extends BaseInstr {
+  env: Environment
+  srcNode: es.Node
+}
+
 export interface EnvInstr extends BaseInstr {
   env: Environment
 }
 
-export type Instr = BaseInstr | AssmtInstr | EnvInstr | BranchInstr
+export type Instr = BaseInstr | AssmtInstr | BranchInstr | EnvInstr
 
 export type AgendaItem = es.Node | Instr
 
