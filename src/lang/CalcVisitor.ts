@@ -5,7 +5,6 @@ import { ParseTreeVisitor } from 'antlr4ts/tree/ParseTreeVisitor'
 import { LitContext } from './CalcParser'
 import { IdentifierContext } from './CalcParser'
 import { ParenthesesContext } from './CalcParser'
-import { IdentifierPatContext } from './CalcParser'
 import { ExpressionStatementContext } from './CalcParser'
 import { DeclarationStatementContext } from './CalcParser'
 import { ValueDeclarationContext } from './CalcParser'
@@ -13,7 +12,6 @@ import { IntegerContext } from './CalcParser'
 import { BooleanContext } from './CalcParser'
 import { LiteralContext } from './CalcParser'
 import { ExpressionContext } from './CalcParser'
-import { PatternContext } from './CalcParser'
 import { DeclarationContext } from './CalcParser'
 import { StatementContext } from './CalcParser'
 import { ProgramContext } from './CalcParser'
@@ -49,14 +47,6 @@ export interface CalcVisitor<Result> extends ParseTreeVisitor<Result> {
    * @return the visitor result
    */
   visitParentheses?: (ctx: ParenthesesContext) => Result
-
-  /**
-   * Visit a parse tree produced by the `IdentifierPat`
-   * labeled alternative in `CalcParser.pattern`.
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  visitIdentifierPat?: (ctx: IdentifierPatContext) => Result
 
   /**
    * Visit a parse tree produced by the `ExpressionStatement`
@@ -111,13 +101,6 @@ export interface CalcVisitor<Result> extends ParseTreeVisitor<Result> {
    * @return the visitor result
    */
   visitExpression?: (ctx: ExpressionContext) => Result
-
-  /**
-   * Visit a parse tree produced by `CalcParser.pattern`.
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  visitPattern?: (ctx: PatternContext) => Result
 
   /**
    * Visit a parse tree produced by `CalcParser.declaration`.

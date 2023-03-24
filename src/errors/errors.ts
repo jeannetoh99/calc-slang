@@ -149,31 +149,7 @@ export class UnassignedVariable extends RuntimeSourceError {
 //   }
 // }
 
-// export class VariableRedeclaration extends RuntimeSourceError {
-//   constructor(private node: es.Node, private name: string, private writable?: boolean) {
-//     super(node)
-//   }
-
-//   public explain() {
-//     return `Redeclaring name ${this.name}.`
-//   }
-
-//   public elaborate() {
-//     if (this.writable === true) {
-//       const elabStr = `Since ${this.name} has already been declared, you can assign a value to it without re-declaring.`
-
-//       const initStr = ''
-
-//       return `${elabStr} As such, you can just do\n\n\t${this.name} = ${initStr};\n`
-//     } else if (this.writable === false) {
-//       return `You will need to declare another variable, as ${this.name} is read-only.`
-//     } else {
-//       return ''
-//     }
-//   }
-// }
-
-export class DivisiionByZeroError extends RuntimeSourceError {
+export class DivisionByZeroError extends RuntimeSourceError {
   constructor(node: es.Node) {
     super(node)
   }

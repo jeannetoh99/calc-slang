@@ -63,12 +63,7 @@ export function validateAndAnnotate(
           .get(name)!.accessedBeforeDeclaration
         node.typability = accessedBeforeDeclaration ? 'Untypable' : 'NotYetTyped'
       },
-      Identifier: validateIdentifier,
-      Pattern(node: es.Pattern, ancestors: es.Node[]) {
-        if (node.type === 'Identifier') {
-          validateIdentifier(node, ancestors)
-        }
-      }
+      Identifier: validateIdentifier
     },
     customWalker
   )

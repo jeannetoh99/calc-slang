@@ -1,7 +1,4 @@
-import { isInteger } from 'lodash'
-
 import * as es from '../ast'
-import { DivisiionByZeroError } from '../errors/errors'
 import { RuntimeSourceError } from '../errors/runtimeSourceError'
 import { ErrorSeverity, ErrorType, Value } from '../types'
 

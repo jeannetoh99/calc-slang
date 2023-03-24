@@ -36,15 +36,13 @@ export class CalcParser extends Parser {
   public static readonly WHITESPACE = 9
   public static readonly RULE_literal = 0
   public static readonly RULE_expression = 1
-  public static readonly RULE_pattern = 2
-  public static readonly RULE_declaration = 3
-  public static readonly RULE_statement = 4
-  public static readonly RULE_program = 5
+  public static readonly RULE_declaration = 2
+  public static readonly RULE_statement = 3
+  public static readonly RULE_program = 4
   // tslint:disable:no-trailing-whitespace
   public static readonly ruleNames: string[] = [
     'literal',
     'expression',
-    'pattern',
     'declaration',
     'statement',
     'program'
@@ -114,14 +112,14 @@ export class CalcParser extends Parser {
     let _localctx: LiteralContext = new LiteralContext(this._ctx, this.state)
     this.enterRule(_localctx, 0, CalcParser.RULE_literal)
     try {
-      this.state = 14
+      this.state = 12
       this._errHandler.sync(this)
       switch (this._input.LA(1)) {
         case CalcParser.INTEGER_LITERAL:
           _localctx = new IntegerContext(_localctx)
           this.enterOuterAlt(_localctx, 1)
           {
-            this.state = 12
+            this.state = 10
             this.match(CalcParser.INTEGER_LITERAL)
           }
           break
@@ -129,7 +127,7 @@ export class CalcParser extends Parser {
           _localctx = new BooleanContext(_localctx)
           this.enterOuterAlt(_localctx, 2)
           {
-            this.state = 13
+            this.state = 11
             this.match(CalcParser.BOOLEAN_LITERAL)
           }
           break
@@ -154,7 +152,7 @@ export class CalcParser extends Parser {
     let _localctx: ExpressionContext = new ExpressionContext(this._ctx, this.state)
     this.enterRule(_localctx, 2, CalcParser.RULE_expression)
     try {
-      this.state = 22
+      this.state = 20
       this._errHandler.sync(this)
       switch (this._input.LA(1)) {
         case CalcParser.INTEGER_LITERAL:
@@ -162,7 +160,7 @@ export class CalcParser extends Parser {
           _localctx = new LitContext(_localctx)
           this.enterOuterAlt(_localctx, 1)
           {
-            this.state = 16
+            this.state = 14
             this.literal()
           }
           break
@@ -170,7 +168,7 @@ export class CalcParser extends Parser {
           _localctx = new IdentifierContext(_localctx)
           this.enterOuterAlt(_localctx, 2)
           {
-            this.state = 17
+            this.state = 15
             this.match(CalcParser.IDENTIFIER)
           }
           break
@@ -178,11 +176,11 @@ export class CalcParser extends Parser {
           _localctx = new ParenthesesContext(_localctx)
           this.enterOuterAlt(_localctx, 3)
           {
-            this.state = 18
+            this.state = 16
             this.match(CalcParser.T__0)
-            this.state = 19
+            this.state = 17
             ;(_localctx as ParenthesesContext)._inner = this.expression()
-            this.state = 20
+            this.state = 18
             this.match(CalcParser.T__1)
           }
           break
@@ -203,44 +201,20 @@ export class CalcParser extends Parser {
     return _localctx
   }
   // @RuleVersion(0)
-  public pattern(): PatternContext {
-    let _localctx: PatternContext = new PatternContext(this._ctx, this.state)
-    this.enterRule(_localctx, 4, CalcParser.RULE_pattern)
-    try {
-      _localctx = new IdentifierPatContext(_localctx)
-      this.enterOuterAlt(_localctx, 1)
-      {
-        this.state = 24
-        this.match(CalcParser.IDENTIFIER)
-      }
-    } catch (re) {
-      if (re instanceof RecognitionException) {
-        _localctx.exception = re
-        this._errHandler.reportError(this, re)
-        this._errHandler.recover(this, re)
-      } else {
-        throw re
-      }
-    } finally {
-      this.exitRule()
-    }
-    return _localctx
-  }
-  // @RuleVersion(0)
   public declaration(): DeclarationContext {
     let _localctx: DeclarationContext = new DeclarationContext(this._ctx, this.state)
-    this.enterRule(_localctx, 6, CalcParser.RULE_declaration)
+    this.enterRule(_localctx, 4, CalcParser.RULE_declaration)
     try {
       _localctx = new ValueDeclarationContext(_localctx)
       this.enterOuterAlt(_localctx, 1)
       {
-        this.state = 26
+        this.state = 22
         this.match(CalcParser.T__2)
-        this.state = 27
-        ;(_localctx as ValueDeclarationContext)._id = this.pattern()
-        this.state = 28
+        this.state = 23
+        ;(_localctx as ValueDeclarationContext)._id = this.match(CalcParser.IDENTIFIER)
+        this.state = 24
         this.match(CalcParser.T__3)
-        this.state = 29
+        this.state = 25
         ;(_localctx as ValueDeclarationContext)._val = this.expression()
       }
     } catch (re) {
@@ -259,9 +233,9 @@ export class CalcParser extends Parser {
   // @RuleVersion(0)
   public statement(): StatementContext {
     let _localctx: StatementContext = new StatementContext(this._ctx, this.state)
-    this.enterRule(_localctx, 8, CalcParser.RULE_statement)
+    this.enterRule(_localctx, 6, CalcParser.RULE_statement)
     try {
-      this.state = 37
+      this.state = 33
       this._errHandler.sync(this)
       switch (this._input.LA(1)) {
         case CalcParser.T__0:
@@ -271,9 +245,9 @@ export class CalcParser extends Parser {
           _localctx = new ExpressionStatementContext(_localctx)
           this.enterOuterAlt(_localctx, 1)
           {
-            this.state = 31
+            this.state = 27
             ;(_localctx as ExpressionStatementContext)._expr = this.expression()
-            this.state = 32
+            this.state = 28
             this.match(CalcParser.T__4)
           }
           break
@@ -281,9 +255,9 @@ export class CalcParser extends Parser {
           _localctx = new DeclarationStatementContext(_localctx)
           this.enterOuterAlt(_localctx, 2)
           {
-            this.state = 34
+            this.state = 30
             ;(_localctx as DeclarationStatementContext)._decl = this.declaration()
-            this.state = 35
+            this.state = 31
             this.match(CalcParser.T__4)
           }
           break
@@ -306,12 +280,12 @@ export class CalcParser extends Parser {
   // @RuleVersion(0)
   public program(): ProgramContext {
     const _localctx: ProgramContext = new ProgramContext(this._ctx, this.state)
-    this.enterRule(_localctx, 10, CalcParser.RULE_program)
+    this.enterRule(_localctx, 8, CalcParser.RULE_program)
     let _la: number
     try {
       this.enterOuterAlt(_localctx, 1)
       {
-        this.state = 42
+        this.state = 38
         this._errHandler.sync(this)
         _la = this._input.LA(1)
         while (
@@ -326,11 +300,11 @@ export class CalcParser extends Parser {
         ) {
           {
             {
-              this.state = 39
+              this.state = 35
               this.statement()
             }
           }
-          this.state = 44
+          this.state = 40
           this._errHandler.sync(this)
           _la = this._input.LA(1)
         }
@@ -350,27 +324,26 @@ export class CalcParser extends Parser {
   }
 
   public static readonly _serializedATN: string =
-    '\x03\uC91D\uCABA\u058D\uAFBA\u4F53\u0607\uEA8B\uC241\x03\v0\x04\x02\t' +
-    '\x02\x04\x03\t\x03\x04\x04\t\x04\x04\x05\t\x05\x04\x06\t\x06\x04\x07\t' +
-    '\x07\x03\x02\x03\x02\x05\x02\x11\n\x02\x03\x03\x03\x03\x03\x03\x03\x03' +
-    '\x03\x03\x03\x03\x05\x03\x19\n\x03\x03\x04\x03\x04\x03\x05\x03\x05\x03' +
-    '\x05\x03\x05\x03\x05\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x05' +
-    '\x06(\n\x06\x03\x07\x07\x07+\n\x07\f\x07\x0E\x07.\v\x07\x03\x07\x02\x02' +
-    '\x02\b\x02\x02\x04\x02\x06\x02\b\x02\n\x02\f\x02\x02\x02\x02.\x02\x10' +
-    '\x03\x02\x02\x02\x04\x18\x03\x02\x02\x02\x06\x1A\x03\x02\x02\x02\b\x1C' +
-    "\x03\x02\x02\x02\n'\x03\x02\x02\x02\f,\x03\x02\x02\x02\x0E\x11\x07\b" +
-    '\x02\x02\x0F\x11\x07\t\x02\x02\x10\x0E\x03\x02\x02\x02\x10\x0F\x03\x02' +
-    '\x02\x02\x11\x03\x03\x02\x02\x02\x12\x19\x05\x02\x02\x02\x13\x19\x07\n' +
-    '\x02\x02\x14\x15\x07\x03\x02\x02\x15\x16\x05\x04\x03\x02\x16\x17\x07\x04' +
-    '\x02\x02\x17\x19\x03\x02\x02\x02\x18\x12\x03\x02\x02\x02\x18\x13\x03\x02' +
-    '\x02\x02\x18\x14\x03\x02\x02\x02\x19\x05\x03\x02\x02\x02\x1A\x1B\x07\n' +
-    '\x02\x02\x1B\x07\x03\x02\x02\x02\x1C\x1D\x07\x05\x02\x02\x1D\x1E\x05\x06' +
-    '\x04\x02\x1E\x1F\x07\x06\x02\x02\x1F \x05\x04\x03\x02 \t\x03\x02\x02\x02' +
-    '!"\x05\x04\x03\x02"#\x07\x07\x02\x02#(\x03\x02\x02\x02$%\x05\b\x05\x02' +
-    "%&\x07\x07\x02\x02&(\x03\x02\x02\x02'!\x03\x02\x02\x02'$\x03\x02\x02" +
-    '\x02(\v\x03\x02\x02\x02)+\x05\n\x06\x02*)\x03\x02\x02\x02+.\x03\x02\x02' +
-    '\x02,*\x03\x02\x02\x02,-\x03\x02\x02\x02-\r\x03\x02\x02\x02.,\x03\x02' +
-    "\x02\x02\x06\x10\x18',"
+    '\x03\uC91D\uCABA\u058D\uAFBA\u4F53\u0607\uEA8B\uC241\x03\v,\x04\x02\t' +
+    '\x02\x04\x03\t\x03\x04\x04\t\x04\x04\x05\t\x05\x04\x06\t\x06\x03\x02\x03' +
+    '\x02\x05\x02\x0F\n\x02\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03' +
+    '\x05\x03\x17\n\x03\x03\x04\x03\x04\x03\x04\x03\x04\x03\x04\x03\x05\x03' +
+    "\x05\x03\x05\x03\x05\x03\x05\x03\x05\x05\x05$\n\x05\x03\x06\x07\x06'" +
+    '\n\x06\f\x06\x0E\x06*\v\x06\x03\x06\x02\x02\x02\x07\x02\x02\x04\x02\x06' +
+    '\x02\b\x02\n\x02\x02\x02\x02+\x02\x0E\x03\x02\x02\x02\x04\x16\x03\x02' +
+    '\x02\x02\x06\x18\x03\x02\x02\x02\b#\x03\x02\x02\x02\n(\x03\x02\x02\x02' +
+    '\f\x0F\x07\b\x02\x02\r\x0F\x07\t\x02\x02\x0E\f\x03\x02\x02\x02\x0E\r\x03' +
+    '\x02\x02\x02\x0F\x03\x03\x02\x02\x02\x10\x17\x05\x02\x02\x02\x11\x17\x07' +
+    '\n\x02\x02\x12\x13\x07\x03\x02\x02\x13\x14\x05\x04\x03\x02\x14\x15\x07' +
+    '\x04\x02\x02\x15\x17\x03\x02\x02\x02\x16\x10\x03\x02\x02\x02\x16\x11\x03' +
+    '\x02\x02\x02\x16\x12\x03\x02\x02\x02\x17\x05\x03\x02\x02\x02\x18\x19\x07' +
+    '\x05\x02\x02\x19\x1A\x07\n\x02\x02\x1A\x1B\x07\x06\x02\x02\x1B\x1C\x05' +
+    '\x04\x03\x02\x1C\x07\x03\x02\x02\x02\x1D\x1E\x05\x04\x03\x02\x1E\x1F\x07' +
+    '\x07\x02\x02\x1F$\x03\x02\x02\x02 !\x05\x06\x04\x02!"\x07\x07\x02\x02' +
+    '"$\x03\x02\x02\x02#\x1D\x03\x02\x02\x02# \x03\x02\x02\x02$\t\x03\x02' +
+    "\x02\x02%'\x05\b\x05\x02&%\x03\x02\x02\x02'*\x03\x02\x02\x02(&\x03\x02" +
+    '\x02\x02()\x03\x02\x02\x02)\v\x03\x02\x02\x02*(\x03\x02\x02\x02\x06\x0E' +
+    '\x16#('
   public static __ATN: ATN
   public static get _ATN(): ATN {
     if (!CalcParser.__ATN) {
@@ -555,48 +528,6 @@ export class ParenthesesContext extends ExpressionContext {
   }
 }
 
-export class PatternContext extends ParserRuleContext {
-  constructor(parent: ParserRuleContext | undefined, invokingState: number) {
-    super(parent, invokingState)
-  }
-  // @Override
-  public get ruleIndex(): number {
-    return CalcParser.RULE_pattern
-  }
-  public copyFrom(ctx: PatternContext): void {
-    super.copyFrom(ctx)
-  }
-}
-export class IdentifierPatContext extends PatternContext {
-  public IDENTIFIER(): TerminalNode {
-    return this.getToken(CalcParser.IDENTIFIER, 0)
-  }
-  constructor(ctx: PatternContext) {
-    super(ctx.parent, ctx.invokingState)
-    this.copyFrom(ctx)
-  }
-  // @Override
-  public enterRule(listener: CalcListener): void {
-    if (listener.enterIdentifierPat) {
-      listener.enterIdentifierPat(this)
-    }
-  }
-  // @Override
-  public exitRule(listener: CalcListener): void {
-    if (listener.exitIdentifierPat) {
-      listener.exitIdentifierPat(this)
-    }
-  }
-  // @Override
-  public accept<Result>(visitor: CalcVisitor<Result>): Result {
-    if (visitor.visitIdentifierPat) {
-      return visitor.visitIdentifierPat(this)
-    } else {
-      return visitor.visitChildren(this)
-    }
-  }
-}
-
 export class DeclarationContext extends ParserRuleContext {
   constructor(parent: ParserRuleContext | undefined, invokingState: number) {
     super(parent, invokingState)
@@ -610,10 +541,10 @@ export class DeclarationContext extends ParserRuleContext {
   }
 }
 export class ValueDeclarationContext extends DeclarationContext {
-  public _id!: PatternContext
+  public _id!: Token
   public _val!: ExpressionContext
-  public pattern(): PatternContext {
-    return this.getRuleContext(0, PatternContext)
+  public IDENTIFIER(): TerminalNode {
+    return this.getToken(CalcParser.IDENTIFIER, 0)
   }
   public expression(): ExpressionContext {
     return this.getRuleContext(0, ExpressionContext)

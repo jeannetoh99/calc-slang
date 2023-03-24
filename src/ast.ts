@@ -11,13 +11,18 @@ interface NodeMap {
   Expression: Expression
   Identifier: Identifier
   Literal: Literal
-  Pattern: Pattern
+  NodeArray: NodeArray
   Program: Program
   Statement: Statement
   ValueDeclarator: ValueDeclarator
 }
 
 export type Node = NodeMap[keyof NodeMap]
+
+export interface NodeArray extends BaseNode {
+  type: 'NodeArray'
+  nodes: Array<BaseNode>
+}
 
 export interface SourceLocation {
   source?: string | null | undefined
@@ -67,42 +72,27 @@ export interface ValueDeclaration extends BaseDeclaration {
 
 export interface ValueDeclarator extends BaseNode {
   type: 'ValueDeclarator'
-  id: Pattern
+  id: Identifier
   init?: Expression | null | undefined
 }
 
 export interface ExpressionMap {
   Identifier: Identifier
   Literal: Literal
-  SequenceExpression: SequenceExpression
 }
 
 export type Expression = ExpressionMap[keyof ExpressionMap]
 
 export type BaseExpression = BaseNode
 
-export interface SequenceExpression extends BaseExpression {
-  type: 'SequenceExpression'
-  expressions: Array<Expression>
-}
-
-export type Pattern = Identifier | ArrayPattern
-
-type BasePattern = BaseNode
-
-export interface Identifier extends BaseNode, BaseExpression, BasePattern {
+export interface Identifier extends BaseExpression {
   type: 'Identifier'
   name: string
 }
 
-export interface ArrayPattern extends BasePattern {
-  type: 'ArrayPattern'
-  elements: Array<Pattern | null>
-}
-
 export type Literal = SimpleLiteral
 
-export interface SimpleLiteral extends BaseNode, BaseExpression {
+export interface SimpleLiteral extends BaseExpression {
   type: 'Literal'
   value: string | boolean | number | null
   raw?: string | undefined

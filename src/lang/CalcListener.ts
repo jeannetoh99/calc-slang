@@ -5,7 +5,6 @@ import { ParseTreeListener } from 'antlr4ts/tree/ParseTreeListener'
 import { LitContext } from './CalcParser'
 import { IdentifierContext } from './CalcParser'
 import { ParenthesesContext } from './CalcParser'
-import { IdentifierPatContext } from './CalcParser'
 import { ExpressionStatementContext } from './CalcParser'
 import { DeclarationStatementContext } from './CalcParser'
 import { ValueDeclarationContext } from './CalcParser'
@@ -13,7 +12,6 @@ import { IntegerContext } from './CalcParser'
 import { BooleanContext } from './CalcParser'
 import { LiteralContext } from './CalcParser'
 import { ExpressionContext } from './CalcParser'
-import { PatternContext } from './CalcParser'
 import { DeclarationContext } from './CalcParser'
 import { StatementContext } from './CalcParser'
 import { ProgramContext } from './CalcParser'
@@ -61,19 +59,6 @@ export interface CalcListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   exitParentheses?: (ctx: ParenthesesContext) => void
-
-  /**
-   * Enter a parse tree produced by the `IdentifierPat`
-   * labeled alternative in `CalcParser.pattern`.
-   * @param ctx the parse tree
-   */
-  enterIdentifierPat?: (ctx: IdentifierPatContext) => void
-  /**
-   * Exit a parse tree produced by the `IdentifierPat`
-   * labeled alternative in `CalcParser.pattern`.
-   * @param ctx the parse tree
-   */
-  exitIdentifierPat?: (ctx: IdentifierPatContext) => void
 
   /**
    * Enter a parse tree produced by the `ExpressionStatement`
@@ -161,17 +146,6 @@ export interface CalcListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   exitExpression?: (ctx: ExpressionContext) => void
-
-  /**
-   * Enter a parse tree produced by `CalcParser.pattern`.
-   * @param ctx the parse tree
-   */
-  enterPattern?: (ctx: PatternContext) => void
-  /**
-   * Exit a parse tree produced by `CalcParser.pattern`.
-   * @param ctx the parse tree
-   */
-  exitPattern?: (ctx: PatternContext) => void
 
   /**
    * Enter a parse tree produced by `CalcParser.declaration`.
