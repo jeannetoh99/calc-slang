@@ -81,7 +81,7 @@ export interface ExpressionMap {
   Literal: Literal
 }
 
-export type Type = 'int' | 'bool';
+export type Type = 'int' | 'bool'
 
 export type Expression = ExpressionMap[keyof ExpressionMap]
 

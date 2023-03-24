@@ -27,7 +27,8 @@ import {
   StatementContext,
   TypedExpressionContext,
   TypedPatternContext,
-  ValueDeclarationContext} from '../lang/CalcParser'
+  ValueDeclarationContext
+} from '../lang/CalcParser'
 import { CalcVisitor } from '../lang/CalcVisitor'
 import { Context, ErrorSeverity, ErrorType, SourceError } from '../types'
 
@@ -199,7 +200,7 @@ class AstConverter implements CalcVisitor<es.Node> {
 
   visitLiteral?: ((ctx: LiteralContext) => es.Literal) | undefined
   visitExpression?: ((ctx: ExpressionContext) => es.Expression) | undefined
-  visitPattern?: ((ctx: ProgramContext) => es.Pattern) | undefined 
+  visitPattern?: ((ctx: ProgramContext) => es.Pattern) | undefined
   visitDeclaration?: ((ctx: DeclarationContext) => es.Declaration) | undefined
   visitStatement?: ((ctx: StatementContext) => es.Statement) | undefined
 
