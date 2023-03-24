@@ -166,12 +166,7 @@ export function declareFunctionsAndVariables(context: Context, node: es.BlockSta
   }
 }
 
-export function defineVariable(
-  context: Context,
-  name: string,
-  value: Value,
-  constant = false
-) {
+export function defineVariable(context: Context, name: string, value: Value, constant = false) {
   const environment = currentEnvironment(context)
 
   Object.defineProperty(environment.head, name, {

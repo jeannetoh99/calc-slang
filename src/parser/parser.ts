@@ -200,7 +200,7 @@ class AstConverter implements CalcVisitor<es.Node> {
     return {
       type: 'FunctionDeclaration',
       id: this.visit(ctx.identifier()) as es.Identifier,
-      params: [ this.visit(ctx.pattern()) as es.Pattern ],
+      params: [this.visit(ctx.pattern()) as es.Pattern],
       body: this.visit(ctx.expression()) as es.Expression
     }
   }
