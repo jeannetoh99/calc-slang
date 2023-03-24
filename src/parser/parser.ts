@@ -127,7 +127,7 @@ class AstConverter implements CalcVisitor<es.Node> {
       type: 'ConditionalExpression',
       pred: this.visit(ctx._pred) as es.Expression,
       cons: this.visit(ctx._cons) as es.Expression,
-      alt: this.visit(ctx._alt) as es.Expression,
+      alt: this.visit(ctx._alt) as es.Expression
     }
   }
   visitParenthesizedExpression(ctx: ParenthesizedExpressionContext): es.Expression {

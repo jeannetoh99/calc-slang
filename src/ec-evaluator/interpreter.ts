@@ -10,7 +10,16 @@ import * as es from '../ast'
 import { Context, Result, Value } from '../types'
 import * as rttc from '../utils/rttc'
 import * as instr from './instrCreator'
-import { AgendaItem, AssmtInstr, BranchInstr, CmdEvaluator, ECError, EnvInstr, Instr, InstrType } from './types'
+import {
+  AgendaItem,
+  AssmtInstr,
+  BranchInstr,
+  CmdEvaluator,
+  ECError,
+  EnvInstr,
+  Instr,
+  InstrType
+} from './types'
 import {
   createBlockEnvironment,
   currentEnvironment,
@@ -197,12 +206,13 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
   },
 
   ConditionalExpression: function (
-    command: es.ConditionalExpression, 
-    context: Context, 
-    agenda: Agenda, 
-    stash: Stash) {
-      agenda.push(instr.branchInstr(command.cons, command.alt, command))
-      agenda.push(command.pred)
+    command: es.ConditionalExpression,
+    context: Context,
+    agenda: Agenda,
+    stash: Stash
+  ) {
+    agenda.push(instr.branchInstr(command.cons, command.alt, command))
+    agenda.push(command.pred)
   },
 
   /**
@@ -224,7 +234,12 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     )
   },
 
-  [InstrType.BRANCH]: function (command: BranchInstr, context: Context, agenda: Agenda, stash: Stash) {
+  [InstrType.BRANCH]: function (
+    command: BranchInstr,
+    context: Context,
+    agenda: Agenda,
+    stash: Stash
+  ) {
     const test = stash.pop()
 
     // Check if predicate is a boolean
