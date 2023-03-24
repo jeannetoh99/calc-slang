@@ -199,6 +199,16 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     agenda.push(init)
   },
 
+  FunctionDeclaration: function (command: es.FunctionDeclaration, context: Context, agenda: Agenda) {
+    const lambdaExpression : es.LambdaExpression = {
+      type: 'LambdaExpression',
+      params: command.params,
+      body: command.body
+    }
+    agenda.push(instr.assmtInstr(command.id.name, true, command))
+    agenda.push(lambdaExpression)
+  },
+
   /**
    * Expressions
    */
@@ -286,8 +296,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
       context,
       command.symbol,
       stash.peek(),
-      false,
-      command.srcNode as es.ValueDeclaration
+      false
     )
   },
 

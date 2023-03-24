@@ -170,8 +170,7 @@ export function defineVariable(
   context: Context,
   name: string,
   value: Value,
-  constant = false,
-  node: es.ValueDeclaration
+  constant = false
 ) {
   const environment = currentEnvironment(context)
 

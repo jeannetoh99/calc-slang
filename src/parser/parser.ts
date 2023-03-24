@@ -17,6 +17,7 @@ import {
   ExpressionContext,
   ExpressionStatementContext,
   FunctionApplicationContext,
+  FunctionDeclarationContext,
   IdentifierContext,
   IdentifierExpressionContext,
   IdentifierPatternContext,
@@ -182,7 +183,7 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitDeclarationStatement(ctx: DeclarationStatementContext): es.Statement {
     return this.visit(ctx.declaration()) as es.Statement
   }
-  visitValueDeclaration(ctx: ValueDeclarationContext): es.Declaration {
+  visitValueDeclaration(ctx: ValueDeclarationContext): es.ValueDeclaration {
     return {
       type: 'ValueDeclaration',
       declarations: [
@@ -193,6 +194,14 @@ class AstConverter implements CalcVisitor<es.Node> {
         }
       ],
       loc: contextToLocation(ctx)
+    }
+  }
+  visitFunctionDeclaration(ctx: FunctionDeclarationContext): es.FunctionDeclaration {
+    return {
+      type: 'FunctionDeclaration',
+      id: this.visit(ctx.identifier()) as es.Identifier,
+      params: [ this.visit(ctx.pattern()) as es.Pattern ],
+      body: this.visit(ctx.expression()) as es.Expression
     }
   }
   visitInteger(ctx: IntegerContext): es.Literal {

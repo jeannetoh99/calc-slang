@@ -44,6 +44,7 @@ pattern
 
 declaration
    : 'val' pattern '=' expression               # ValueDeclaration
+   | 'fun' identifier pattern '=' expression    # FunctionDeclaration
    ;
 
 statement

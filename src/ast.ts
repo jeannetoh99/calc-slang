@@ -61,13 +61,20 @@ export interface ExpressionStatement extends BaseStatement {
   expression: Expression
 }
 
-export type Declaration = ValueDeclaration
+export type Declaration = ValueDeclaration | FunctionDeclaration
 
 type BaseDeclaration = BaseStatement
 
 export interface ValueDeclaration extends BaseDeclaration {
   type: 'ValueDeclaration'
   declarations: Array<ValueDeclarator>
+}
+
+export interface FunctionDeclaration extends BaseDeclaration {
+  type: 'FunctionDeclaration'
+  id: Identifier
+  params: Array<Pattern>
+  body: Expression
 }
 
 export interface ValueDeclarator extends BaseNode {
