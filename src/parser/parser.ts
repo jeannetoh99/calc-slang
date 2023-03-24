@@ -43,9 +43,15 @@ export class FatalSyntaxError implements SourceError {
 
 // @ts-ignore
 class ThrowingErrorListener implements ANTLRErrorListener {
-
   // @ts-ignore
-  syntaxError<T extends TSymbol>(recognizer: Recognizer<T, any>, offendingSymbol: T | undefined, line: number, charPositionInLine: number, msg: string, e: RecognitionException | undefined): void {
+  syntaxError<T extends TSymbol>(
+    recognizer: Recognizer<T, any>,
+    offendingSymbol: T | undefined,
+    line: number,
+    charPositionInLine: number,
+    msg: string,
+    e: RecognitionException | undefined
+  ): void {
     throw new FatalSyntaxError(
       {
         start: {
@@ -105,7 +111,7 @@ function contextToLocation(ctx: ExpressionContext): es.SourceLocation {
 
 class AstConverter implements CalcVisitor<es.Node> {
   visitLit(ctx: LitContext): es.Literal {
-    return this.visit(ctx.literal()) as es.Literal;
+    return this.visit(ctx.literal()) as es.Literal
   }
   visitIdentifier(ctx: IdentifierContext): es.Identifier {
     return {
@@ -133,7 +139,7 @@ class AstConverter implements CalcVisitor<es.Node> {
           type: 'ValueDeclarator',
           id: {
             type: 'Identifier',
-            name: ctx.IDENTIFIER().text,
+            name: ctx.IDENTIFIER().text
           },
           init: this.visit(ctx.expression()) as es.Expression
         }
@@ -161,7 +167,7 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitExpression?: ((ctx: ExpressionContext) => es.Expression) | undefined
   visitDeclaration?: ((ctx: DeclarationContext) => es.Declaration) | undefined
   visitStatement?: ((ctx: StatementContext) => es.Statement) | undefined
-  
+
   visitProgram(ctx: ProgramContext): es.Program {
     const statements: es.Statement[] = []
     for (const statement of ctx.statement()) {
@@ -209,7 +215,7 @@ class AstConverter implements CalcVisitor<es.Node> {
 function convertSource(program: ProgramContext): es.Program {
   const converter = new AstConverter()
   return program.accept(converter) as es.Program
-} 
+}
 
 export function parse(source: string, context: Context) {
   let program: es.Program | undefined
