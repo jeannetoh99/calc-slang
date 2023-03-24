@@ -4,16 +4,22 @@ import { Environment } from '../types'
 import { Agenda, Stash } from './interpreter'
 
 export enum InstrType {
+  APPLICATION = 'Application',
   ASSIGNMENT = 'Assignment',
   BRANCH = 'Branch',
   CLOSURE = 'Closure',
   ENVIRONMENT = 'Environment',
   POP = 'Pop',
-  PUSH_UNDEFINED_IF_NEEDED = 'PushUndefinedIfNeeded'
+  PUSH_UNDEFINED_IF_NEEDED = 'PushUndefinedIfNeeded',
 }
 
 interface BaseInstr {
   instrType: InstrType
+}
+
+export interface AppInstr extends BaseInstr {
+  arity: number
+  srcNode: es.CallExpression
 }
 
 export interface AssmtInstr extends BaseInstr {
@@ -30,7 +36,7 @@ export interface BranchInstr extends BaseInstr {
 
 export interface ClosureInstr extends BaseInstr {
   env: Environment
-  srcNode: es.Node
+  srcNode: es.LambdaExpression
 }
 
 export interface EnvInstr extends BaseInstr {

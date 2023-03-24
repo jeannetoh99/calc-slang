@@ -28,10 +28,11 @@ literal
 expression
    : literal                                                            # LiteralExpression
    | identifier                                                         # IdentifierExpression
-   | 'fn' pattern '=>' expression                                       # LambdaExpression
-   | 'if' pred=expression 'then' cons=expression 'else' alt=expression  # ConditionalExpression
-   | '(' expression ')'                                                 # ParenthesizedExpression
    | expression ':' TYPE                                                # TypedExpression
+   | 'if' pred=expression 'then' cons=expression 'else' alt=expression  # ConditionalExpression
+   | 'fn' pattern '=>' expression                                       # LambdaExpression
+   | fn=expression args=expression                                      # FunctionApplication
+   | '(' expression ')'                                                 # ParenthesizedExpression
    ;
 
 pattern

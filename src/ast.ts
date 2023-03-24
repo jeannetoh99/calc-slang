@@ -77,6 +77,7 @@ export interface ValueDeclarator extends BaseNode {
 }
 
 export interface ExpressionMap {
+  CallExpression: CallExpression
   ConditionalExpression: ConditionalExpression
   Identifier: Identifier
   LambdaExpression: LambdaExpression
@@ -104,6 +105,12 @@ export interface BasePattern extends BaseNode {
   inferredType?: Type
 }
 
+export interface CallExpression extends BaseExpression {
+  type: 'CallExpression'
+  callee: Expression
+  args: Array<Expression>
+}
+
 export interface ConditionalExpression extends BaseExpression {
   type: 'ConditionalExpression'
   pred: Expression
@@ -113,7 +120,7 @@ export interface ConditionalExpression extends BaseExpression {
 
 export interface LambdaExpression extends BaseExpression {
   type: 'LambdaExpression'
-  params: Pattern
+  params: Array<Pattern>
   body: Expression
 }
 

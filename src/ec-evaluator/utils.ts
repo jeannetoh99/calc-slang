@@ -5,8 +5,10 @@ import * as es from '../ast'
 import * as errors from '../errors/errors'
 import { RuntimeSourceError } from '../errors/runtimeSourceError'
 import { Environment, Frame, Value } from '../types'
+import * as ast from '../utils/astCreator'
 import * as instr from './instrCreator'
-import { AgendaItem } from './types'
+import { Agenda } from './interpreter'
+import { AgendaItem, ClosureInstr, InstrType } from './types'
 
 /**
  * Stack is implemented for agenda and stash registers.
@@ -57,6 +59,16 @@ export const isNode = (command: AgendaItem): command is es.Node => {
 }
 
 /**
+ * Typeguard for esIdentifier. To verify if an esNode is an esIdentifier.
+ *
+ * @param node an esNode
+ * @returns true if node is an esIdentifier, false otherwise.
+ */
+export const isIdentifier = (node: es.Node): node is es.Identifier => {
+  return (node as es.Identifier).name !== undefined
+}
+
+/**
  * A helper function for handling sequences of statements.
  * Statements must be pushed in reverse order, and each statement is separated by a pop
  * instruction so that only the result of the last statement remains on stash.
@@ -80,6 +92,29 @@ export const handleSequence = (seq: es.Statement[]): AgendaItem[] => {
  */
 
 export const currentEnvironment = (context: Context) => context.runtime.environments[0]
+
+
+export const createEnvironment = (
+  closure: ClosureInstr,
+  args: Value[],
+  callExpression: es.CallExpression
+): Environment => {
+  const id = uniqueId();
+  const environment: Environment = {
+    name: isIdentifier(callExpression.callee) ? callExpression.callee.name : 'anonymous closure ' + id,
+    tail: closure.env,
+    head: {},
+    id,
+    callExpression: {
+      ...callExpression,
+      args: args.map(ast.primitive)
+    }
+  }
+  closure.srcNode.params.forEach((param, index) => {
+    environment.head[(param as es.Identifier).name] = args[index]
+  })
+  return environment
+}
 
 export const popEnvironment = (context: Context) => context.runtime.environments.shift()
 
@@ -170,4 +205,51 @@ export const handleRuntimeError = (context: Context, error: RuntimeSourceError) 
     -context.numberOfOuterEnvironments
   )
   throw error
+}
+
+export const checkNumberOfArguments = (
+  context: Context,
+  callee: ClosureInstr,
+  args: Value[],
+  exp: es.CallExpression
+) => {
+  if (callee?.instrType === InstrType.CLOSURE) { 
+    // User-defined or Pre-defined functions
+    const params = callee.srcNode.params
+    if (params.length !== args.length) {
+      return handleRuntimeError(
+        context,
+        new errors.InvalidNumberOfArguments(exp, params.length, args.length)
+      )
+    }
+  }
+  return undefined
+}
+
+/**
+ * This function can be used to check for a stack overflow.
+ * The current limit is set to be an agenda size of 1.0 x 10^5, if the agenda
+ * flows beyond this limit an error is thrown.
+ * This corresponds to about 10mb of space according to tests ran.
+ */
+export const checkStackOverFlow = (context: Context, agenda: Agenda) => {
+  if (agenda.size() > 100000) {
+    const stacks: es.CallExpression[] = []
+    let counter = 0
+    for (
+      let i = 0;
+      counter < errors.MaximumStackLimitExceeded.MAX_CALLS_TO_SHOW &&
+      i < context.runtime.environments.length;
+      i++
+    ) {
+      if (context.runtime.environments[i].callExpression) {
+        stacks.unshift(context.runtime.environments[i].callExpression!)
+        counter++
+      }
+    }
+    handleRuntimeError(
+      context,
+      new errors.MaximumStackLimitExceeded(context.runtime.nodes[0], stacks)
+    )
+  }
 }
