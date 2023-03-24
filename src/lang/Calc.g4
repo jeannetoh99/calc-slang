@@ -26,10 +26,11 @@ literal
    ;
 
 expression
-   : literal                                    # LiteralExpression
-   | identifier                                 # IdentifierExpression
-   | '(' expression ')'                         # ParenthesizedExpression
-   | expression ':' TYPE                        # TypedExpression
+   : literal                                                            # LiteralExpression
+   | identifier                                                         # IdentifierExpression
+   | 'if' pred=expression 'then' cons=expression 'else' alt=expression  # ConditionalExpression
+   | '(' expression ')'                                                 # ParenthesizedExpression
+   | expression ':' TYPE                                                # TypedExpression
    ;
 
 pattern

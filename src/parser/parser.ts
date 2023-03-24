@@ -11,6 +11,7 @@ import { CalcLexer } from '../lang/CalcLexer'
 import {
   BooleanContext,
   CalcParser,
+  ConditionalExpressionContext,
   DeclarationContext,
   DeclarationStatementContext,
   ExpressionContext,
@@ -120,6 +121,14 @@ class AstConverter implements CalcVisitor<es.Node> {
   }
   visitIdentifierExpression(ctx: IdentifierExpressionContext): es.Identifier {
     return this.visit(ctx.identifier()) as es.Identifier
+  }
+  visitConditionalExpression(ctx: ConditionalExpressionContext): es.ConditionalExpression {
+    return {
+      type: 'ConditionalExpression',
+      pred: this.visit(ctx._pred) as es.Expression,
+      cons: this.visit(ctx._cons) as es.Expression,
+      alt: this.visit(ctx._alt) as es.Expression,
+    }
   }
   visitParenthesizedExpression(ctx: ParenthesizedExpressionContext): es.Expression {
     return this.visit(ctx.expression()) as es.Expression
