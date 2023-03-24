@@ -16,10 +16,6 @@ WHITESPACE: [ \r\n\t]+ -> skip;
  * Productions
  */
 
-/*
- * Productions
- */
-
 literal
    : INTEGER_LITERAL                            # Integer
    | BOOLEAN_LITERAL                            # Boolean
@@ -31,12 +27,8 @@ expression
    | '(' inner=expression ')'                   # Parentheses
    ;
 
-pattern
-   : IDENTIFIER                                 # IdentifierPat
-   ;
-
 declaration
-   : 'val' id=pattern '=' val=expression        # ValueDeclaration
+   : 'val' id=IDENTIFIER '=' val=expression     # ValueDeclaration
    ;
 
 statement

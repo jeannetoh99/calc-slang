@@ -1,5 +1,6 @@
 /* tslint:disable:max-classes-per-file */
-import { CharStreams, CommonTokenStream } from 'antlr4ts'
+import { CharStreams, CommonTokenStream, RecognitionException, Recognizer } from 'antlr4ts'
+import { ANTLRErrorListener } from 'antlr4ts/ANTLRErrorListener'
 import { ErrorNode } from 'antlr4ts/tree/ErrorNode'
 import { ParseTree } from 'antlr4ts/tree/ParseTree'
 import { RuleNode } from 'antlr4ts/tree/RuleNode'
@@ -15,62 +16,16 @@ import {
   ExpressionContext,
   ExpressionStatementContext,
   IdentifierContext,
-  IdentifierPatContext,
   IntegerContext,
   LitContext,
   LiteralContext,
   ParenthesesContext,
-  PatternContext,
   ProgramContext,
   StatementContext,
   ValueDeclarationContext
 } from '../lang/CalcParser'
 import { CalcVisitor } from '../lang/CalcVisitor'
 import { Context, ErrorSeverity, ErrorType, SourceError } from '../types'
-import { stripIndent } from '../utils/formatters'
-
-export class DisallowedConstructError implements SourceError {
-  public type = ErrorType.SYNTAX
-  public severity = ErrorSeverity.ERROR
-  public nodeType: string
-
-  constructor(public node: es.Node) {
-    this.nodeType = this.formatNodeType(this.node.type)
-  }
-
-  get location() {
-    return this.node.loc!
-  }
-
-  public explain() {
-    return `${this.nodeType} are not allowed`
-  }
-
-  public elaborate() {
-    return stripIndent`
-      You are trying to use ${this.nodeType}, which is not allowed (yet).
-    `
-  }
-
-  /**
-   * Converts ast node.type into english
-   * e.g. ThisExpression -> 'this' expressions
-   *      Property -> Properties
-   *      EmptyStatement -> Empty Statements
-   */
-  private formatNodeType(nodeType: string) {
-    switch (nodeType) {
-      case 'ThisExpression':
-        return "'this' expressions"
-      case 'Property':
-        return 'Properties'
-      default: {
-        const words = nodeType.split(/(?=[A-Z])/)
-        return words.map((word, i) => (i === 0 ? word : word.toLowerCase())).join(' ') + 's'
-      }
-    }
-  }
-}
 
 export class FatalSyntaxError implements SourceError {
   public type = ErrorType.SYNTAX
@@ -83,6 +38,27 @@ export class FatalSyntaxError implements SourceError {
 
   public elaborate() {
     return 'There is a syntax error in your program'
+  }
+}
+
+// @ts-ignore
+class ThrowingErrorListener implements ANTLRErrorListener {
+
+  // @ts-ignore
+  syntaxError<T extends TSymbol>(recognizer: Recognizer<T, any>, offendingSymbol: T | undefined, line: number, charPositionInLine: number, msg: string, e: RecognitionException | undefined): void {
+    throw new FatalSyntaxError(
+      {
+        start: {
+          line: line,
+          column: charPositionInLine
+        },
+        end: {
+          line: line,
+          column: charPositionInLine + 1
+        }
+      },
+      `invalid syntax ${msg}`
+    )
   }
 }
 
@@ -127,20 +103,44 @@ function contextToLocation(ctx: ExpressionContext): es.SourceLocation {
   }
 }
 
-class ExpressionGenerator implements CalcVisitor<es.Expression> {
-  visitLit(ctx: LitContext): es.Expression {
-    return this.visit(ctx.literal())
+class AstConverter implements CalcVisitor<es.Node> {
+  visitLit(ctx: LitContext): es.Literal {
+    return this.visit(ctx.literal()) as es.Literal;
   }
-  visitIdentifier(ctx: IdentifierContext): es.Expression {
+  visitIdentifier(ctx: IdentifierContext): es.Identifier {
     return {
       type: 'Identifier',
       name: ctx.text
     }
   }
   visitParentheses(ctx: ParenthesesContext): es.Expression {
-    return this.visit(ctx.expression())
+    return this.visit(ctx.expression()) as es.Expression
   }
-  visitInteger(ctx: IntegerContext): es.Expression {
+  visitExpressionStatement(ctx: ExpressionStatementContext): es.Statement {
+    return {
+      type: 'ExpressionStatement',
+      expression: this.visit(ctx.expression()) as es.Expression
+    }
+  }
+  visitDeclarationStatement(ctx: DeclarationStatementContext): es.Statement {
+    return this.visit(ctx._decl) as es.Statement
+  }
+  visitValueDeclaration(ctx: ValueDeclarationContext): es.Declaration {
+    return {
+      type: 'ValueDeclaration',
+      declarations: [
+        {
+          type: 'ValueDeclarator',
+          id: {
+            type: 'Identifier',
+            name: ctx.IDENTIFIER().text,
+          },
+          init: this.visit(ctx.expression()) as es.Expression
+        }
+      ]
+    }
+  }
+  visitInteger(ctx: IntegerContext): es.Literal {
     return {
       type: 'Literal',
       value: parseInt(ctx.text),
@@ -148,7 +148,7 @@ class ExpressionGenerator implements CalcVisitor<es.Expression> {
       loc: contextToLocation(ctx)
     }
   }
-  visitBoolean(ctx: BooleanContext): es.Expression {
+  visitBoolean(ctx: BooleanContext): es.Literal {
     return {
       type: 'Literal',
       value: ctx.text === 'true',
@@ -157,130 +157,39 @@ class ExpressionGenerator implements CalcVisitor<es.Expression> {
     }
   }
 
-  visitLiteral?: ((ctx: LiteralContext) => es.Expression) | undefined
+  visitLiteral?: ((ctx: LiteralContext) => es.Literal) | undefined
   visitExpression?: ((ctx: ExpressionContext) => es.Expression) | undefined
-  visit(tree: ParseTree): es.Expression {
-    return tree.accept(this)
-  }
-  visitChildren(node: RuleNode): es.Expression {
-    const expressions: es.Expression[] = []
-    for (let i = 0; i < node.childCount; i++) {
-      expressions.push(node.getChild(i).accept(this))
-    }
-    return {
-      type: 'SequenceExpression',
-      expressions
-    }
-  }
-  visitTerminal(node: TerminalNode): es.Expression {
-    return node.accept(this)
-  }
-
-  visitErrorNode(node: ErrorNode): es.Expression {
-    throw new FatalSyntaxError(
-      {
-        start: {
-          line: node.symbol.line,
-          column: node.symbol.charPositionInLine
-        },
-        end: {
-          line: node.symbol.line,
-          column: node.symbol.charPositionInLine + 1
-        }
-      },
-      `invalid syntax ${node.text}`
-    )
-  }
-}
-
-class PatternGenerator implements CalcVisitor<es.Pattern> {
-  visitIdentifierPat(ctx: IdentifierPatContext): es.Pattern {
-    return {
-      type: 'Identifier',
-      name: ctx.text
-    }
-  }
-
-  visitPattern?: ((ctx: PatternContext) => es.Pattern) | undefined
-
-  visit(tree: ParseTree): es.Pattern {
-    return tree.accept(this)
-  }
-  visitChildren(node: RuleNode): es.Pattern {
-    const pattern: es.Pattern[] = []
-    for (let i = 0; i < node.childCount; i++) {
-      pattern.push(node.getChild(i).accept(this))
-    }
-    return {
-      type: 'ArrayPattern',
-      elements: pattern
-    }
-  }
-  visitTerminal(node: TerminalNode): es.Pattern {
-    return node.accept(this)
-  }
-  visitErrorNode(node: ErrorNode): es.Pattern {
-    throw new FatalSyntaxError(
-      {
-        start: {
-          line: node.symbol.line,
-          column: node.symbol.charPositionInLine
-        },
-        end: {
-          line: node.symbol.line,
-          column: node.symbol.charPositionInLine + 1
-        }
-      },
-      `invalid syntax ${node.text}`
-    )
-  }
-}
-
-class StatementGenerator implements CalcVisitor<es.Statement> {
-  expressionGenerator_: ExpressionGenerator = new ExpressionGenerator()
-  patternGenerator_: PatternGenerator = new PatternGenerator()
-
-  visitExpressionStatement(ctx: ExpressionStatementContext): es.Statement {
-    return {
-      type: 'ExpressionStatement',
-      expression: ctx.expression().accept(this.expressionGenerator_)
-    }
-  }
-  visitDeclarationStatement(ctx: DeclarationStatementContext): es.Statement {
-    return ctx._decl.accept(this)
-  }
-  visitValueDeclaration(ctx: ValueDeclarationContext): es.Declaration {
-    return {
-      type: 'ValueDeclaration',
-      declarations: [
-        {
-          type: 'ValueDeclarator',
-          id: ctx._id.accept(this.patternGenerator_),
-          init: ctx.expression().accept(this.expressionGenerator_)
-        }
-      ]
-    }
-  }
   visitDeclaration?: ((ctx: DeclarationContext) => es.Declaration) | undefined
-  visitStatement?: ((ctx: StatementContext) => es.Declaration) | undefined
-
-  visit(tree: ParseTree): es.Statement {
-    return tree.accept(this)
-  }
-  visitChildren(node: RuleNode): es.Statement {
+  visitStatement?: ((ctx: StatementContext) => es.Statement) | undefined
+  
+  visitProgram(ctx: ProgramContext): es.Program {
     const statements: es.Statement[] = []
-    for (let i = 0; i < node.childCount; i++) {
-      statements.push(node.getChild(i).accept(this))
+    for (const statement of ctx.statement()) {
+      statements.push(this.visit(statement) as es.Statement)
     }
     return {
-      type: 'BlockStatement',
+      type: 'Program',
+      sourceType: 'script',
       body: statements
     }
   }
-  visitTerminal(node: TerminalNode): es.Statement {
+  visit(tree: ParseTree): es.Node {
+    return tree.accept(this)
+  }
+  visitChildren(node: RuleNode): es.Node {
+    const nodes: es.Node[] = []
+    for (let i = 0; i < node.childCount; i++) {
+      nodes.push(node.getChild(i).accept(this))
+    }
+    return {
+      type: 'NodeArray',
+      nodes
+    }
+  }
+  visitTerminal(node: TerminalNode): es.Node {
     return node.accept(this)
   }
-  visitErrorNode(node: ErrorNode): es.Statement {
+  visitErrorNode(node: ErrorNode): es.Node {
     throw new FatalSyntaxError(
       {
         start: {
@@ -297,22 +206,10 @@ class StatementGenerator implements CalcVisitor<es.Statement> {
   }
 }
 
-function convertStatement(statement: StatementContext): es.Statement {
-  const generator = new StatementGenerator()
-  return statement.accept(generator)
-}
-
 function convertSource(program: ProgramContext): es.Program {
-  const statements: es.Statement[] = []
-  for (const statement of program.statement()) {
-    statements.push(convertStatement(statement))
-  }
-  return {
-    type: 'Program',
-    sourceType: 'script',
-    body: statements
-  }
-}
+  const converter = new AstConverter()
+  return program.accept(converter) as es.Program
+} 
 
 export function parse(source: string, context: Context) {
   let program: es.Program | undefined
@@ -322,6 +219,8 @@ export function parse(source: string, context: Context) {
     const lexer = new CalcLexer(inputStream)
     const tokenStream = new CommonTokenStream(lexer)
     const parser = new CalcParser(tokenStream)
+    parser.removeErrorListeners()
+    parser.addErrorListener(new ThrowingErrorListener())
     parser.buildParseTree = true
     try {
       const tree = parser.program()
