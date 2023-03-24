@@ -16,14 +16,18 @@ import {
   ExpressionContext,
   ExpressionStatementContext,
   IdentifierContext,
+  IdentifierExpressionContext,
+  IdentifierPatternContext,
   IntegerContext,
-  LitContext,
   LiteralContext,
-  ParenthesesContext,
+  LiteralExpressionContext,
+  LiteralPatternContext,
+  ParenthesizedExpressionContext,
   ProgramContext,
   StatementContext,
-  ValueDeclarationContext
-} from '../lang/CalcParser'
+  TypedExpressionContext,
+  TypedPatternContext,
+  ValueDeclarationContext} from '../lang/CalcParser'
 import { CalcVisitor } from '../lang/CalcVisitor'
 import { Context, ErrorSeverity, ErrorType, SourceError } from '../types'
 
@@ -65,6 +69,20 @@ class ThrowingErrorListener implements ANTLRErrorListener {
       },
       `invalid syntax ${msg}`
     )
+  }
+}
+
+export class TypeAnnotationError implements SourceError {
+  public type = ErrorType.SYNTAX
+  public severity = ErrorSeverity.ERROR
+  public constructor(public location: es.SourceLocation, public message: string) {}
+
+  public explain() {
+    return this.message
+  }
+
+  public elaborate() {
+    return 'Type annotation does not match inferred type'
   }
 }
 
@@ -110,17 +128,30 @@ function contextToLocation(ctx: ExpressionContext): es.SourceLocation {
 }
 
 class AstConverter implements CalcVisitor<es.Node> {
-  visitLit(ctx: LitContext): es.Literal {
+  visitLiteralExpression(ctx: LiteralExpressionContext): es.Literal {
     return this.visit(ctx.literal()) as es.Literal
   }
-  visitIdentifier(ctx: IdentifierContext): es.Identifier {
-    return {
-      type: 'Identifier',
-      name: ctx.text
-    }
+  visitIdentifierExpression(ctx: IdentifierExpressionContext): es.Identifier {
+    return this.visit(ctx.identifier()) as es.Identifier
   }
-  visitParentheses(ctx: ParenthesesContext): es.Expression {
+  visitParenthesizedExpression(ctx: ParenthesizedExpressionContext): es.Expression {
     return this.visit(ctx.expression()) as es.Expression
+  }
+  visitTypedExpression(ctx: TypedExpressionContext): es.Expression {
+    const expr = this.visit(ctx.expression()) as es.Expression
+    expr.annotatedType = ctx.TYPE().text as es.Type
+    return expr
+  }
+  visitLiteralPattern(ctx: LiteralPatternContext): es.Literal {
+    return this.visit(ctx.literal()) as es.Literal
+  }
+  visitIdentifierPattern(ctx: IdentifierPatternContext): es.Identifier {
+    return this.visit(ctx.identifier()) as es.Identifier
+  }
+  visitTypedPattern(ctx: TypedPatternContext): es.Pattern {
+    const pat = this.visit(ctx.pattern()) as es.Pattern
+    pat.annotedType = ctx.TYPE().text as es.Type
+    return pat
   }
   visitExpressionStatement(ctx: ExpressionStatementContext): es.Statement {
     return {
@@ -129,7 +160,7 @@ class AstConverter implements CalcVisitor<es.Node> {
     }
   }
   visitDeclarationStatement(ctx: DeclarationStatementContext): es.Statement {
-    return this.visit(ctx._decl) as es.Statement
+    return this.visit(ctx.declaration()) as es.Statement
   }
   visitValueDeclaration(ctx: ValueDeclarationContext): es.Declaration {
     return {
@@ -137,10 +168,7 @@ class AstConverter implements CalcVisitor<es.Node> {
       declarations: [
         {
           type: 'ValueDeclarator',
-          id: {
-            type: 'Identifier',
-            name: ctx.IDENTIFIER().text
-          },
+          id: this.visit(ctx.pattern()) as es.Identifier,
           init: this.visit(ctx.expression()) as es.Expression
         }
       ]
@@ -162,9 +190,16 @@ class AstConverter implements CalcVisitor<es.Node> {
       loc: contextToLocation(ctx)
     }
   }
+  visitIdentifier(ctx: IdentifierContext): es.Identifier {
+    return {
+      type: 'Identifier',
+      name: ctx.IDENTIFIER().text
+    }
+  }
 
   visitLiteral?: ((ctx: LiteralContext) => es.Literal) | undefined
   visitExpression?: ((ctx: ExpressionContext) => es.Expression) | undefined
+  visitPattern?: ((ctx: ProgramContext) => es.Pattern) | undefined 
   visitDeclaration?: ((ctx: DeclarationContext) => es.Declaration) | undefined
   visitStatement?: ((ctx: StatementContext) => es.Statement) | undefined
 
@@ -230,7 +265,9 @@ export function parse(source: string, context: Context) {
     parser.buildParseTree = true
     try {
       const tree = parser.program()
+      console.log(tree)
       program = convertSource(tree)
+      console.log(program)
     } catch (error) {
       if (error instanceof FatalSyntaxError) {
         context.errors.push(error)
