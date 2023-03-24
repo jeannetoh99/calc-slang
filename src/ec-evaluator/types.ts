@@ -10,7 +10,7 @@ export enum InstrType {
   CLOSURE = 'Closure',
   ENVIRONMENT = 'Environment',
   POP = 'Pop',
-  PUSH_UNDEFINED_IF_NEEDED = 'PushUndefinedIfNeeded',
+  PUSH_UNDEFINED_IF_NEEDED = 'PushUndefinedIfNeeded'
 }
 
 interface BaseInstr {

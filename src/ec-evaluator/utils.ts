@@ -93,15 +93,16 @@ export const handleSequence = (seq: es.Statement[]): AgendaItem[] => {
 
 export const currentEnvironment = (context: Context) => context.runtime.environments[0]
 
-
 export const createEnvironment = (
   closure: ClosureInstr,
   args: Value[],
   callExpression: es.CallExpression
 ): Environment => {
-  const id = uniqueId();
+  const id = uniqueId()
   const environment: Environment = {
-    name: isIdentifier(callExpression.callee) ? callExpression.callee.name : 'anonymous closure ' + id,
+    name: isIdentifier(callExpression.callee)
+      ? callExpression.callee.name
+      : 'anonymous closure ' + id,
     tail: closure.env,
     head: {},
     id,
@@ -213,7 +214,7 @@ export const checkNumberOfArguments = (
   args: Value[],
   exp: es.CallExpression
 ) => {
-  if (callee?.instrType === InstrType.CLOSURE) { 
+  if (callee?.instrType === InstrType.CLOSURE) {
     // User-defined or Pre-defined functions
     const params = callee.srcNode.params
     if (params.length !== args.length) {

@@ -218,7 +218,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     stash: Stash
   ) {
     agenda.push(instr.appInstr(command.args.length, command))
-    for (let i = command.args.length - 1; i >=0; i--) {
+    for (let i = command.args.length - 1; i >= 0; i--) {
       agenda.push(command.args[i])
     }
     agenda.push(command.callee)
@@ -260,17 +260,18 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
       args.unshift(stash.pop())
     }
 
-    const func : ClosureInstr = stash.pop()
+    const func: ClosureInstr = stash.pop()
     if (func?.instrType === InstrType.CLOSURE) {
       //  Check for number of arguments mismatch error
-      checkNumberOfArguments(context,func, args, command.srcNode)
-      
+      checkNumberOfArguments(context, func, args, command.srcNode)
+
       agenda.push(instr.envInstr(currentEnvironment(context)))
       agenda.push(func.srcNode.body)
 
       const environment = createEnvironment(func, args, command.srcNode)
       pushEnvironment(context, environment)
-    } else { // not a callable function, error
+    } else {
+      // not a callable function, error
       handleRuntimeError(context, new errors.CallingNonFunctionValue(func, command.srcNode))
     }
   },

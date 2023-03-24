@@ -129,13 +129,13 @@ class AstConverter implements CalcVisitor<es.Node> {
     return {
       type: 'CallExpression',
       callee: this.visit(ctx._fn) as es.Expression,
-      args: [ this.visit(ctx._args) as es.Expression ]
+      args: [this.visit(ctx._args) as es.Expression]
     }
   }
   visitLambdaExpression(ctx: LambdaExpressionContext): es.LambdaExpression {
     return {
       type: 'LambdaExpression',
-      params: [ this.visit(ctx.pattern()) as es.Pattern ],
+      params: [this.visit(ctx.pattern()) as es.Pattern],
       body: this.visit(ctx.expression()) as es.Expression
     }
   }

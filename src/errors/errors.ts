@@ -126,19 +126,13 @@ export class UnassignedVariable extends RuntimeSourceError {
 export class InvalidNumberOfArguments extends RuntimeSourceError {
   private calleeStr: string
 
-  constructor(
-    node: es.Node,
-    private expected: number,
-    private got: number,
-  ) {
+  constructor(node: es.Node, private expected: number, private got: number) {
     super(node)
     this.calleeStr = generate((node as es.CallExpression).callee)
   }
 
   public explain() {
-    return `Expected ${this.expected} arguments, but got ${
-      this.got
-    }.`
+    return `Expected ${this.expected} arguments, but got ${this.got}.`
   }
 
   public elaborate() {
