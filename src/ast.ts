@@ -81,18 +81,35 @@ export interface ExpressionMap {
   Literal: Literal
 }
 
+export type Type = 'int' | 'bool'
+
 export type Expression = ExpressionMap[keyof ExpressionMap]
 
-export type BaseExpression = BaseNode
+export interface BaseExpression extends BaseNode {
+  annotatedType?: Type
+  inferredType?: Type
+}
 
-export interface Identifier extends BaseExpression {
+export interface PatternMap {
+  Identifier: Identifier
+  Literal: Literal
+}
+
+export type Pattern = PatternMap[keyof PatternMap]
+
+export interface BasePattern extends BaseNode {
+  annotedType?: Type
+  inferredType?: Type
+}
+
+export interface Identifier extends BaseExpression, BasePattern {
   type: 'Identifier'
   name: string
 }
 
 export type Literal = SimpleLiteral
 
-export interface SimpleLiteral extends BaseExpression {
+export interface SimpleLiteral extends BaseExpression, BasePattern {
   type: 'Literal'
   value: string | boolean | number | null
   raw?: string | undefined

@@ -2,16 +2,22 @@
 
 import { ParseTreeVisitor } from 'antlr4ts/tree/ParseTreeVisitor'
 
-import { LitContext } from './CalcParser'
-import { IdentifierContext } from './CalcParser'
-import { ParenthesesContext } from './CalcParser'
+import { LiteralExpressionContext } from './CalcParser'
+import { IdentifierExpressionContext } from './CalcParser'
+import { ParenthesizedExpressionContext } from './CalcParser'
+import { TypedExpressionContext } from './CalcParser'
+import { LiteralPatternContext } from './CalcParser'
+import { IdentifierPatternContext } from './CalcParser'
+import { TypedPatternContext } from './CalcParser'
 import { ExpressionStatementContext } from './CalcParser'
 import { DeclarationStatementContext } from './CalcParser'
 import { ValueDeclarationContext } from './CalcParser'
 import { IntegerContext } from './CalcParser'
 import { BooleanContext } from './CalcParser'
+import { IdentifierContext } from './CalcParser'
 import { LiteralContext } from './CalcParser'
 import { ExpressionContext } from './CalcParser'
+import { PatternContext } from './CalcParser'
 import { DeclarationContext } from './CalcParser'
 import { StatementContext } from './CalcParser'
 import { ProgramContext } from './CalcParser'
@@ -25,28 +31,60 @@ import { ProgramContext } from './CalcParser'
  */
 export interface CalcVisitor<Result> extends ParseTreeVisitor<Result> {
   /**
-   * Visit a parse tree produced by the `Lit`
+   * Visit a parse tree produced by the `LiteralExpression`
    * labeled alternative in `CalcParser.expression`.
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitLit?: (ctx: LitContext) => Result
+  visitLiteralExpression?: (ctx: LiteralExpressionContext) => Result
 
   /**
-   * Visit a parse tree produced by the `Identifier`
+   * Visit a parse tree produced by the `IdentifierExpression`
    * labeled alternative in `CalcParser.expression`.
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitIdentifier?: (ctx: IdentifierContext) => Result
+  visitIdentifierExpression?: (ctx: IdentifierExpressionContext) => Result
 
   /**
-   * Visit a parse tree produced by the `Parentheses`
+   * Visit a parse tree produced by the `ParenthesizedExpression`
    * labeled alternative in `CalcParser.expression`.
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitParentheses?: (ctx: ParenthesesContext) => Result
+  visitParenthesizedExpression?: (ctx: ParenthesizedExpressionContext) => Result
+
+  /**
+   * Visit a parse tree produced by the `TypedExpression`
+   * labeled alternative in `CalcParser.expression`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitTypedExpression?: (ctx: TypedExpressionContext) => Result
+
+  /**
+   * Visit a parse tree produced by the `LiteralPattern`
+   * labeled alternative in `CalcParser.pattern`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitLiteralPattern?: (ctx: LiteralPatternContext) => Result
+
+  /**
+   * Visit a parse tree produced by the `IdentifierPattern`
+   * labeled alternative in `CalcParser.pattern`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitIdentifierPattern?: (ctx: IdentifierPatternContext) => Result
+
+  /**
+   * Visit a parse tree produced by the `TypedPattern`
+   * labeled alternative in `CalcParser.pattern`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitTypedPattern?: (ctx: TypedPatternContext) => Result
 
   /**
    * Visit a parse tree produced by the `ExpressionStatement`
@@ -89,6 +127,13 @@ export interface CalcVisitor<Result> extends ParseTreeVisitor<Result> {
   visitBoolean?: (ctx: BooleanContext) => Result
 
   /**
+   * Visit a parse tree produced by `CalcParser.identifier`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitIdentifier?: (ctx: IdentifierContext) => Result
+
+  /**
    * Visit a parse tree produced by `CalcParser.literal`.
    * @param ctx the parse tree
    * @return the visitor result
@@ -101,6 +146,13 @@ export interface CalcVisitor<Result> extends ParseTreeVisitor<Result> {
    * @return the visitor result
    */
   visitExpression?: (ctx: ExpressionContext) => Result
+
+  /**
+   * Visit a parse tree produced by `CalcParser.pattern`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitPattern?: (ctx: PatternContext) => Result
 
   /**
    * Visit a parse tree produced by `CalcParser.declaration`.

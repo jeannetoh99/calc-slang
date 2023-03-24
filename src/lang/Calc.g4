@@ -6,6 +6,8 @@ grammar Calc;
 INTEGER_LITERAL: [0-9]+;
 BOOLEAN_LITERAL: 'true' | 'false';
 
+TYPE: 'bool' | 'int';
+
 fragment SYMBOLIC_IDENTIFIER: [!%&$#+-/:<=>?@\\~'^|*]+;
 fragment ALPHANUMERIC_IDENTIFIER: [a-zA-Z][a-zA-Z0-9'_]*;
 IDENTIFIER: ALPHANUMERIC_IDENTIFIER | SYMBOLIC_IDENTIFIER;
@@ -16,24 +18,33 @@ WHITESPACE: [ \r\n\t]+ -> skip;
  * Productions
  */
 
+identifier : IDENTIFIER;
+
 literal
    : INTEGER_LITERAL                            # Integer
    | BOOLEAN_LITERAL                            # Boolean
    ;
 
 expression
-   : literal                                    # Lit
-   | IDENTIFIER                                 # Identifier
-   | '(' inner=expression ')'                   # Parentheses
+   : literal                                    # LiteralExpression
+   | identifier                                 # IdentifierExpression
+   | '(' expression ')'                         # ParenthesizedExpression
+   | expression ':' TYPE                        # TypedExpression
+   ;
+
+pattern
+   : literal                                    # LiteralPattern
+   | identifier                                 # IdentifierPattern
+   | pattern ':' TYPE                           # TypedPattern
    ;
 
 declaration
-   : 'val' id=IDENTIFIER '=' val=expression     # ValueDeclaration
+   : 'val' pattern '=' expression               # ValueDeclaration
    ;
 
 statement
-   : expr=expression ';'                        # ExpressionStatement
-   | decl=declaration ';'                       # DeclarationStatement
+   : expression ';'                             # ExpressionStatement
+   | declaration ';'                            # DeclarationStatement
    ;
 
 program : statement*;
