@@ -37,6 +37,7 @@ pattern
    : literal                                    # LiteralPattern
    | identifier                                 # IdentifierPattern
    | pattern ':' TYPE                           # TypedPattern
+   | '(' pattern ')'                            # ParenthesizedPattern
    ;
 
 declaration

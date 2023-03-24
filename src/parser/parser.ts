@@ -24,6 +24,7 @@ import {
   LiteralExpressionContext,
   LiteralPatternContext,
   ParenthesizedExpressionContext,
+  ParenthesizedPatternContext,
   ProgramContext,
   StatementContext,
   TypedExpressionContext,
@@ -148,6 +149,9 @@ class AstConverter implements CalcVisitor<es.Node> {
     const pat = this.visit(ctx.pattern()) as es.Pattern
     pat.annotedType = ctx.TYPE().text as es.Type
     return pat
+  }
+  visitParenthesizedPattern(ctx: ParenthesizedPatternContext): es.Pattern {
+    return this.visit(ctx.pattern()) as es.Pattern
   }
   visitExpressionStatement(ctx: ExpressionStatementContext): es.Statement {
     return {
