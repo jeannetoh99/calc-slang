@@ -129,14 +129,16 @@ class AstConverter implements CalcVisitor<es.Node> {
     return {
       type: 'CallExpression',
       callee: this.visit(ctx._fn) as es.Expression,
-      args: [this.visit(ctx._args) as es.Expression]
+      args: [this.visit(ctx._args) as es.Expression],
+      loc: contextToLocation(ctx)
     }
   }
   visitLambdaExpression(ctx: LambdaExpressionContext): es.LambdaExpression {
     return {
       type: 'LambdaExpression',
       params: [this.visit(ctx.pattern()) as es.Pattern],
-      body: this.visit(ctx.expression()) as es.Expression
+      body: this.visit(ctx.expression()) as es.Expression,
+      loc: contextToLocation(ctx)
     }
   }
   visitConditionalExpression(ctx: ConditionalExpressionContext): es.ConditionalExpression {
@@ -144,7 +146,8 @@ class AstConverter implements CalcVisitor<es.Node> {
       type: 'ConditionalExpression',
       pred: this.visit(ctx._pred) as es.Expression,
       cons: this.visit(ctx._cons) as es.Expression,
-      alt: this.visit(ctx._alt) as es.Expression
+      alt: this.visit(ctx._alt) as es.Expression,
+      loc: contextToLocation(ctx)
     }
   }
   visitParenthesizedExpression(ctx: ParenthesizedExpressionContext): es.Expression {
@@ -172,7 +175,8 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitExpressionStatement(ctx: ExpressionStatementContext): es.Statement {
     return {
       type: 'ExpressionStatement',
-      expression: this.visit(ctx.expression()) as es.Expression
+      expression: this.visit(ctx.expression()) as es.Expression,
+      loc: contextToLocation(ctx)
     }
   }
   visitDeclarationStatement(ctx: DeclarationStatementContext): es.Statement {
@@ -187,7 +191,8 @@ class AstConverter implements CalcVisitor<es.Node> {
           id: this.visit(ctx.pattern()) as es.Identifier,
           init: this.visit(ctx.expression()) as es.Expression
         }
-      ]
+      ],
+      loc: contextToLocation(ctx)
     }
   }
   visitInteger(ctx: IntegerContext): es.Literal {
@@ -209,7 +214,8 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitIdentifier(ctx: IdentifierContext): es.Identifier {
     return {
       type: 'Identifier',
-      name: ctx.IDENTIFIER().text
+      name: ctx.IDENTIFIER().text,
+      loc: contextToLocation(ctx)
     }
   }
 
@@ -227,7 +233,8 @@ class AstConverter implements CalcVisitor<es.Node> {
     return {
       type: 'Program',
       sourceType: 'script',
-      body: statements
+      body: statements,
+      loc: contextToLocation(ctx)
     }
   }
   visit(tree: ParseTree): es.Node {
