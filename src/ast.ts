@@ -77,6 +77,7 @@ export interface ValueDeclarator extends BaseNode {
 }
 
 export interface ExpressionMap {
+  ConditionalExpression: ConditionalExpression
   Identifier: Identifier
   Literal: Literal
 }
@@ -100,6 +101,13 @@ export type Pattern = PatternMap[keyof PatternMap]
 export interface BasePattern extends BaseNode {
   annotedType?: Type
   inferredType?: Type
+}
+
+export interface ConditionalExpression extends BaseExpression {
+  type: 'ConditionalExpression'
+  pred: Expression
+  cons: Expression
+  alt: Expression
 }
 
 export interface Identifier extends BaseExpression, BasePattern {

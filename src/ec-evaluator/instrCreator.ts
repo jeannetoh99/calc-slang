@@ -4,7 +4,7 @@
 
 import * as es from '../ast'
 import { Environment } from '../types'
-import { AssmtInstr, EnvInstr, Instr, InstrType } from './types'
+import { AssmtInstr, BranchInstr, EnvInstr, Instr, InstrType } from './types'
 
 export const assmtInstr = (symbol: string, declaration: boolean, srcNode: es.Node): AssmtInstr => ({
   instrType: InstrType.ASSIGNMENT,
@@ -14,6 +14,17 @@ export const assmtInstr = (symbol: string, declaration: boolean, srcNode: es.Nod
 })
 
 export const popInstr = (): Instr => ({ instrType: InstrType.POP })
+
+export const branchInstr = (
+  consequent: es.Expression,
+  alternate: es.Expression,
+  srcNode: es.Node
+): BranchInstr => ({
+  instrType: InstrType.BRANCH,
+  consequent,
+  alternate,
+  srcNode
+})
 
 export const envInstr = (env: Environment): EnvInstr => ({
   instrType: InstrType.ENVIRONMENT,

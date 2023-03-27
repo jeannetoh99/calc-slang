@@ -8,14 +8,25 @@
 /* tslint:disable:max-classes-per-file */
 import * as es from '../ast'
 import { Context, Result, Value } from '../types'
+import * as rttc from '../utils/rttc'
 import * as instr from './instrCreator'
-import { AgendaItem, AssmtInstr, CmdEvaluator, ECError, EnvInstr, Instr, InstrType } from './types'
+import {
+  AgendaItem,
+  AssmtInstr,
+  BranchInstr,
+  CmdEvaluator,
+  ECError,
+  EnvInstr,
+  Instr,
+  InstrType
+} from './types'
 import {
   createBlockEnvironment,
   currentEnvironment,
   declareFunctionsAndVariables,
   defineVariable,
   getVariable,
+  handleRuntimeError,
   handleSequence,
   isNode,
   popEnvironment,
@@ -194,6 +205,16 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     stash.push(getVariable(context, command.name, command))
   },
 
+  ConditionalExpression: function (
+    command: es.ConditionalExpression,
+    context: Context,
+    agenda: Agenda,
+    stash: Stash
+  ) {
+    agenda.push(instr.branchInstr(command.cons, command.alt, command))
+    agenda.push(command.pred)
+  },
+
   /**
    * Instructions
    */
@@ -211,6 +232,27 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
       false,
       command.srcNode as es.ValueDeclaration
     )
+  },
+
+  [InstrType.BRANCH]: function (
+    command: BranchInstr,
+    context: Context,
+    agenda: Agenda,
+    stash: Stash
+  ) {
+    const test = stash.pop()
+
+    // Check if predicate is a boolean
+    const error = rttc.checkIsBool(command.srcNode, test)
+    if (error) {
+      handleRuntimeError(context, error)
+    }
+
+    if (test) {
+      agenda.push(command.consequent)
+    } else {
+      agenda.push(command.alternate)
+    }
   },
 
   [InstrType.POP]: function (command: Instr, context: Context, agenda: Agenda, stash: Stash) {
