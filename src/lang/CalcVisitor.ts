@@ -4,15 +4,19 @@ import { ParseTreeVisitor } from 'antlr4ts/tree/ParseTreeVisitor'
 
 import { LiteralExpressionContext } from './CalcParser'
 import { IdentifierExpressionContext } from './CalcParser'
-import { ConditionalExpressionContext } from './CalcParser'
-import { ParenthesizedExpressionContext } from './CalcParser'
 import { TypedExpressionContext } from './CalcParser'
+import { ConditionalExpressionContext } from './CalcParser'
+import { LambdaExpressionContext } from './CalcParser'
+import { FunctionApplicationContext } from './CalcParser'
+import { ParenthesizedExpressionContext } from './CalcParser'
 import { LiteralPatternContext } from './CalcParser'
 import { IdentifierPatternContext } from './CalcParser'
 import { TypedPatternContext } from './CalcParser'
+import { ParenthesizedPatternContext } from './CalcParser'
 import { ExpressionStatementContext } from './CalcParser'
 import { DeclarationStatementContext } from './CalcParser'
 import { ValueDeclarationContext } from './CalcParser'
+import { FunctionDeclarationContext } from './CalcParser'
 import { IntegerContext } from './CalcParser'
 import { BooleanContext } from './CalcParser'
 import { IdentifierContext } from './CalcParser'
@@ -48,6 +52,14 @@ export interface CalcVisitor<Result> extends ParseTreeVisitor<Result> {
   visitIdentifierExpression?: (ctx: IdentifierExpressionContext) => Result
 
   /**
+   * Visit a parse tree produced by the `TypedExpression`
+   * labeled alternative in `CalcParser.expression`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitTypedExpression?: (ctx: TypedExpressionContext) => Result
+
+  /**
    * Visit a parse tree produced by the `ConditionalExpression`
    * labeled alternative in `CalcParser.expression`.
    * @param ctx the parse tree
@@ -56,20 +68,28 @@ export interface CalcVisitor<Result> extends ParseTreeVisitor<Result> {
   visitConditionalExpression?: (ctx: ConditionalExpressionContext) => Result
 
   /**
+   * Visit a parse tree produced by the `LambdaExpression`
+   * labeled alternative in `CalcParser.expression`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitLambdaExpression?: (ctx: LambdaExpressionContext) => Result
+
+  /**
+   * Visit a parse tree produced by the `FunctionApplication`
+   * labeled alternative in `CalcParser.expression`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitFunctionApplication?: (ctx: FunctionApplicationContext) => Result
+
+  /**
    * Visit a parse tree produced by the `ParenthesizedExpression`
    * labeled alternative in `CalcParser.expression`.
    * @param ctx the parse tree
    * @return the visitor result
    */
   visitParenthesizedExpression?: (ctx: ParenthesizedExpressionContext) => Result
-
-  /**
-   * Visit a parse tree produced by the `TypedExpression`
-   * labeled alternative in `CalcParser.expression`.
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  visitTypedExpression?: (ctx: TypedExpressionContext) => Result
 
   /**
    * Visit a parse tree produced by the `LiteralPattern`
@@ -96,6 +116,14 @@ export interface CalcVisitor<Result> extends ParseTreeVisitor<Result> {
   visitTypedPattern?: (ctx: TypedPatternContext) => Result
 
   /**
+   * Visit a parse tree produced by the `ParenthesizedPattern`
+   * labeled alternative in `CalcParser.pattern`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitParenthesizedPattern?: (ctx: ParenthesizedPatternContext) => Result
+
+  /**
    * Visit a parse tree produced by the `ExpressionStatement`
    * labeled alternative in `CalcParser.statement`.
    * @param ctx the parse tree
@@ -118,6 +146,14 @@ export interface CalcVisitor<Result> extends ParseTreeVisitor<Result> {
    * @return the visitor result
    */
   visitValueDeclaration?: (ctx: ValueDeclarationContext) => Result
+
+  /**
+   * Visit a parse tree produced by the `FunctionDeclaration`
+   * labeled alternative in `CalcParser.declaration`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitFunctionDeclaration?: (ctx: FunctionDeclarationContext) => Result
 
   /**
    * Visit a parse tree produced by the `Integer`

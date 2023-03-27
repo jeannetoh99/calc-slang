@@ -28,19 +28,23 @@ literal
 expression
    : literal                                                            # LiteralExpression
    | identifier                                                         # IdentifierExpression
-   | 'if' pred=expression 'then' cons=expression 'else' alt=expression  # ConditionalExpression
-   | '(' expression ')'                                                 # ParenthesizedExpression
    | expression ':' TYPE                                                # TypedExpression
+   | 'if' pred=expression 'then' cons=expression 'else' alt=expression  # ConditionalExpression
+   | 'fn' pattern '=>' expression                                       # LambdaExpression
+   | fn=expression args=expression                                      # FunctionApplication
+   | '(' expression ')'                                                 # ParenthesizedExpression
    ;
 
 pattern
    : literal                                    # LiteralPattern
    | identifier                                 # IdentifierPattern
    | pattern ':' TYPE                           # TypedPattern
+   | '(' pattern ')'                            # ParenthesizedPattern
    ;
 
 declaration
    : 'val' pattern '=' expression               # ValueDeclaration
+   | 'fun' identifier pattern '=' expression    # FunctionDeclaration
    ;
 
 statement

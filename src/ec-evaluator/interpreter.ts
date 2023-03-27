@@ -7,13 +7,16 @@
 
 /* tslint:disable:max-classes-per-file */
 import * as es from '../ast'
+import * as errors from '../errors/errors'
 import { Context, Result, Value } from '../types'
 import * as rttc from '../utils/rttc'
 import * as instr from './instrCreator'
 import {
   AgendaItem,
+  AppInstr,
   AssmtInstr,
   BranchInstr,
+  ClosureInstr,
   CmdEvaluator,
   ECError,
   EnvInstr,
@@ -21,7 +24,10 @@ import {
   InstrType
 } from './types'
 import {
+  checkNumberOfArguments,
+  checkStackOverFlow,
   createBlockEnvironment,
+  createEnvironment,
   currentEnvironment,
   declareFunctionsAndVariables,
   defineVariable,
@@ -130,6 +136,8 @@ function runECEMachine(context: Context, agenda: Agenda, stash: Stash) {
   context.runtime.nodes = []
   let command = agenda.pop()
   while (command) {
+    // console.log(command)
+    // console.log(currentEnvironment(context))
     if (isNode(command)) {
       context.runtime.nodes.unshift(command)
       cmdEvaluators[command.type](command, context, agenda, stash)
@@ -138,10 +146,8 @@ function runECEMachine(context: Context, agenda: Agenda, stash: Stash) {
       // Node is an instrucion
       cmdEvaluators[command.instrType](command, context, agenda, stash)
     }
-    // console.log(command, agenda, stash)
     command = agenda.pop()
   }
-  // console.log(command, agenda, stash)
   return stash.peek()
 }
 
@@ -193,6 +199,20 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     agenda.push(init)
   },
 
+  FunctionDeclaration: function (
+    command: es.FunctionDeclaration,
+    context: Context,
+    agenda: Agenda
+  ) {
+    const lambdaExpression: es.LambdaExpression = {
+      type: 'LambdaExpression',
+      params: command.params,
+      body: command.body
+    }
+    agenda.push(instr.assmtInstr(command.id.name, true, command))
+    agenda.push(lambdaExpression)
+  },
+
   /**
    * Expressions
    */
@@ -205,6 +225,19 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     stash.push(getVariable(context, command.name, command))
   },
 
+  CallExpression: function (
+    command: es.CallExpression,
+    context: Context,
+    agenda: Agenda,
+    stash: Stash
+  ) {
+    agenda.push(instr.appInstr(command.args.length, command))
+    for (let i = command.args.length - 1; i >= 0; i--) {
+      agenda.push(command.args[i])
+    }
+    agenda.push(command.callee)
+  },
+
   ConditionalExpression: function (
     command: es.ConditionalExpression,
     context: Context,
@@ -215,9 +248,47 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     agenda.push(command.pred)
   },
 
+  LambdaExpression: function (
+    command: es.LambdaExpression,
+    context: Context,
+    agenda: Agenda,
+    stash: Stash
+  ) {
+    stash.push(instr.closureInstr(currentEnvironment(context), command))
+  },
+
   /**
    * Instructions
    */
+
+  [InstrType.APPLICATION]: function (
+    command: AppInstr,
+    context: Context,
+    agenda: Agenda,
+    stash: Stash
+  ) {
+    checkStackOverFlow(context, agenda)
+    // Get function arguments from the stash
+    const args: Value[] = []
+    for (let i = 0; i < command.arity; i++) {
+      args.unshift(stash.pop())
+    }
+
+    const func: ClosureInstr = stash.pop()
+    if (func?.instrType === InstrType.CLOSURE) {
+      //  Check for number of arguments mismatch error
+      checkNumberOfArguments(context, func, args, command.srcNode)
+
+      agenda.push(instr.envInstr(currentEnvironment(context)))
+      agenda.push(func.srcNode.body)
+
+      const environment = createEnvironment(func, args, command.srcNode)
+      pushEnvironment(context, environment)
+    } else {
+      // not a callable function, error
+      handleRuntimeError(context, new errors.CallingNonFunctionValue(func, command.srcNode))
+    }
+  },
 
   [InstrType.ASSIGNMENT]: function (
     command: AssmtInstr,
@@ -225,13 +296,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     agenda: Agenda,
     stash: Stash
   ) {
-    defineVariable(
-      context,
-      command.symbol,
-      stash.peek(),
-      false,
-      command.srcNode as es.ValueDeclaration
-    )
+    defineVariable(context, command.symbol, stash.peek(), false)
   },
 
   [InstrType.BRANCH]: function (

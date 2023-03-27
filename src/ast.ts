@@ -61,13 +61,20 @@ export interface ExpressionStatement extends BaseStatement {
   expression: Expression
 }
 
-export type Declaration = ValueDeclaration
+export type Declaration = ValueDeclaration | FunctionDeclaration
 
 type BaseDeclaration = BaseStatement
 
 export interface ValueDeclaration extends BaseDeclaration {
   type: 'ValueDeclaration'
   declarations: Array<ValueDeclarator>
+}
+
+export interface FunctionDeclaration extends BaseDeclaration {
+  type: 'FunctionDeclaration'
+  id: Identifier
+  params: Array<Pattern>
+  body: Expression
 }
 
 export interface ValueDeclarator extends BaseNode {
@@ -77,8 +84,10 @@ export interface ValueDeclarator extends BaseNode {
 }
 
 export interface ExpressionMap {
+  CallExpression: CallExpression
   ConditionalExpression: ConditionalExpression
   Identifier: Identifier
+  LambdaExpression: LambdaExpression
   Literal: Literal
 }
 
@@ -103,11 +112,23 @@ export interface BasePattern extends BaseNode {
   inferredType?: Type
 }
 
+export interface CallExpression extends BaseExpression {
+  type: 'CallExpression'
+  callee: Expression
+  args: Array<Expression>
+}
+
 export interface ConditionalExpression extends BaseExpression {
   type: 'ConditionalExpression'
   pred: Expression
   cons: Expression
   alt: Expression
+}
+
+export interface LambdaExpression extends BaseExpression {
+  type: 'LambdaExpression'
+  params: Array<Pattern>
+  body: Expression
 }
 
 export interface Identifier extends BaseExpression, BasePattern {

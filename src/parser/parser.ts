@@ -16,14 +16,18 @@ import {
   DeclarationStatementContext,
   ExpressionContext,
   ExpressionStatementContext,
+  FunctionApplicationContext,
+  FunctionDeclarationContext,
   IdentifierContext,
   IdentifierExpressionContext,
   IdentifierPatternContext,
   IntegerContext,
+  LambdaExpressionContext,
   LiteralContext,
   LiteralExpressionContext,
   LiteralPatternContext,
   ParenthesizedExpressionContext,
+  ParenthesizedPatternContext,
   ProgramContext,
   StatementContext,
   TypedExpressionContext,
@@ -122,12 +126,29 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitIdentifierExpression(ctx: IdentifierExpressionContext): es.Identifier {
     return this.visit(ctx.identifier()) as es.Identifier
   }
+  visitFunctionApplication(ctx: FunctionApplicationContext): es.CallExpression {
+    return {
+      type: 'CallExpression',
+      callee: this.visit(ctx._fn) as es.Expression,
+      args: [this.visit(ctx._args) as es.Expression],
+      loc: contextToLocation(ctx)
+    }
+  }
+  visitLambdaExpression(ctx: LambdaExpressionContext): es.LambdaExpression {
+    return {
+      type: 'LambdaExpression',
+      params: [this.visit(ctx.pattern()) as es.Pattern],
+      body: this.visit(ctx.expression()) as es.Expression,
+      loc: contextToLocation(ctx)
+    }
+  }
   visitConditionalExpression(ctx: ConditionalExpressionContext): es.ConditionalExpression {
     return {
       type: 'ConditionalExpression',
       pred: this.visit(ctx._pred) as es.Expression,
       cons: this.visit(ctx._cons) as es.Expression,
-      alt: this.visit(ctx._alt) as es.Expression
+      alt: this.visit(ctx._alt) as es.Expression,
+      loc: contextToLocation(ctx)
     }
   }
   visitParenthesizedExpression(ctx: ParenthesizedExpressionContext): es.Expression {
@@ -149,16 +170,20 @@ class AstConverter implements CalcVisitor<es.Node> {
     pat.annotedType = ctx.TYPE().text as es.Type
     return pat
   }
+  visitParenthesizedPattern(ctx: ParenthesizedPatternContext): es.Pattern {
+    return this.visit(ctx.pattern()) as es.Pattern
+  }
   visitExpressionStatement(ctx: ExpressionStatementContext): es.Statement {
     return {
       type: 'ExpressionStatement',
-      expression: this.visit(ctx.expression()) as es.Expression
+      expression: this.visit(ctx.expression()) as es.Expression,
+      loc: contextToLocation(ctx)
     }
   }
   visitDeclarationStatement(ctx: DeclarationStatementContext): es.Statement {
     return this.visit(ctx.declaration()) as es.Statement
   }
-  visitValueDeclaration(ctx: ValueDeclarationContext): es.Declaration {
+  visitValueDeclaration(ctx: ValueDeclarationContext): es.ValueDeclaration {
     return {
       type: 'ValueDeclaration',
       declarations: [
@@ -167,7 +192,16 @@ class AstConverter implements CalcVisitor<es.Node> {
           id: this.visit(ctx.pattern()) as es.Identifier,
           init: this.visit(ctx.expression()) as es.Expression
         }
-      ]
+      ],
+      loc: contextToLocation(ctx)
+    }
+  }
+  visitFunctionDeclaration(ctx: FunctionDeclarationContext): es.FunctionDeclaration {
+    return {
+      type: 'FunctionDeclaration',
+      id: this.visit(ctx.identifier()) as es.Identifier,
+      params: [this.visit(ctx.pattern()) as es.Pattern],
+      body: this.visit(ctx.expression()) as es.Expression
     }
   }
   visitInteger(ctx: IntegerContext): es.Literal {
@@ -189,7 +223,8 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitIdentifier(ctx: IdentifierContext): es.Identifier {
     return {
       type: 'Identifier',
-      name: ctx.IDENTIFIER().text
+      name: ctx.IDENTIFIER().text,
+      loc: contextToLocation(ctx)
     }
   }
 
@@ -207,7 +242,8 @@ class AstConverter implements CalcVisitor<es.Node> {
     return {
       type: 'Program',
       sourceType: 'script',
-      body: statements
+      body: statements,
+      loc: contextToLocation(ctx)
     }
   }
   visit(tree: ParseTree): es.Node {

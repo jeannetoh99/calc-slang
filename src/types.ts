@@ -171,7 +171,7 @@ export interface Environment {
   id: string
   name: string
   tail: Environment | null
-  callExpression?: /* es.CallExpression */ undefined
+  callExpression?: es.CallExpression
   head: Frame
   thisContext?: Value
 }
