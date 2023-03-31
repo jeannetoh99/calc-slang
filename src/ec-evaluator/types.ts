@@ -50,7 +50,14 @@ export interface EnvInstr extends BaseInstr {
   env: Environment
 }
 
-export type Instr = AppInstr | AssmtInstr | BaseInstr | BranchInstr | BuiltinInstr | ClosureInstr | EnvInstr
+export type Instr =
+  | AppInstr
+  | AssmtInstr
+  | BaseInstr
+  | BranchInstr
+  | BuiltinInstr
+  | ClosureInstr
+  | EnvInstr
 
 export type AgendaItem = es.Node | Instr
 

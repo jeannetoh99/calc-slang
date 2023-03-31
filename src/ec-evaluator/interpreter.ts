@@ -242,7 +242,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
       agenda.push(command.args[i])
     }
     if (command.isInfix) {
-      const op = (command.callee as es.Identifier).name;
+      const op = (command.callee as es.Identifier).name
       if (!(op in builtinInfixFunctions)) {
         handleRuntimeError(context, new errors.UndefinedVariable(op, command))
       }
@@ -319,8 +319,10 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
   ) {
     const val = stash.peek()
     if (val?.instrType == InstrType.CLOSURE && command.symbol in builtinMapping) {
-      handleRuntimeError(context, 
-        new errors.ReservedKeywordVariable(command.srcNode, command.symbol, 'builtin function'))
+      handleRuntimeError(
+        context,
+        new errors.ReservedKeywordVariable(command.srcNode, command.symbol, 'builtin function')
+      )
     }
     defineVariable(context, command.symbol, stash.peek(), false)
   },

@@ -41,7 +41,11 @@ export const branchInstr = (
   srcNode
 })
 
-export const builtinInstr = (identifier: string, arity: number, isInfix: boolean): BuiltinInstr => ({
+export const builtinInstr = (
+  identifier: string,
+  arity: number,
+  isInfix: boolean
+): BuiltinInstr => ({
   instrType: InstrType.BUILTIN,
   identifier,
   arity,
