@@ -5,8 +5,10 @@ grammar Calc;
  */
 INTEGER_LITERAL: [0-9]+;
 BOOLEAN_LITERAL: 'true' | 'false';
+REAL_LITERAL: ([0-9]+[.])?[0-9]+([eE][~]?[0-9]+)?;
+STRING_LITERAL:  '"' ('\\' ["\\] | ~["\\\r\n])* '"' ;
 
-TYPE: 'bool' | 'int';
+TYPE: 'bool' | 'int' | 'real' | 'string';
 
 fragment SYMBOLIC_IDENTIFIER: [!%&$#+-/:<=>?@\\~'^|*]+;
 fragment ALPHANUMERIC_IDENTIFIER: [a-zA-Z][a-zA-Z0-9'_]*;
@@ -23,6 +25,8 @@ identifier : IDENTIFIER;
 literal
    : INTEGER_LITERAL                            # Integer
    | BOOLEAN_LITERAL                            # Boolean
+   | REAL_LITERAL                               # Real
+   | STRING_LITERAL                             # String
    ;
 
 expression
