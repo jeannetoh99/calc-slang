@@ -29,6 +29,7 @@ import {
   ParenthesizedExpressionContext,
   ParenthesizedPatternContext,
   ProgramContext,
+  RealContext,
   StatementContext,
   TypedExpressionContext,
   TypedPatternContext,
@@ -216,6 +217,14 @@ class AstConverter implements CalcVisitor<es.Node> {
     return {
       type: 'Literal',
       value: ctx.text === 'true',
+      raw: ctx.text,
+      loc: contextToLocation(ctx)
+    }
+  }
+  visitReal(ctx: RealContext): es.Literal {
+    return {
+      type: 'Literal',
+      value: parseFloat(ctx.text.replace('~', '-')),
       raw: ctx.text,
       loc: contextToLocation(ctx)
     }
