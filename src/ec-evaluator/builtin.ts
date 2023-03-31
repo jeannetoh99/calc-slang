@@ -1,9 +1,11 @@
+import { floor } from "lodash"
+
 export const builtinInfixFunctions = {
   '+': (x: any, y: any) => x + y,
   '-': (x: any, y: any) => x - y,
   '*': (x: any, y: any) => x * y,
   '/': (x: any, y: any) => x / y,
-  div: (x: any, y: any) => x / y,
+  div: (x: any, y: any) => floor(x / y),
   mod: (x: any, y: any) => x % y,
   '<>': (x: any, y: any) => x != y,
   '<': (x: any, y: any) => x < y,
