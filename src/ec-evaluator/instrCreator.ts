@@ -8,6 +8,7 @@ import {
   AppInstr,
   AssmtInstr,
   BranchInstr,
+  BuiltinInstr,
   ClosureInstr,
   EnvInstr,
   Instr,
@@ -38,6 +39,13 @@ export const branchInstr = (
   consequent,
   alternate,
   srcNode
+})
+
+export const builtinInstr = (identifier: string, arity: number, isInfix: boolean): BuiltinInstr => ({
+  instrType: InstrType.BUILTIN,
+  identifier,
+  arity,
+  isInfix
 })
 
 export const closureInstr = (env: Environment, srcNode: es.LambdaExpression): ClosureInstr => ({

@@ -21,6 +21,7 @@ import {
   IdentifierContext,
   IdentifierExpressionContext,
   IdentifierPatternContext,
+  InfixApplicationContext,
   IntegerContext,
   LambdaExpressionContext,
   LiteralContext,
@@ -126,19 +127,26 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitIdentifierExpression(ctx: IdentifierExpressionContext): es.Identifier {
     return this.visit(ctx.identifier()) as es.Identifier
   }
+  visitTypedExpression(ctx: TypedExpressionContext): es.Expression {
+    const expr = this.visit(ctx.expression()) as es.Expression
+    expr.annotatedType = ctx.TYPE().text as es.Type
+    return expr
+  }
   visitFunctionApplication(ctx: FunctionApplicationContext): es.CallExpression {
     return {
       type: 'CallExpression',
       callee: this.visit(ctx._fn) as es.Expression,
       args: [this.visit(ctx._args) as es.Expression],
+      isInfix: false,
       loc: contextToLocation(ctx)
     }
   }
-  visitLambdaExpression(ctx: LambdaExpressionContext): es.LambdaExpression {
+  visitInfixApplication(ctx: InfixApplicationContext): es.CallExpression {
     return {
-      type: 'LambdaExpression',
-      params: [this.visit(ctx.pattern()) as es.Pattern],
-      body: this.visit(ctx.expression()) as es.Expression,
+      type: 'CallExpression',
+      callee: this.visit(ctx._op) as es.Expression,
+      args: [this.visit(ctx._left) as es.Expression, this.visit(ctx._right) as es.Expression],
+      isInfix: true,
       loc: contextToLocation(ctx)
     }
   }
@@ -151,13 +159,16 @@ class AstConverter implements CalcVisitor<es.Node> {
       loc: contextToLocation(ctx)
     }
   }
+  visitLambdaExpression(ctx: LambdaExpressionContext): es.LambdaExpression {
+    return {
+      type: 'LambdaExpression',
+      params: [this.visit(ctx.pattern()) as es.Pattern],
+      body: this.visit(ctx.expression()) as es.Expression,
+      loc: contextToLocation(ctx)
+    }
+  }
   visitParenthesizedExpression(ctx: ParenthesizedExpressionContext): es.Expression {
     return this.visit(ctx.expression()) as es.Expression
-  }
-  visitTypedExpression(ctx: TypedExpressionContext): es.Expression {
-    const expr = this.visit(ctx.expression()) as es.Expression
-    expr.annotatedType = ctx.TYPE().text as es.Type
-    return expr
   }
   visitLiteralPattern(ctx: LiteralPatternContext): es.Literal {
     return this.visit(ctx.literal()) as es.Literal
@@ -201,7 +212,7 @@ class AstConverter implements CalcVisitor<es.Node> {
       type: 'FunctionDeclaration',
       id: this.visit(ctx.identifier()) as es.Identifier,
       params: [this.visit(ctx.pattern()) as es.Pattern],
-      body: this.visit(ctx.expression()) as es.Expression
+      body: this.visit(ctx.expression()) as es.Expression,
     }
   }
   visitInteger(ctx: IntegerContext): es.Literal {

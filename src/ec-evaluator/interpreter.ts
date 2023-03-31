@@ -8,14 +8,17 @@
 /* tslint:disable:max-classes-per-file */
 import * as es from '../ast'
 import * as errors from '../errors/errors'
+import { arity } from '../stdlib/misc'
 import { Context, Result, Value } from '../types'
 import * as rttc from '../utils/rttc'
+import { applyBuiltin, builtinInfixFunctions, builtinMapping } from './builtin'
 import * as instr from './instrCreator'
 import {
   AgendaItem,
   AppInstr,
   AssmtInstr,
   BranchInstr,
+  BuiltinInstr,
   ClosureInstr,
   CmdEvaluator,
   ECError,
@@ -36,6 +39,7 @@ import {
   handleSequence,
   isNode,
   popEnvironment,
+  populateBuiltInIdentifiers,
   pushEnvironment,
   Stack
 } from './utils'
@@ -74,13 +78,15 @@ export class Stash extends Stack<Value> {
  */
 export function evaluate(program: es.Program, context: Context): Value {
   try {
-    // populateBuiltInIdentifiers(context)
-
     context.runtime.isRunning = true
     context.runtime.agenda = new Agenda(program)
     context.runtime.stash = new Stash()
+    const environment = createBlockEnvironment(context, 'globalEnvironment')
+    pushEnvironment(context, environment)
+    populateBuiltInIdentifiers(context)
     return runECEMachine(context, context.runtime.agenda, context.runtime.stash)
   } catch (error) {
+    console.error(error)
     return new ECError()
   } finally {
     context.runtime.isRunning = false
@@ -136,7 +142,7 @@ function runECEMachine(context: Context, agenda: Agenda, stash: Stash) {
   context.runtime.nodes = []
   let command = agenda.pop()
   while (command) {
-    // console.log(command)
+    console.log(command)
     // console.log(currentEnvironment(context))
     if (isNode(command)) {
       context.runtime.nodes.unshift(command)
@@ -235,7 +241,16 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     for (let i = command.args.length - 1; i >= 0; i--) {
       agenda.push(command.args[i])
     }
-    agenda.push(command.callee)
+    if (command.isInfix) {
+      const op = (command.callee as es.Identifier).name;
+      if (!(op in builtinInfixFunctions)) {
+        handleRuntimeError(context, new errors.UndefinedVariable(op, command))
+      }
+      const infixInstr = instr.builtinInstr(op, arity(builtinInfixFunctions[op]), true)
+      stash.push(infixInstr)
+    } else {
+      agenda.push(command.callee)
+    }
   },
 
   ConditionalExpression: function (
@@ -274,16 +289,22 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
       args.unshift(stash.pop())
     }
 
-    const func: ClosureInstr = stash.pop()
+    const func: ClosureInstr | BuiltinInstr = stash.pop()
     if (func?.instrType === InstrType.CLOSURE) {
+      const closure = func as ClosureInstr
       //  Check for number of arguments mismatch error
-      checkNumberOfArguments(context, func, args, command.srcNode)
+      checkNumberOfArguments(context, closure, args, command.srcNode)
 
       agenda.push(instr.envInstr(currentEnvironment(context)))
-      agenda.push(func.srcNode.body)
+      agenda.push(closure.srcNode.body)
 
-      const environment = createEnvironment(func, args, command.srcNode)
+      const environment = createEnvironment(closure, args, command.srcNode)
       pushEnvironment(context, environment)
+    } else if (func?.instrType == InstrType.BUILTIN) {
+      const builtin = func as BuiltinInstr
+
+      checkNumberOfArguments(context, builtin, args, command.srcNode)
+      stash.push(applyBuiltin(builtin.identifier, args))
     } else {
       // not a callable function, error
       handleRuntimeError(context, new errors.CallingNonFunctionValue(func, command.srcNode))
@@ -296,6 +317,11 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     agenda: Agenda,
     stash: Stash
   ) {
+    const val = stash.peek()
+    if (val?.instrType == InstrType.CLOSURE && command.symbol in builtinMapping) {
+      handleRuntimeError(context, 
+        new errors.ReservedKeywordVariable(command.srcNode, command.symbol, 'builtin function'))
+    }
     defineVariable(context, command.symbol, stash.peek(), false)
   },
 

@@ -29,9 +29,10 @@ expression
    : literal                                                            # LiteralExpression
    | identifier                                                         # IdentifierExpression
    | expression ':' TYPE                                                # TypedExpression
+   | left=expression op=identifier right=expression                     # InfixApplication
+   | fn=expression args=expression                                      # FunctionApplication
    | 'if' pred=expression 'then' cons=expression 'else' alt=expression  # ConditionalExpression
    | 'fn' pattern '=>' expression                                       # LambdaExpression
-   | fn=expression args=expression                                      # FunctionApplication
    | '(' expression ')'                                                 # ParenthesizedExpression
    ;
 

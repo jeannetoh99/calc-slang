@@ -7,6 +7,7 @@ export enum InstrType {
   APPLICATION = 'Application',
   ASSIGNMENT = 'Assignment',
   BRANCH = 'Branch',
+  BUILTIN = 'Builtin',
   CLOSURE = 'Closure',
   ENVIRONMENT = 'Environment',
   POP = 'Pop',
@@ -34,6 +35,12 @@ export interface BranchInstr extends BaseInstr {
   srcNode: es.Node
 }
 
+export interface BuiltinInstr extends BaseInstr {
+  identifier: string
+  arity: number
+  isInfix: boolean
+}
+
 export interface ClosureInstr extends BaseInstr {
   env: Environment
   srcNode: es.LambdaExpression
@@ -43,7 +50,7 @@ export interface EnvInstr extends BaseInstr {
   env: Environment
 }
 
-export type Instr = BaseInstr | AssmtInstr | BranchInstr | EnvInstr
+export type Instr = AppInstr | AssmtInstr | BaseInstr | BranchInstr | BuiltinInstr | ClosureInstr | EnvInstr
 
 export type AgendaItem = es.Node | Instr
 
