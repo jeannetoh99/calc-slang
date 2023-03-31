@@ -5,9 +5,10 @@ import { ParseTreeVisitor } from 'antlr4ts/tree/ParseTreeVisitor'
 import { LiteralExpressionContext } from './CalcParser'
 import { IdentifierExpressionContext } from './CalcParser'
 import { TypedExpressionContext } from './CalcParser'
+import { InfixApplicationContext } from './CalcParser'
+import { FunctionApplicationContext } from './CalcParser'
 import { ConditionalExpressionContext } from './CalcParser'
 import { LambdaExpressionContext } from './CalcParser'
-import { FunctionApplicationContext } from './CalcParser'
 import { ParenthesizedExpressionContext } from './CalcParser'
 import { LiteralPatternContext } from './CalcParser'
 import { IdentifierPatternContext } from './CalcParser'
@@ -62,6 +63,22 @@ export interface CalcVisitor<Result> extends ParseTreeVisitor<Result> {
   visitTypedExpression?: (ctx: TypedExpressionContext) => Result
 
   /**
+   * Visit a parse tree produced by the `InfixApplication`
+   * labeled alternative in `CalcParser.expression`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitInfixApplication?: (ctx: InfixApplicationContext) => Result
+
+  /**
+   * Visit a parse tree produced by the `FunctionApplication`
+   * labeled alternative in `CalcParser.expression`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitFunctionApplication?: (ctx: FunctionApplicationContext) => Result
+
+  /**
    * Visit a parse tree produced by the `ConditionalExpression`
    * labeled alternative in `CalcParser.expression`.
    * @param ctx the parse tree
@@ -76,14 +93,6 @@ export interface CalcVisitor<Result> extends ParseTreeVisitor<Result> {
    * @return the visitor result
    */
   visitLambdaExpression?: (ctx: LambdaExpressionContext) => Result
-
-  /**
-   * Visit a parse tree produced by the `FunctionApplication`
-   * labeled alternative in `CalcParser.expression`.
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  visitFunctionApplication?: (ctx: FunctionApplicationContext) => Result
 
   /**
    * Visit a parse tree produced by the `ParenthesizedExpression`

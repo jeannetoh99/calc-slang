@@ -5,9 +5,10 @@ import { ParseTreeListener } from 'antlr4ts/tree/ParseTreeListener'
 import { LiteralExpressionContext } from './CalcParser'
 import { IdentifierExpressionContext } from './CalcParser'
 import { TypedExpressionContext } from './CalcParser'
+import { InfixApplicationContext } from './CalcParser'
+import { FunctionApplicationContext } from './CalcParser'
 import { ConditionalExpressionContext } from './CalcParser'
 import { LambdaExpressionContext } from './CalcParser'
-import { FunctionApplicationContext } from './CalcParser'
 import { ParenthesizedExpressionContext } from './CalcParser'
 import { LiteralPatternContext } from './CalcParser'
 import { IdentifierPatternContext } from './CalcParser'
@@ -74,6 +75,32 @@ export interface CalcListener extends ParseTreeListener {
   exitTypedExpression?: (ctx: TypedExpressionContext) => void
 
   /**
+   * Enter a parse tree produced by the `InfixApplication`
+   * labeled alternative in `CalcParser.expression`.
+   * @param ctx the parse tree
+   */
+  enterInfixApplication?: (ctx: InfixApplicationContext) => void
+  /**
+   * Exit a parse tree produced by the `InfixApplication`
+   * labeled alternative in `CalcParser.expression`.
+   * @param ctx the parse tree
+   */
+  exitInfixApplication?: (ctx: InfixApplicationContext) => void
+
+  /**
+   * Enter a parse tree produced by the `FunctionApplication`
+   * labeled alternative in `CalcParser.expression`.
+   * @param ctx the parse tree
+   */
+  enterFunctionApplication?: (ctx: FunctionApplicationContext) => void
+  /**
+   * Exit a parse tree produced by the `FunctionApplication`
+   * labeled alternative in `CalcParser.expression`.
+   * @param ctx the parse tree
+   */
+  exitFunctionApplication?: (ctx: FunctionApplicationContext) => void
+
+  /**
    * Enter a parse tree produced by the `ConditionalExpression`
    * labeled alternative in `CalcParser.expression`.
    * @param ctx the parse tree
@@ -98,19 +125,6 @@ export interface CalcListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   exitLambdaExpression?: (ctx: LambdaExpressionContext) => void
-
-  /**
-   * Enter a parse tree produced by the `FunctionApplication`
-   * labeled alternative in `CalcParser.expression`.
-   * @param ctx the parse tree
-   */
-  enterFunctionApplication?: (ctx: FunctionApplicationContext) => void
-  /**
-   * Exit a parse tree produced by the `FunctionApplication`
-   * labeled alternative in `CalcParser.expression`.
-   * @param ctx the parse tree
-   */
-  exitFunctionApplication?: (ctx: FunctionApplicationContext) => void
 
   /**
    * Enter a parse tree produced by the `ParenthesizedExpression`

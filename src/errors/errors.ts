@@ -123,6 +123,20 @@ export class UnassignedVariable extends RuntimeSourceError {
   }
 }
 
+export class ReservedKeywordVariable extends RuntimeSourceError {
+  constructor(private node: es.Node, private name: string, private reservedType: string) {
+    super(node)
+  }
+
+  public explain() {
+    return `Declaring name that clashes with reserved keyword ${this.name}.`
+  }
+
+  public elaborate() {
+    return `${this.name} keyword is reserved for ${this.reservedType}.`
+  }
+}
+
 export class InvalidNumberOfArguments extends RuntimeSourceError {
   private calleeStr: string
 

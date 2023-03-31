@@ -4,11 +4,13 @@ import { Context } from '..'
 import * as es from '../ast'
 import * as errors from '../errors/errors'
 import { RuntimeSourceError } from '../errors/runtimeSourceError'
+import { arity } from '../stdlib/misc'
 import { Environment, Frame, Value } from '../types'
 import * as ast from '../utils/astCreator'
+import { builtinFunctions, builtinInfixFunctions } from './builtin'
 import * as instr from './instrCreator'
 import { Agenda } from './interpreter'
-import { AgendaItem, ClosureInstr, InstrType } from './types'
+import { AgendaItem, BuiltinInstr, ClosureInstr, Instr, InstrType } from './types'
 
 /**
  * Stack is implemented for agenda and stash registers.
@@ -204,17 +206,26 @@ export const handleRuntimeError = (context: Context, error: RuntimeSourceError) 
 
 export const checkNumberOfArguments = (
   context: Context,
-  callee: ClosureInstr,
+  callee: ClosureInstr | BuiltinInstr,
   args: Value[],
   exp: es.CallExpression
 ) => {
   if (callee?.instrType === InstrType.CLOSURE) {
     // User-defined or Pre-defined functions
-    const params = callee.srcNode.params
+    const instr = callee as ClosureInstr
+    const params = instr.srcNode?.params
     if (params.length !== args.length) {
       return handleRuntimeError(
         context,
         new errors.InvalidNumberOfArguments(exp, params.length, args.length)
+      )
+    }
+  } else if (callee?.instrType === InstrType.BUILTIN) {
+    const instr = callee as BuiltinInstr
+    if (instr.arity !== args.length) {
+      return handleRuntimeError(
+        context,
+        new errors.InvalidNumberOfArguments(exp, instr.arity, args.length)
       )
     }
   }
@@ -246,5 +257,12 @@ export const checkStackOverFlow = (context: Context, agenda: Agenda) => {
       context,
       new errors.MaximumStackLimitExceeded(context.runtime.nodes[0], stacks)
     )
+  }
+}
+
+export const populateBuiltInIdentifiers = (context: Context) => {
+  for (const key in builtinFunctions) {
+    const builtinInstr = instr.builtinInstr(key, arity(builtinFunctions[key]), false)
+    defineVariable(context, key, builtinInstr)
   }
 }

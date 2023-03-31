@@ -76,7 +76,6 @@ export interface FunctionDeclaration extends BaseDeclaration {
   params: Array<Pattern>
   body: Expression
 }
-
 export interface ValueDeclarator extends BaseNode {
   type: 'ValueDeclarator'
   id: Identifier
@@ -116,6 +115,7 @@ export interface CallExpression extends BaseExpression {
   type: 'CallExpression'
   callee: Expression
   args: Array<Expression>
+  isInfix: boolean
 }
 
 export interface ConditionalExpression extends BaseExpression {

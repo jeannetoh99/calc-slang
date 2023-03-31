@@ -34,15 +34,15 @@ const typeOf = (v: Value) => {
   }
 }
 
-const isNumber = (v: Value) => typeOf(v) === 'number'
+export const isNumber = (v: Value) => typeOf(v) === 'number'
 // See section 4 of https://2ality.com/2012/12/arrays.html
 // v >>> 0 === v checks that v is a valid unsigned 32-bit int
 // tslint:disable-next-line:no-bitwise
-const isArrayIndex = (v: Value) => isNumber(v) && v >>> 0 === v && v < 2 ** 32 - 1
-const isString = (v: Value) => typeOf(v) === 'string'
-const isBool = (v: Value) => typeOf(v) === 'boolean'
-const isObject = (v: Value) => typeOf(v) === 'object'
-const isArray = (v: Value) => typeOf(v) === 'array'
+export const isArrayIndex = (v: Value) => isNumber(v) && v >>> 0 === v && v < 2 ** 32 - 1
+export const isString = (v: Value) => typeOf(v) === 'string'
+export const isBool = (v: Value) => typeOf(v) === 'boolean'
+export const isObject = (v: Value) => typeOf(v) === 'object'
+export const isArray = (v: Value) => typeOf(v) === 'array'
 
 export const checkIsBool = (node: es.Node, test: Value) => {
   return isBool(test) ? undefined : new TypeError(node, ' as condition', 'boolean', typeOf(test))
