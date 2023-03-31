@@ -39,9 +39,11 @@ export class CalcParser extends Parser {
   public static readonly T__11 = 12
   public static readonly INTEGER_LITERAL = 13
   public static readonly BOOLEAN_LITERAL = 14
-  public static readonly TYPE = 15
-  public static readonly IDENTIFIER = 16
-  public static readonly WHITESPACE = 17
+  public static readonly REAL_LITERAL = 15
+  public static readonly STRING_LITERAL = 16
+  public static readonly TYPE = 17
+  public static readonly IDENTIFIER = 18
+  public static readonly WHITESPACE = 19
   public static readonly RULE_identifier = 0
   public static readonly RULE_literal = 1
   public static readonly RULE_expression = 2
@@ -91,6 +93,8 @@ export class CalcParser extends Parser {
     undefined,
     'INTEGER_LITERAL',
     'BOOLEAN_LITERAL',
+    'REAL_LITERAL',
+    'STRING_LITERAL',
     'TYPE',
     'IDENTIFIER',
     'WHITESPACE'
@@ -162,7 +166,7 @@ export class CalcParser extends Parser {
     let _localctx: LiteralContext = new LiteralContext(this._ctx, this.state)
     this.enterRule(_localctx, 2, CalcParser.RULE_literal)
     try {
-      this.state = 18
+      this.state = 20
       this._errHandler.sync(this)
       switch (this._input.LA(1)) {
         case CalcParser.INTEGER_LITERAL:
@@ -179,6 +183,22 @@ export class CalcParser extends Parser {
           {
             this.state = 17
             this.match(CalcParser.BOOLEAN_LITERAL)
+          }
+          break
+        case CalcParser.REAL_LITERAL:
+          _localctx = new RealContext(_localctx)
+          this.enterOuterAlt(_localctx, 3)
+          {
+            this.state = 18
+            this.match(CalcParser.REAL_LITERAL)
+          }
+          break
+        case CalcParser.STRING_LITERAL:
+          _localctx = new StringContext(_localctx)
+          this.enterOuterAlt(_localctx, 4)
+          {
+            this.state = 19
+            this.match(CalcParser.STRING_LITERAL)
           }
           break
         default:
@@ -216,17 +236,19 @@ export class CalcParser extends Parser {
       let _alt: number
       this.enterOuterAlt(_localctx, 1)
       {
-        this.state = 39
+        this.state = 41
         this._errHandler.sync(this)
         switch (this._input.LA(1)) {
           case CalcParser.INTEGER_LITERAL:
           case CalcParser.BOOLEAN_LITERAL:
+          case CalcParser.REAL_LITERAL:
+          case CalcParser.STRING_LITERAL:
             {
               _localctx = new LiteralExpressionContext(_localctx)
               this._ctx = _localctx
               _prevctx = _localctx
 
-              this.state = 21
+              this.state = 23
               this.literal()
             }
             break
@@ -235,7 +257,7 @@ export class CalcParser extends Parser {
               _localctx = new IdentifierExpressionContext(_localctx)
               this._ctx = _localctx
               _prevctx = _localctx
-              this.state = 22
+              this.state = 24
               this.identifier()
             }
             break
@@ -244,17 +266,17 @@ export class CalcParser extends Parser {
               _localctx = new ConditionalExpressionContext(_localctx)
               this._ctx = _localctx
               _prevctx = _localctx
-              this.state = 23
-              this.match(CalcParser.T__1)
-              this.state = 24
-              ;(_localctx as ConditionalExpressionContext)._pred = this.expression(0)
               this.state = 25
-              this.match(CalcParser.T__2)
+              this.match(CalcParser.T__1)
               this.state = 26
-              ;(_localctx as ConditionalExpressionContext)._cons = this.expression(0)
+              ;(_localctx as ConditionalExpressionContext)._pred = this.expression(0)
               this.state = 27
-              this.match(CalcParser.T__3)
+              this.match(CalcParser.T__2)
               this.state = 28
+              ;(_localctx as ConditionalExpressionContext)._cons = this.expression(0)
+              this.state = 29
+              this.match(CalcParser.T__3)
+              this.state = 30
               ;(_localctx as ConditionalExpressionContext)._alt = this.expression(4)
             }
             break
@@ -263,13 +285,13 @@ export class CalcParser extends Parser {
               _localctx = new LambdaExpressionContext(_localctx)
               this._ctx = _localctx
               _prevctx = _localctx
-              this.state = 30
-              this.match(CalcParser.T__4)
-              this.state = 31
-              this.pattern(0)
               this.state = 32
-              this.match(CalcParser.T__5)
+              this.match(CalcParser.T__4)
               this.state = 33
+              this.pattern(0)
+              this.state = 34
+              this.match(CalcParser.T__5)
+              this.state = 35
               this.expression(3)
             }
             break
@@ -278,11 +300,11 @@ export class CalcParser extends Parser {
               _localctx = new ParenthesizedExpressionContext(_localctx)
               this._ctx = _localctx
               _prevctx = _localctx
-              this.state = 35
-              this.match(CalcParser.T__6)
-              this.state = 36
-              this.expression(0)
               this.state = 37
+              this.match(CalcParser.T__6)
+              this.state = 38
+              this.expression(0)
+              this.state = 39
               this.match(CalcParser.T__7)
             }
             break
@@ -290,7 +312,7 @@ export class CalcParser extends Parser {
             throw new NoViableAltException(this)
         }
         this._ctx._stop = this._input.tryLT(-1)
-        this.state = 48
+        this.state = 50
         this._errHandler.sync(this)
         _alt = this.interpreter.adaptivePredict(this._input, 3, this._ctx)
         while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
@@ -300,7 +322,7 @@ export class CalcParser extends Parser {
             }
             _prevctx = _localctx
             {
-              this.state = 46
+              this.state = 48
               this._errHandler.sync(this)
               switch (this.interpreter.adaptivePredict(this._input, 2, this._ctx)) {
                 case 1:
@@ -310,11 +332,11 @@ export class CalcParser extends Parser {
                     )
                     ;(_localctx as FunctionApplicationContext)._fn = _prevctx
                     this.pushNewRecursionContext(_localctx, _startState, CalcParser.RULE_expression)
-                    this.state = 41
+                    this.state = 43
                     if (!this.precpred(this._ctx, 2)) {
                       throw this.createFailedPredicateException('this.precpred(this._ctx, 2)')
                     }
-                    this.state = 42
+                    this.state = 44
                     ;(_localctx as FunctionApplicationContext)._args = this.expression(3)
                   }
                   break
@@ -325,20 +347,20 @@ export class CalcParser extends Parser {
                       new ExpressionContext(_parentctx, _parentState)
                     )
                     this.pushNewRecursionContext(_localctx, _startState, CalcParser.RULE_expression)
-                    this.state = 43
+                    this.state = 45
                     if (!this.precpred(this._ctx, 5)) {
                       throw this.createFailedPredicateException('this.precpred(this._ctx, 5)')
                     }
-                    this.state = 44
+                    this.state = 46
                     this.match(CalcParser.T__0)
-                    this.state = 45
+                    this.state = 47
                     this.match(CalcParser.TYPE)
                   }
                   break
               }
             }
           }
-          this.state = 50
+          this.state = 52
           this._errHandler.sync(this)
           _alt = this.interpreter.adaptivePredict(this._input, 3, this._ctx)
         }
@@ -375,17 +397,19 @@ export class CalcParser extends Parser {
       let _alt: number
       this.enterOuterAlt(_localctx, 1)
       {
-        this.state = 58
+        this.state = 60
         this._errHandler.sync(this)
         switch (this._input.LA(1)) {
           case CalcParser.INTEGER_LITERAL:
           case CalcParser.BOOLEAN_LITERAL:
+          case CalcParser.REAL_LITERAL:
+          case CalcParser.STRING_LITERAL:
             {
               _localctx = new LiteralPatternContext(_localctx)
               this._ctx = _localctx
               _prevctx = _localctx
 
-              this.state = 52
+              this.state = 54
               this.literal()
             }
             break
@@ -394,7 +418,7 @@ export class CalcParser extends Parser {
               _localctx = new IdentifierPatternContext(_localctx)
               this._ctx = _localctx
               _prevctx = _localctx
-              this.state = 53
+              this.state = 55
               this.identifier()
             }
             break
@@ -403,11 +427,11 @@ export class CalcParser extends Parser {
               _localctx = new ParenthesizedPatternContext(_localctx)
               this._ctx = _localctx
               _prevctx = _localctx
-              this.state = 54
-              this.match(CalcParser.T__6)
-              this.state = 55
-              this.pattern(0)
               this.state = 56
+              this.match(CalcParser.T__6)
+              this.state = 57
+              this.pattern(0)
+              this.state = 58
               this.match(CalcParser.T__7)
             }
             break
@@ -415,7 +439,7 @@ export class CalcParser extends Parser {
             throw new NoViableAltException(this)
         }
         this._ctx._stop = this._input.tryLT(-1)
-        this.state = 65
+        this.state = 67
         this._errHandler.sync(this)
         _alt = this.interpreter.adaptivePredict(this._input, 5, this._ctx)
         while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
@@ -428,18 +452,18 @@ export class CalcParser extends Parser {
               {
                 _localctx = new TypedPatternContext(new PatternContext(_parentctx, _parentState))
                 this.pushNewRecursionContext(_localctx, _startState, CalcParser.RULE_pattern)
-                this.state = 60
+                this.state = 62
                 if (!this.precpred(this._ctx, 2)) {
                   throw this.createFailedPredicateException('this.precpred(this._ctx, 2)')
                 }
-                this.state = 61
+                this.state = 63
                 this.match(CalcParser.T__0)
-                this.state = 62
+                this.state = 64
                 this.match(CalcParser.TYPE)
               }
             }
           }
-          this.state = 67
+          this.state = 69
           this._errHandler.sync(this)
           _alt = this.interpreter.adaptivePredict(this._input, 5, this._ctx)
         }
@@ -462,20 +486,20 @@ export class CalcParser extends Parser {
     let _localctx: DeclarationContext = new DeclarationContext(this._ctx, this.state)
     this.enterRule(_localctx, 8, CalcParser.RULE_declaration)
     try {
-      this.state = 79
+      this.state = 81
       this._errHandler.sync(this)
       switch (this._input.LA(1)) {
         case CalcParser.T__8:
           _localctx = new ValueDeclarationContext(_localctx)
           this.enterOuterAlt(_localctx, 1)
           {
-            this.state = 68
-            this.match(CalcParser.T__8)
-            this.state = 69
-            this.pattern(0)
             this.state = 70
-            this.match(CalcParser.T__9)
+            this.match(CalcParser.T__8)
             this.state = 71
+            this.pattern(0)
+            this.state = 72
+            this.match(CalcParser.T__9)
+            this.state = 73
             this.expression(0)
           }
           break
@@ -483,15 +507,15 @@ export class CalcParser extends Parser {
           _localctx = new FunctionDeclarationContext(_localctx)
           this.enterOuterAlt(_localctx, 2)
           {
-            this.state = 73
-            this.match(CalcParser.T__10)
-            this.state = 74
-            this.identifier()
             this.state = 75
-            this.pattern(0)
+            this.match(CalcParser.T__10)
             this.state = 76
-            this.match(CalcParser.T__9)
+            this.identifier()
             this.state = 77
+            this.pattern(0)
+            this.state = 78
+            this.match(CalcParser.T__9)
+            this.state = 79
             this.expression(0)
           }
           break
@@ -516,7 +540,7 @@ export class CalcParser extends Parser {
     let _localctx: StatementContext = new StatementContext(this._ctx, this.state)
     this.enterRule(_localctx, 10, CalcParser.RULE_statement)
     try {
-      this.state = 87
+      this.state = 89
       this._errHandler.sync(this)
       switch (this._input.LA(1)) {
         case CalcParser.T__1:
@@ -524,13 +548,15 @@ export class CalcParser extends Parser {
         case CalcParser.T__6:
         case CalcParser.INTEGER_LITERAL:
         case CalcParser.BOOLEAN_LITERAL:
+        case CalcParser.REAL_LITERAL:
+        case CalcParser.STRING_LITERAL:
         case CalcParser.IDENTIFIER:
           _localctx = new ExpressionStatementContext(_localctx)
           this.enterOuterAlt(_localctx, 1)
           {
-            this.state = 81
+            this.state = 83
             this.expression(0)
-            this.state = 82
+            this.state = 84
             this.match(CalcParser.T__11)
           }
           break
@@ -539,9 +565,9 @@ export class CalcParser extends Parser {
           _localctx = new DeclarationStatementContext(_localctx)
           this.enterOuterAlt(_localctx, 2)
           {
-            this.state = 84
+            this.state = 86
             this.declaration()
-            this.state = 85
+            this.state = 87
             this.match(CalcParser.T__11)
           }
           break
@@ -569,7 +595,7 @@ export class CalcParser extends Parser {
     try {
       this.enterOuterAlt(_localctx, 1)
       {
-        this.state = 92
+        this.state = 94
         this._errHandler.sync(this)
         _la = this._input.LA(1)
         while (
@@ -582,16 +608,18 @@ export class CalcParser extends Parser {
               (1 << CalcParser.T__10) |
               (1 << CalcParser.INTEGER_LITERAL) |
               (1 << CalcParser.BOOLEAN_LITERAL) |
+              (1 << CalcParser.REAL_LITERAL) |
+              (1 << CalcParser.STRING_LITERAL) |
               (1 << CalcParser.IDENTIFIER))) !==
             0
         ) {
           {
             {
-              this.state = 89
+              this.state = 91
               this.statement()
             }
           }
-          this.state = 94
+          this.state = 96
           this._errHandler.sync(this)
           _la = this._input.LA(1)
         }
@@ -639,46 +667,47 @@ export class CalcParser extends Parser {
   }
 
   public static readonly _serializedATN: string =
-    '\x03\uC91D\uCABA\u058D\uAFBA\u4F53\u0607\uEA8B\uC241\x03\x13b\x04\x02' +
+    '\x03\uC91D\uCABA\u058D\uAFBA\u4F53\u0607\uEA8B\uC241\x03\x15d\x04\x02' +
     '\t\x02\x04\x03\t\x03\x04\x04\t\x04\x04\x05\t\x05\x04\x06\t\x06\x04\x07' +
-    '\t\x07\x04\b\t\b\x03\x02\x03\x02\x03\x03\x03\x03\x05\x03\x15\n\x03\x03' +
+    '\t\x07\x04\b\t\b\x03\x02\x03\x02\x03\x03\x03\x03\x03\x03\x03\x03\x05\x03' +
+    '\x17\n\x03\x03\x04\x03\x04\x03\x04\x03\x04\x03\x04\x03\x04\x03\x04\x03' +
     '\x04\x03\x04\x03\x04\x03\x04\x03\x04\x03\x04\x03\x04\x03\x04\x03\x04\x03' +
-    '\x04\x03\x04\x03\x04\x03\x04\x03\x04\x03\x04\x03\x04\x03\x04\x03\x04\x03' +
-    '\x04\x05\x04*\n\x04\x03\x04\x03\x04\x03\x04\x03\x04\x03\x04\x07\x041\n' +
-    '\x04\f\x04\x0E\x044\v\x04\x03\x05\x03\x05\x03\x05\x03\x05\x03\x05\x03' +
-    '\x05\x03\x05\x05\x05=\n\x05\x03\x05\x03\x05\x03\x05\x07\x05B\n\x05\f\x05' +
-    '\x0E\x05E\v\x05\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06' +
-    '\x03\x06\x03\x06\x03\x06\x03\x06\x05\x06R\n\x06\x03\x07\x03\x07\x03\x07' +
-    '\x03\x07\x03\x07\x03\x07\x05\x07Z\n\x07\x03\b\x07\b]\n\b\f\b\x0E\b`\v' +
-    '\b\x03\b\x02\x02\x04\x06\b\t\x02\x02\x04\x02\x06\x02\b\x02\n\x02\f\x02' +
-    '\x0E\x02\x02\x02\x02g\x02\x10\x03\x02\x02\x02\x04\x14\x03\x02\x02\x02' +
-    '\x06)\x03\x02\x02\x02\b<\x03\x02\x02\x02\nQ\x03\x02\x02\x02\fY\x03\x02' +
-    '\x02\x02\x0E^\x03\x02\x02\x02\x10\x11\x07\x12\x02\x02\x11\x03\x03\x02' +
-    '\x02\x02\x12\x15\x07\x0F\x02\x02\x13\x15\x07\x10\x02\x02\x14\x12\x03\x02' +
-    '\x02\x02\x14\x13\x03\x02\x02\x02\x15\x05\x03\x02\x02\x02\x16\x17\b\x04' +
-    '\x01\x02\x17*\x05\x04\x03\x02\x18*\x05\x02\x02\x02\x19\x1A\x07\x04\x02' +
-    '\x02\x1A\x1B\x05\x06\x04\x02\x1B\x1C\x07\x05\x02\x02\x1C\x1D\x05\x06\x04' +
-    '\x02\x1D\x1E\x07\x06\x02\x02\x1E\x1F\x05\x06\x04\x06\x1F*\x03\x02\x02' +
-    '\x02 !\x07\x07\x02\x02!"\x05\b\x05\x02"#\x07\b\x02\x02#$\x05\x06\x04' +
-    "\x05$*\x03\x02\x02\x02%&\x07\t\x02\x02&'\x05\x06\x04\x02'(\x07\n\x02" +
-    '\x02(*\x03\x02\x02\x02)\x16\x03\x02\x02\x02)\x18\x03\x02\x02\x02)\x19' +
-    '\x03\x02\x02\x02) \x03\x02\x02\x02)%\x03\x02\x02\x02*2\x03\x02\x02\x02' +
-    '+,\f\x04\x02\x02,1\x05\x06\x04\x05-.\f\x07\x02\x02./\x07\x03\x02\x02/' +
-    '1\x07\x11\x02\x020+\x03\x02\x02\x020-\x03\x02\x02\x0214\x03\x02\x02\x02' +
-    '20\x03\x02\x02\x0223\x03\x02\x02\x023\x07\x03\x02\x02\x0242\x03\x02\x02' +
-    '\x0256\b\x05\x01\x026=\x05\x04\x03\x027=\x05\x02\x02\x0289\x07\t\x02\x02' +
-    '9:\x05\b\x05\x02:;\x07\n\x02\x02;=\x03\x02\x02\x02<5\x03\x02\x02\x02<' +
-    '7\x03\x02\x02\x02<8\x03\x02\x02\x02=C\x03\x02\x02\x02>?\f\x04\x02\x02' +
-    '?@\x07\x03\x02\x02@B\x07\x11\x02\x02A>\x03\x02\x02\x02BE\x03\x02\x02\x02' +
-    'CA\x03\x02\x02\x02CD\x03\x02\x02\x02D\t\x03\x02\x02\x02EC\x03\x02\x02' +
-    '\x02FG\x07\v\x02\x02GH\x05\b\x05\x02HI\x07\f\x02\x02IJ\x05\x06\x04\x02' +
-    'JR\x03\x02\x02\x02KL\x07\r\x02\x02LM\x05\x02\x02\x02MN\x05\b\x05\x02N' +
-    'O\x07\f\x02\x02OP\x05\x06\x04\x02PR\x03\x02\x02\x02QF\x03\x02\x02\x02' +
-    'QK\x03\x02\x02\x02R\v\x03\x02\x02\x02ST\x05\x06\x04\x02TU\x07\x0E\x02' +
-    '\x02UZ\x03\x02\x02\x02VW\x05\n\x06\x02WX\x07\x0E\x02\x02XZ\x03\x02\x02' +
-    '\x02YS\x03\x02\x02\x02YV\x03\x02\x02\x02Z\r\x03\x02\x02\x02[]\x05\f\x07' +
-    '\x02\\[\x03\x02\x02\x02]`\x03\x02\x02\x02^\\\x03\x02\x02\x02^_\x03\x02' +
-    '\x02\x02_\x0F\x03\x02\x02\x02`^\x03\x02\x02\x02\v\x14)02<CQY^'
+    '\x04\x03\x04\x03\x04\x05\x04,\n\x04\x03\x04\x03\x04\x03\x04\x03\x04\x03' +
+    '\x04\x07\x043\n\x04\f\x04\x0E\x046\v\x04\x03\x05\x03\x05\x03\x05\x03\x05' +
+    '\x03\x05\x03\x05\x03\x05\x05\x05?\n\x05\x03\x05\x03\x05\x03\x05\x07\x05' +
+    'D\n\x05\f\x05\x0E\x05G\v\x05\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03' +
+    '\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x05\x06T\n\x06\x03\x07\x03' +
+    '\x07\x03\x07\x03\x07\x03\x07\x03\x07\x05\x07\\\n\x07\x03\b\x07\b_\n\b' +
+    '\f\b\x0E\bb\v\b\x03\b\x02\x02\x04\x06\b\t\x02\x02\x04\x02\x06\x02\b\x02' +
+    '\n\x02\f\x02\x0E\x02\x02\x02\x02k\x02\x10\x03\x02\x02\x02\x04\x16\x03' +
+    '\x02\x02\x02\x06+\x03\x02\x02\x02\b>\x03\x02\x02\x02\nS\x03\x02\x02\x02' +
+    '\f[\x03\x02\x02\x02\x0E`\x03\x02\x02\x02\x10\x11\x07\x14\x02\x02\x11\x03' +
+    '\x03\x02\x02\x02\x12\x17\x07\x0F\x02\x02\x13\x17\x07\x10\x02\x02\x14\x17' +
+    '\x07\x11\x02\x02\x15\x17\x07\x12\x02\x02\x16\x12\x03\x02\x02\x02\x16\x13' +
+    '\x03\x02\x02\x02\x16\x14\x03\x02\x02\x02\x16\x15\x03\x02\x02\x02\x17\x05' +
+    '\x03\x02\x02\x02\x18\x19\b\x04\x01\x02\x19,\x05\x04\x03\x02\x1A,\x05\x02' +
+    '\x02\x02\x1B\x1C\x07\x04\x02\x02\x1C\x1D\x05\x06\x04\x02\x1D\x1E\x07\x05' +
+    '\x02\x02\x1E\x1F\x05\x06\x04\x02\x1F \x07\x06\x02\x02 !\x05\x06\x04\x06' +
+    '!,\x03\x02\x02\x02"#\x07\x07\x02\x02#$\x05\b\x05\x02$%\x07\b\x02\x02' +
+    "%&\x05\x06\x04\x05&,\x03\x02\x02\x02'(\x07\t\x02\x02()\x05\x06\x04\x02" +
+    ')*\x07\n\x02\x02*,\x03\x02\x02\x02+\x18\x03\x02\x02\x02+\x1A\x03\x02\x02' +
+    '\x02+\x1B\x03\x02\x02\x02+"\x03\x02\x02\x02+\'\x03\x02\x02\x02,4\x03' +
+    '\x02\x02\x02-.\f\x04\x02\x02.3\x05\x06\x04\x05/0\f\x07\x02\x0201\x07\x03' +
+    '\x02\x0213\x07\x13\x02\x022-\x03\x02\x02\x022/\x03\x02\x02\x0236\x03\x02' +
+    '\x02\x0242\x03\x02\x02\x0245\x03\x02\x02\x025\x07\x03\x02\x02\x0264\x03' +
+    '\x02\x02\x0278\b\x05\x01\x028?\x05\x04\x03\x029?\x05\x02\x02\x02:;\x07' +
+    '\t\x02\x02;<\x05\b\x05\x02<=\x07\n\x02\x02=?\x03\x02\x02\x02>7\x03\x02' +
+    '\x02\x02>9\x03\x02\x02\x02>:\x03\x02\x02\x02?E\x03\x02\x02\x02@A\f\x04' +
+    '\x02\x02AB\x07\x03\x02\x02BD\x07\x13\x02\x02C@\x03\x02\x02\x02DG\x03\x02' +
+    '\x02\x02EC\x03\x02\x02\x02EF\x03\x02\x02\x02F\t\x03\x02\x02\x02GE\x03' +
+    '\x02\x02\x02HI\x07\v\x02\x02IJ\x05\b\x05\x02JK\x07\f\x02\x02KL\x05\x06' +
+    '\x04\x02LT\x03\x02\x02\x02MN\x07\r\x02\x02NO\x05\x02\x02\x02OP\x05\b\x05' +
+    '\x02PQ\x07\f\x02\x02QR\x05\x06\x04\x02RT\x03\x02\x02\x02SH\x03\x02\x02' +
+    '\x02SM\x03\x02\x02\x02T\v\x03\x02\x02\x02UV\x05\x06\x04\x02VW\x07\x0E' +
+    '\x02\x02W\\\x03\x02\x02\x02XY\x05\n\x06\x02YZ\x07\x0E\x02\x02Z\\\x03\x02' +
+    '\x02\x02[U\x03\x02\x02\x02[X\x03\x02\x02\x02\\\r\x03\x02\x02\x02]_\x05' +
+    '\f\x07\x02^]\x03\x02\x02\x02_b\x03\x02\x02\x02`^\x03\x02\x02\x02`a\x03' +
+    '\x02\x02\x02a\x0F\x03\x02\x02\x02b`\x03\x02\x02\x02\v\x16+24>ES[`'
   public static __ATN: ATN
   public static get _ATN(): ATN {
     if (!CalcParser.__ATN) {
@@ -789,6 +818,64 @@ export class BooleanContext extends LiteralContext {
   public accept<Result>(visitor: CalcVisitor<Result>): Result {
     if (visitor.visitBoolean) {
       return visitor.visitBoolean(this)
+    } else {
+      return visitor.visitChildren(this)
+    }
+  }
+}
+export class RealContext extends LiteralContext {
+  public REAL_LITERAL(): TerminalNode {
+    return this.getToken(CalcParser.REAL_LITERAL, 0)
+  }
+  constructor(ctx: LiteralContext) {
+    super(ctx.parent, ctx.invokingState)
+    this.copyFrom(ctx)
+  }
+  // @Override
+  public enterRule(listener: CalcListener): void {
+    if (listener.enterReal) {
+      listener.enterReal(this)
+    }
+  }
+  // @Override
+  public exitRule(listener: CalcListener): void {
+    if (listener.exitReal) {
+      listener.exitReal(this)
+    }
+  }
+  // @Override
+  public accept<Result>(visitor: CalcVisitor<Result>): Result {
+    if (visitor.visitReal) {
+      return visitor.visitReal(this)
+    } else {
+      return visitor.visitChildren(this)
+    }
+  }
+}
+export class StringContext extends LiteralContext {
+  public STRING_LITERAL(): TerminalNode {
+    return this.getToken(CalcParser.STRING_LITERAL, 0)
+  }
+  constructor(ctx: LiteralContext) {
+    super(ctx.parent, ctx.invokingState)
+    this.copyFrom(ctx)
+  }
+  // @Override
+  public enterRule(listener: CalcListener): void {
+    if (listener.enterString) {
+      listener.enterString(this)
+    }
+  }
+  // @Override
+  public exitRule(listener: CalcListener): void {
+    if (listener.exitString) {
+      listener.exitString(this)
+    }
+  }
+  // @Override
+  public accept<Result>(visitor: CalcVisitor<Result>): Result {
+    if (visitor.visitString) {
+      return visitor.visitString(this)
     } else {
       return visitor.visitChildren(this)
     }

@@ -1,4 +1,5 @@
 /* tslint:disable:max-classes-per-file */
+import { parseExpression } from '@babel/parser'
 import { CharStreams, CommonTokenStream, RecognitionException, Recognizer } from 'antlr4ts'
 import { ANTLRErrorListener } from 'antlr4ts/ANTLRErrorListener'
 import { ErrorNode } from 'antlr4ts/tree/ErrorNode'
@@ -29,7 +30,9 @@ import {
   ParenthesizedExpressionContext,
   ParenthesizedPatternContext,
   ProgramContext,
+  RealContext,
   StatementContext,
+  StringContext,
   TypedExpressionContext,
   TypedPatternContext,
   ValueDeclarationContext
@@ -216,6 +219,22 @@ class AstConverter implements CalcVisitor<es.Node> {
     return {
       type: 'Literal',
       value: ctx.text === 'true',
+      raw: ctx.text,
+      loc: contextToLocation(ctx)
+    }
+  }
+  visitReal(ctx: RealContext): es.Literal {
+    return {
+      type: 'Literal',
+      value: parseFloat(ctx.text.replace('~', '-')),
+      raw: ctx.text,
+      loc: contextToLocation(ctx)
+    }
+  }
+  visitString(ctx: StringContext): es.Literal {
+    return {
+      type: 'Literal',
+      value: ctx.text.substring(1, ctx.text.length - 1),
       raw: ctx.text,
       loc: contextToLocation(ctx)
     }
