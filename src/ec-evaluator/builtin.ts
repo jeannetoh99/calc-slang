@@ -1,4 +1,4 @@
-import { floor } from "lodash"
+import { floor } from 'lodash'
 
 export const builtinInfixFunctions = {
   '+': (x: any, y: any) => x + y,
