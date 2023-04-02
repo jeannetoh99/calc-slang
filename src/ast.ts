@@ -109,7 +109,6 @@ export type Pattern = PatternMap[keyof PatternMap]
 export interface BasePattern extends BaseNode {
   annotedType?: Type
   inferredType?: Type
-  runtimeType?: Type
 }
 
 export interface CallExpression extends BaseExpression {
