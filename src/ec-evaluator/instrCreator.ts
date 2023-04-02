@@ -16,7 +16,12 @@ import {
   LocalEnvInstr
 } from './types'
 
-export const assmtInstr = (symbol: string, declaration: boolean, srcNode: es.Node, env: Environment): AssmtInstr => ({
+export const assmtInstr = (
+  symbol: string,
+  declaration: boolean,
+  srcNode: es.Node,
+  env: Environment
+): AssmtInstr => ({
   instrType: InstrType.ASSIGNMENT,
   symbol,
   declaration,
@@ -68,7 +73,6 @@ export const envInstr = (env: Environment): EnvInstr => ({
 export const localEnvInstr = (): LocalEnvInstr => ({
   instrType: InstrType.LOCAL_ENVIRONMENT
 })
-
 
 export const pushUndefIfNeededInstr = (): Instr => ({
   instrType: InstrType.PUSH_UNDEFINED_IF_NEEDED

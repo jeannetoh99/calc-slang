@@ -26,7 +26,7 @@ import {
   EnvInstr,
   Instr,
   InstrType,
-  LocalEnvInstr,
+  LocalEnvInstr
 } from './types'
 import {
   checkNumberOfArguments,
@@ -207,7 +207,9 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     // Parser enforces initialisation during variable declaration
     const init = declaration.init!
 
-    agenda.push(instr.assmtInstr(id.name, true, command, command.declEnv ?? currentEnvironment(context)))
+    agenda.push(
+      instr.assmtInstr(id.name, true, command, command.declEnv ?? currentEnvironment(context))
+    )
     agenda.push(init)
   },
 
@@ -222,13 +224,20 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
       params: command.params,
       body: command.body
     }
-    agenda.push(instr.assmtInstr(command.id.name, true, command, command.declEnv ?? currentEnvironment(context)))
+    agenda.push(
+      instr.assmtInstr(
+        command.id.name,
+        true,
+        command,
+        command.declEnv ?? currentEnvironment(context)
+      )
+    )
     agenda.push(lambdaExpression)
   },
 
   LocalDeclaration: function (command: es.LocalDeclaration, context: Context, agenda: Agenda) {
     agenda.push(instr.localEnvInstr())
-    
+
     const env = command.declEnv ?? currentEnvironment(context)
     command.body.declEnv = env
     agenda.push(command.body)
@@ -247,7 +256,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
   ) {
     const env = command.declEnv ?? currentEnvironment(context)
     declareFunctionsAndVariables(env, command)
-    command.body.map(decl => decl.declEnv = env)
+    command.body.map(decl => (decl.declEnv = env))
     agenda.push(...handleSequence(command.body))
   },
 
