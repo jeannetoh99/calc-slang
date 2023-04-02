@@ -16,6 +16,7 @@ import {
   DeclarationListContext,
   DeclarationStatementContext,
   ExpressionContext,
+  ExpressionListContext,
   ExpressionStatementContext,
   FunctionApplicationContext,
   FunctionDeclarationContext,
@@ -175,8 +176,8 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitLetExpression(ctx: LetExpressionContext): es.LetExpression {
     return {
       type: 'LetExpression',
-      declarations: (this.visit(ctx.declarationList()) as es.DeclarationList).declarations,
-      body: this.visit(ctx.expression()) as es.Expression,
+      declarations: this.visit(ctx.declarationList()) as es.DeclarationList,
+      body: this.visit(ctx.expressionList()) as es.SequenceExpression,
       loc: contextToLocation(ctx)
     }
   }
@@ -272,17 +273,28 @@ class AstConverter implements CalcVisitor<es.Node> {
     }
   }
 
-  visitDeclarationList(ctx: DeclarationListContext): es.DeclarationList {
+  visitLiteral?: ((ctx: LiteralContext) => es.Literal) | undefined
+  visitExpression?: ((ctx: ExpressionContext) => es.Expression) | undefined
+
+  visitExpressionList(ctx: ExpressionListContext): es.SequenceExpression {
     return {
-      type: 'DeclarationList',
-      declarations: ctx.declaration().map(decl => this.visit(decl) as es.Declaration)
+      type: 'SequenceExpression',
+      expressions: ctx.expression().map(expr => this.visit(expr) as es.Expression),
+      loc: contextToLocation(ctx)
     }
   }
 
-  visitLiteral?: ((ctx: LiteralContext) => es.Literal) | undefined
-  visitExpression?: ((ctx: ExpressionContext) => es.Expression) | undefined
   visitPattern?: ((ctx: ProgramContext) => es.Pattern) | undefined
   visitDeclaration?: ((ctx: DeclarationContext) => es.Declaration) | undefined
+
+  visitDeclarationList(ctx: DeclarationListContext): es.DeclarationList {
+    return {
+      type: 'DeclarationList',
+      declarations: ctx.declaration().map(decl => this.visit(decl) as es.Declaration),
+      loc: contextToLocation(ctx)
+    }
+  }
+
   visitStatement?: ((ctx: StatementContext) => es.Statement) | undefined
 
   visitProgram(ctx: ProgramContext): es.Program {

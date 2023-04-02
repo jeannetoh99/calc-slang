@@ -95,6 +95,7 @@ export interface ExpressionMap {
   LambdaExpression: LambdaExpression
   LetExpression: LetExpression
   Literal: Literal
+  SequenceExpression: SequenceExpression
 }
 
 export type Type = 'int' | 'bool' | 'real' | 'string'
@@ -140,8 +141,13 @@ export interface LambdaExpression extends BaseExpression {
 
 export interface LetExpression extends BaseExpression {
   type: 'LetExpression'
-  declarations: Declaration[]
-  body: Expression
+  declarations: DeclarationList
+  body: SequenceExpression
+}
+
+export interface SequenceExpression extends BaseExpression {
+  type: 'SequenceExpression'
+  expressions: Expression[]
 }
 
 export interface Identifier extends BaseExpression, BasePattern {

@@ -283,9 +283,19 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
   ) {
     const blockStmt: es.BlockStatement = {
       type: 'BlockStatement',
-      body: [...command.declarations, expressionStatement(command.body)]
+      body: [...command.declarations.declarations, expressionStatement(command.body)]
     }
     agenda.push(blockStmt)
+  },
+
+  SequenceExpression: function (
+    command: es.SequenceExpression,
+    context: Context,
+    agenda: Agenda,
+    stash: Stash
+  ) {
+    const expressionStatements = command.expressions.map(expr => expressionStatement(expr))
+    agenda.push(...handleSequence(expressionStatements))
   },
 
   /**
