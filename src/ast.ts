@@ -44,7 +44,7 @@ export interface Program extends BaseNode {
   body: Array<Statement>
 }
 
-export type Statement = BlockStatement | ExpressionStatement | EmptyStatement | Declaration
+export type Statement = BlockStatement | ExpressionStatement | EmptyStatement | Declaration | DeclarationList
 
 type BaseStatement = BaseNode
 

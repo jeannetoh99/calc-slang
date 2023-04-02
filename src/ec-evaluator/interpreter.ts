@@ -222,6 +222,15 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     agenda.push(lambdaExpression)
   },
 
+  DeclarationList: function (
+    command: es.DeclarationList,
+    context: Context,
+    agenda: Agenda,
+    stash: Stash
+  ) {
+    agenda.push(...handleSequence(command.declarations))
+  },
+
   /**
    * Expressions
    */
@@ -283,7 +292,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
   ) {
     const blockStmt: es.BlockStatement = {
       type: 'BlockStatement',
-      body: [...command.declarations.declarations, expressionStatement(command.body)]
+      body: [command.declarations, expressionStatement(command.body)]
     }
     agenda.push(blockStmt)
   },
