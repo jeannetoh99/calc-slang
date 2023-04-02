@@ -89,7 +89,7 @@ export const builtinInfixFunctions = {
 
 export const builtinFunctions = {
   '~': (x: es.NumLiteral) => literal(-x.value, x.litType),
-  not: (x: es.BoolLiteral) => literal(!x.value, x.litType),
+  not: (x: es.BoolLiteral) => literal(!x.value, 'bool'),
   floor: (x: es.RealLiteral) => literal(x.value, 'int'),
   real: (x: es.IntLiteral) => literal(x.value, 'real'),
   size: (x: es.StringLiteral) => literal(x.value.length, 'int')
