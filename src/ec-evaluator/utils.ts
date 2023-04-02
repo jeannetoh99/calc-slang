@@ -95,11 +95,11 @@ export const handleSequence = (seq: es.Statement[]): AgendaItem[] => {
 
 export const currentEnvironment = (context: Context) => context.runtime.environments[0]
 
-export const localEnvironment = (context: Context) => context.runtime.localEnvironments.length > 0
-                                                        ? context.runtime.localEnvironments[0] 
-                                                        : undefined
+export const localEnvironment = (context: Context) =>
+  context.runtime.localEnvironments.length > 0 ? context.runtime.localEnvironments[0] : undefined
 
-export const outerEnvironment = (context: Context) => localEnvironment(context)?.tail ?? currentEnvironment(context)
+export const outerEnvironment = (context: Context) =>
+  localEnvironment(context)?.tail ?? currentEnvironment(context)
 
 export const createEnvironment = (
   closure: ClosureInstr,
@@ -169,7 +169,10 @@ function declareVariables(environment: Environment, node: es.ValueDeclaration) {
   }
 }
 
-export function declareFunctionsAndVariables(environment: Environment, node: es.BlockStatement | es.DeclarationList) {
+export function declareFunctionsAndVariables(
+  environment: Environment,
+  node: es.BlockStatement | es.DeclarationList
+) {
   for (const statement of node.body) {
     switch (statement.type) {
       case 'ValueDeclaration':
@@ -182,7 +185,12 @@ export function declareFunctionsAndVariables(environment: Environment, node: es.
   }
 }
 
-export function defineVariable(environment: Environment, name: string, value: Value, constant = false) {
+export function defineVariable(
+  environment: Environment,
+  name: string,
+  value: Value,
+  constant = false
+) {
   Object.defineProperty(environment.head, name, {
     value,
     writable: !constant,
@@ -193,7 +201,7 @@ export function defineVariable(environment: Environment, name: string, value: Va
 }
 
 export const getVariable = (context: Context, name: string, node: es.Identifier) => {
-  let environment : Environment | null = localEnvironment(context) ?? currentEnvironment(context)
+  let environment: Environment | null = localEnvironment(context) ?? currentEnvironment(context)
   while (environment) {
     if (environment.head.hasOwnProperty(name)) {
       if (environment.head[name] === DECLARED_BUT_NOT_YET_ASSIGNED) {

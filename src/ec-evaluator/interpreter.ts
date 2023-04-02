@@ -218,7 +218,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
   FunctionDeclaration: function (
     command: es.FunctionDeclaration,
     context: Context,
-    agenda: Agenda,
+    agenda: Agenda
   ) {
     const lambdaExpression: es.LambdaExpression = {
       type: 'LambdaExpression',
@@ -229,11 +229,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     agenda.push(lambdaExpression)
   },
 
-  LocalDeclaration: function (
-    command: es.LocalDeclaration,
-    context: Context,
-    agenda: Agenda,
-  ) {
+  LocalDeclaration: function (command: es.LocalDeclaration, context: Context, agenda: Agenda) {
     agenda.push(instr.localEnvInstr())
     agenda.push(command.body)
     agenda.push(assignEnvInstr(true))
@@ -250,7 +246,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     command: es.DeclarationList,
     context: Context,
     agenda: Agenda,
-    stash: Stash,
+    stash: Stash
   ) {
     agenda.push(...handleSequence(command.body))
   },
@@ -384,7 +380,9 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
         new errors.ReservedKeywordVariable(command.srcNode, command.symbol, 'builtin function')
       )
     }
-    const environment = context.runtime.assignOuter ? outerEnvironment(context) : localEnvironment(context)!
+    const environment = context.runtime.assignOuter
+      ? outerEnvironment(context)
+      : localEnvironment(context)!
     defineVariable(environment, command.symbol, stash.peek(), false)
   },
 

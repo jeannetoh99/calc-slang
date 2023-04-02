@@ -1,4 +1,4 @@
-import { Environment } from "./types"
+import { Environment } from './types'
 
 interface BaseNode {
   // Every leaf interface that extends BaseNode must specify a type property.
@@ -46,11 +46,7 @@ export interface Program extends BaseNode {
   body: Array<Statement>
 }
 
-export type Statement =
-  | BlockStatement
-  | ExpressionStatement
-  | EmptyStatement
-  | Declaration
+export type Statement = BlockStatement | ExpressionStatement | EmptyStatement | Declaration
 
 type BaseStatement = BaseNode
 
@@ -68,7 +64,11 @@ export interface ExpressionStatement extends BaseStatement {
   expression: Expression
 }
 
-export type Declaration = ValueDeclaration | FunctionDeclaration | LocalDeclaration | DeclarationList
+export type Declaration =
+  | ValueDeclaration
+  | FunctionDeclaration
+  | LocalDeclaration
+  | DeclarationList
 
 type BaseDeclaration = BaseStatement
 

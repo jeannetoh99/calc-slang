@@ -65,7 +65,7 @@ export const envInstr = (env: Environment): EnvInstr => ({
 })
 
 export const localEnvInstr = (): LocalEnvInstr => ({
-  instrType: InstrType.LOCAL_ENVIRONMENT,
+  instrType: InstrType.LOCAL_ENVIRONMENT
 })
 
 export const assignEnvInstr = (assignOuter: boolean) => ({
