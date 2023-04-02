@@ -336,7 +336,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     agenda: Agenda,
     stash: Stash
   ) {
-    const test : es.BoolLiteral = stash.pop()
+    const test: es.BoolLiteral = stash.pop()
 
     // Check if predicate is a boolean
     const error = rttc.checkIsBool(command.srcNode, ' as condition', test)

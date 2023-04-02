@@ -110,7 +110,7 @@ export const createEnvironment = (
     id,
     callExpression: {
       ...callExpression,
-      args,
+      args
     }
   }
   closure.srcNode.params.forEach((param, index) => {

@@ -1,11 +1,18 @@
 import { Context } from '..'
 import * as es from '../ast'
-import { checkIsBool, checkIsInt, checkIsNum, checkIsReal, checkIsString, checkIsType } from '../utils/rttc'
+import { literal } from '../utils/astCreator'
+import {
+  checkIsBool,
+  checkIsInt,
+  checkIsNum,
+  checkIsReal,
+  checkIsString,
+  checkIsType
+} from '../utils/rttc'
 import { BuiltinInstr } from './types'
 import { handleRuntimeError } from './utils'
-import { literal } from '../utils/astCreator'
 
-const side = ( id: string ) => {
+const side = (id: string) => {
   return ' as operand for ' + id
 }
 
@@ -13,10 +20,10 @@ export const checkBuiltin = (
   context: Context,
   builtin: BuiltinInstr,
   args: es.Literal[],
-  node: es.Node,
+  node: es.Node
 ) => {
-  let type : es.Type
-  for (let [i, arg] of args.entries()) {
+  let type: es.Type
+  for (const [i, arg] of args.entries()) {
     let error
     switch (builtin.identifier) {
       case '+':
@@ -29,9 +36,10 @@ export const checkBuiltin = (
       case '>=':
       case '=':
       case '~':
-        error = i == 0  
-                  ? checkIsNum(node, side(builtin.identifier), arg)
-                  : checkIsType(node, side(builtin.identifier), arg, args[0].litType)
+        error =
+          i == 0
+            ? checkIsNum(node, side(builtin.identifier), arg)
+            : checkIsType(node, side(builtin.identifier), arg, args[0].litType)
         break
       case 'div':
       case 'mod':
@@ -82,9 +90,9 @@ export const builtinInfixFunctions = {
 export const builtinFunctions = {
   '~': (x: es.NumLiteral) => literal(-x.value, x.litType),
   not: (x: es.BoolLiteral) => literal(!x.value, x.litType),
-  'floor': (x: es.RealLiteral) => literal(x.value, 'int'),
-  'real': (x: es.IntLiteral) => literal(x.value, 'real'),
-  'size': (x: es.StringLiteral) => literal(x.value.length, 'int')
+  floor: (x: es.RealLiteral) => literal(x.value, 'int'),
+  real: (x: es.IntLiteral) => literal(x.value, 'real'),
+  size: (x: es.StringLiteral) => literal(x.value.length, 'int')
 }
 
 export const builtinMapping = {

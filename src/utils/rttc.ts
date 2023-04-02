@@ -48,9 +48,13 @@ export const checkIsBool = (node: es.Node, side: string, test: es.Literal) => {
 
 export const checkIsType = (node: es.Node, side: string, test: es.Literal, type: es.Type) => {
   switch (type) {
-    case 'int': return checkIsInt(node, side, test)
-    case 'real': return checkIsReal(node, side, test)
-    case 'string': return checkIsString(node, side, test)
-    case 'bool': return checkIsBool(node, side, test)
+    case 'int':
+      return checkIsInt(node, side, test)
+    case 'real':
+      return checkIsReal(node, side, test)
+    case 'string':
+      return checkIsString(node, side, test)
+    case 'bool':
+      return checkIsBool(node, side, test)
   }
 }
