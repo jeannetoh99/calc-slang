@@ -11,7 +11,6 @@ export enum InstrType {
   CLOSURE = 'Closure',
   ENVIRONMENT = 'Environment',
   LOCAL_ENVIRONMENT = 'LocalEnvironment',
-  ASSIGN_ENVRIONMENT = 'AssignEnvironment',
   POP = 'Pop',
   PUSH_UNDEFINED_IF_NEEDED = 'PushUndefinedIfNeeded'
 }
@@ -29,6 +28,7 @@ export interface AssmtInstr extends BaseInstr {
   symbol: string
   declaration: boolean
   srcNode: es.Node
+  env: Environment
 }
 
 export interface BranchInstr extends BaseInstr {
@@ -53,10 +53,6 @@ export interface EnvInstr extends BaseInstr {
 }
 
 export type LocalEnvInstr = BaseInstr
-
-export interface AssignEnvInstr extends BaseInstr {
-  assignOuter: boolean
-}
 
 export type Instr =
   | AppInstr

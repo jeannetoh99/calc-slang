@@ -70,12 +70,13 @@ export type Declaration =
   | LocalDeclaration
   | DeclarationList
 
-type BaseDeclaration = BaseStatement
+interface BaseDeclaration extends BaseStatement {
+  declEnv?: Environment
+}
 
 export interface ValueDeclaration extends BaseDeclaration {
   type: 'ValueDeclaration'
   declarations: Array<ValueDeclarator>
-  localEnv?: Environment
 }
 
 export interface FunctionDeclaration extends BaseDeclaration {
@@ -83,7 +84,6 @@ export interface FunctionDeclaration extends BaseDeclaration {
   id: Identifier
   params: Array<Pattern>
   body: Expression
-  localEnv?: Environment
 }
 
 export interface ValueDeclarator extends BaseNode {
@@ -98,7 +98,7 @@ export interface LocalDeclaration extends BaseDeclaration {
   body: DeclarationList
 }
 
-export interface DeclarationList extends BaseStatement {
+export interface DeclarationList extends BaseDeclaration {
   type: 'DeclarationList'
   body: Array<Declaration>
 }

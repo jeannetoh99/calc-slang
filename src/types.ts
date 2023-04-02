@@ -92,7 +92,6 @@ export interface Context<T = any> {
     environmentTree: EnvTree
     environments: Environment[]
     localEnvironments: Environment[]
-    assignOuter: boolean
     nodes: es.Node[]
     agenda?: Agenda
     stash?: Stash

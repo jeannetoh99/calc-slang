@@ -95,11 +95,7 @@ export const handleSequence = (seq: es.Statement[]): AgendaItem[] => {
 
 export const currentEnvironment = (context: Context) => context.runtime.environments[0]
 
-export const localEnvironment = (context: Context) =>
-  context.runtime.localEnvironments.length > 0 ? context.runtime.localEnvironments[0] : undefined
-
-export const outerEnvironment = (context: Context) =>
-  localEnvironment(context)?.tail ?? currentEnvironment(context)
+export const localEnvironment = (context: Context) => context.runtime.localEnvironments[0]
 
 export const createEnvironment = (
   closure: ClosureInstr,

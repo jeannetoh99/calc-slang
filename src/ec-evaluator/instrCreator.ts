@@ -16,11 +16,12 @@ import {
   LocalEnvInstr
 } from './types'
 
-export const assmtInstr = (symbol: string, declaration: boolean, srcNode: es.Node): AssmtInstr => ({
+export const assmtInstr = (symbol: string, declaration: boolean, srcNode: es.Node, env: Environment): AssmtInstr => ({
   instrType: InstrType.ASSIGNMENT,
   symbol,
   declaration,
-  srcNode
+  srcNode,
+  env
 })
 
 export const appInstr = (arity: number, srcNode: es.CallExpression): AppInstr => ({
@@ -68,10 +69,6 @@ export const localEnvInstr = (): LocalEnvInstr => ({
   instrType: InstrType.LOCAL_ENVIRONMENT
 })
 
-export const assignEnvInstr = (assignOuter: boolean) => ({
-  instrType: InstrType.ASSIGN_ENVRIONMENT,
-  assignOuter
-})
 
 export const pushUndefIfNeededInstr = (): Instr => ({
   instrType: InstrType.PUSH_UNDEFINED_IF_NEEDED

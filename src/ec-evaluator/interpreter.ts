@@ -14,11 +14,9 @@ import { expressionStatement } from '../utils/astCreator'
 import * as rttc from '../utils/rttc'
 import { applyBuiltin, builtinInfixFunctions, builtinMapping, checkBuiltin } from './builtin'
 import * as instr from './instrCreator'
-import { assignEnvInstr } from './instrCreator'
 import {
   AgendaItem,
   AppInstr,
-  AssignEnvInstr,
   AssmtInstr,
   BranchInstr,
   BuiltinInstr,
@@ -28,7 +26,7 @@ import {
   EnvInstr,
   Instr,
   InstrType,
-  LocalEnvInstr
+  LocalEnvInstr,
 } from './types'
 import {
   checkNumberOfArguments,
@@ -42,8 +40,6 @@ import {
   handleRuntimeError,
   handleSequence,
   isNode,
-  localEnvironment,
-  outerEnvironment,
   popEnvironment,
   popLocalEnvironment,
   populateBuiltInIdentifiers,
@@ -211,7 +207,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     // Parser enforces initialisation during variable declaration
     const init = declaration.init!
 
-    agenda.push(instr.assmtInstr(id.name, true, command))
+    agenda.push(instr.assmtInstr(id.name, true, command, command.declEnv ?? currentEnvironment(context)))
     agenda.push(init)
   },
 
@@ -220,26 +216,27 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     context: Context,
     agenda: Agenda
   ) {
+    const env = command.declEnv ?? currentEnvironment(context)
     const lambdaExpression: es.LambdaExpression = {
       type: 'LambdaExpression',
       params: command.params,
       body: command.body
     }
-    agenda.push(instr.assmtInstr(command.id.name, true, command))
+    agenda.push(instr.assmtInstr(command.id.name, true, command, command.declEnv ?? currentEnvironment(context)))
     agenda.push(lambdaExpression)
   },
 
   LocalDeclaration: function (command: es.LocalDeclaration, context: Context, agenda: Agenda) {
     agenda.push(instr.localEnvInstr())
+    
+    const env = command.declEnv ?? currentEnvironment(context)
+    command.body.declEnv = env
     agenda.push(command.body)
-    agenda.push(assignEnvInstr(true))
 
-    const localEnv = localEnvironment(context) ?? currentEnvironment(context)
-    const environment = createBlockEnvironment(localEnv, 'localEnvironment')
-    pushLocalEnvironment(context, environment)
-    declareFunctionsAndVariables(environment, command.local)
+    const localEnv = createBlockEnvironment(env, 'localEnvironment')
+    pushLocalEnvironment(context, localEnv)
+    command.local.declEnv = localEnv
     agenda.push(command.local)
-    agenda.push(assignEnvInstr(false))
   },
 
   DeclarationList: function (
@@ -248,6 +245,9 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     agenda: Agenda,
     stash: Stash
   ) {
+    const env = command.declEnv ?? currentEnvironment(context)
+    declareFunctionsAndVariables(env, command)
+    command.body.map(decl => decl.declEnv = env)
     agenda.push(...handleSequence(command.body))
   },
 
@@ -380,10 +380,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
         new errors.ReservedKeywordVariable(command.srcNode, command.symbol, 'builtin function')
       )
     }
-    const environment = context.runtime.assignOuter
-      ? outerEnvironment(context)
-      : localEnvironment(context)!
-    defineVariable(environment, command.symbol, stash.peek(), false)
+    defineVariable(command.env, command.symbol, stash.peek(), false)
   },
 
   [InstrType.BRANCH]: function (
@@ -420,10 +417,6 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
 
   [InstrType.LOCAL_ENVIRONMENT]: function (command: LocalEnvInstr, context: Context) {
     popLocalEnvironment(context)
-  },
-
-  [InstrType.ASSIGN_ENVRIONMENT]: function (command: AssignEnvInstr, context: Context) {
-    context.runtime.assignOuter = command.assignOuter
   },
 
   [InstrType.PUSH_UNDEFINED_IF_NEEDED]: function (
