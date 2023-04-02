@@ -1,5 +1,4 @@
 /* tslint:disable:max-classes-per-file */
-import { parseExpression } from '@babel/parser'
 import { CharStreams, CommonTokenStream, RecognitionException, Recognizer } from 'antlr4ts'
 import { ANTLRErrorListener } from 'antlr4ts/ANTLRErrorListener'
 import { ErrorNode } from 'antlr4ts/tree/ErrorNode'
@@ -14,6 +13,7 @@ import {
   CalcParser,
   ConditionalExpressionContext,
   DeclarationContext,
+  DeclarationListContext,
   DeclarationStatementContext,
   ExpressionContext,
   ExpressionStatementContext,
@@ -25,6 +25,7 @@ import {
   InfixApplicationContext,
   IntegerContext,
   LambdaExpressionContext,
+  LetExpressionContext,
   LiteralContext,
   LiteralExpressionContext,
   LiteralPatternContext,
@@ -171,6 +172,14 @@ class AstConverter implements CalcVisitor<es.Node> {
       loc: contextToLocation(ctx)
     }
   }
+  visitLetExpression(ctx: LetExpressionContext): es.LetExpression {
+    return {
+      type: 'LetExpression',
+      declarations: (this.visit(ctx.declarationList()) as es.DeclarationList).declarations,
+      body: this.visit(ctx.expression()) as es.Expression,
+      loc: contextToLocation(ctx)
+    }
+  }
   visitParenthesizedExpression(ctx: ParenthesizedExpressionContext): es.Expression {
     return this.visit(ctx.expression()) as es.Expression
   }
@@ -260,6 +269,13 @@ class AstConverter implements CalcVisitor<es.Node> {
       type: 'Identifier',
       name: ctx.IDENTIFIER().text,
       loc: contextToLocation(ctx)
+    }
+  }
+
+  visitDeclarationList(ctx: DeclarationListContext): es.DeclarationList {
+    return {
+      type: 'DeclarationList',
+      declarations: ctx.declaration().map(decl => this.visit(decl) as es.Declaration)
     }
   }
 

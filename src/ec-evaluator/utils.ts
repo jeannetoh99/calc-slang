@@ -164,6 +164,9 @@ export function declareFunctionsAndVariables(context: Context, node: es.BlockSta
       case 'ValueDeclaration':
         declareVariables(context, statement)
         break
+      case 'FunctionDeclaration':
+        declareIdentifier(context, (statement.id as es.Identifier).name, statement)
+        break
     }
   }
 }

@@ -41,6 +41,8 @@ expression
    | left=expression op='^' right=expression                                        # InfixApplication
    | 'if' pred=expression 'then' cons=expression 'else' alt=expression              # ConditionalExpression
    | 'fn' pattern '=>' expression                                                   # LambdaExpression
+   | 'let' declarationList 'in' expression 'end'                                    # LetExpression
+   | '(' expression (';' expression)*  ')'                                          # SequenceExpression
    | '(' expression ')'                                                             # ParenthesizedExpression
    ;
 
@@ -55,6 +57,8 @@ declaration
    : 'val' pattern '=' expression               # ValueDeclaration
    | 'fun' identifier pattern '=' expression    # FunctionDeclaration
    ;
+
+declarationList : declaration (';' declaration)*;
 
 statement
    : expression ';'                             # ExpressionStatement

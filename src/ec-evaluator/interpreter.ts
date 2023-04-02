@@ -10,6 +10,7 @@ import * as es from '../ast'
 import * as errors from '../errors/errors'
 import { arity } from '../stdlib/misc'
 import { Context, Result, Value } from '../types'
+import { expressionStatement } from '../utils/astCreator'
 import * as rttc from '../utils/rttc'
 import { applyBuiltin, builtinInfixFunctions, builtinMapping, checkBuiltin } from './builtin'
 import * as instr from './instrCreator'
@@ -272,6 +273,19 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     stash: Stash
   ) {
     stash.push(instr.closureInstr(currentEnvironment(context), command))
+  },
+
+  LetExpression: function (
+    command: es.LetExpression,
+    context: Context,
+    agenda: Agenda,
+    stash: Stash
+  ) {
+    const blockStmt : es.BlockStatement = {
+      type: 'BlockStatement',
+      body: [...command.declarations, expressionStatement(command.body)],
+    }
+    agenda.push(blockStmt)
   },
 
   /**
