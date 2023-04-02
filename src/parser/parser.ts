@@ -40,6 +40,7 @@ import {
 } from '../lang/CalcParser'
 import { CalcVisitor } from '../lang/CalcVisitor'
 import { Context, ErrorSeverity, ErrorType, SourceError } from '../types'
+import { identifier } from '../utils/astCreator'
 
 export class FatalSyntaxError implements SourceError {
   public type = ErrorType.SYNTAX
@@ -147,7 +148,7 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitInfixApplication(ctx: InfixApplicationContext): es.CallExpression {
     return {
       type: 'CallExpression',
-      callee: this.visit(ctx._op) as es.Expression,
+      callee: identifier(ctx._op.text ?? '', contextToLocation(ctx)),
       args: [this.visit(ctx._left) as es.Expression, this.visit(ctx._right) as es.Expression],
       isInfix: true,
       loc: contextToLocation(ctx)
@@ -218,33 +219,37 @@ class AstConverter implements CalcVisitor<es.Node> {
       body: this.visit(ctx.expression()) as es.Expression
     }
   }
-  visitInteger(ctx: IntegerContext): es.Literal {
+  visitInteger(ctx: IntegerContext): es.IntLiteral {
     return {
       type: 'Literal',
+      litType: 'int',
       value: parseInt(ctx.text),
       raw: ctx.text,
       loc: contextToLocation(ctx)
     }
   }
-  visitBoolean(ctx: BooleanContext): es.Literal {
+  visitBoolean(ctx: BooleanContext): es.BoolLiteral {
     return {
       type: 'Literal',
+      litType: 'bool',
       value: ctx.text === 'true',
       raw: ctx.text,
       loc: contextToLocation(ctx)
     }
   }
-  visitReal(ctx: RealContext): es.Literal {
+  visitReal(ctx: RealContext): es.RealLiteral {
     return {
       type: 'Literal',
+      litType: 'real',
       value: parseFloat(ctx.text.replace('~', '-')),
       raw: ctx.text,
       loc: contextToLocation(ctx)
     }
   }
-  visitString(ctx: StringContext): es.Literal {
+  visitString(ctx: StringContext): es.StringLiteral {
     return {
       type: 'Literal',
+      litType: 'string',
       value: ctx.text.substring(1, ctx.text.length - 1),
       raw: ctx.text,
       loc: contextToLocation(ctx)

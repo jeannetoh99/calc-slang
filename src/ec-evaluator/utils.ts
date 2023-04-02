@@ -110,7 +110,7 @@ export const createEnvironment = (
     id,
     callExpression: {
       ...callExpression,
-      args: args.map(ast.primitive)
+      args
     }
   }
   closure.srcNode.params.forEach((param, index) => {

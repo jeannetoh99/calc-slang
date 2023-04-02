@@ -11,7 +11,7 @@ import * as errors from '../errors/errors'
 import { arity } from '../stdlib/misc'
 import { Context, Result, Value } from '../types'
 import * as rttc from '../utils/rttc'
-import { applyBuiltin, builtinInfixFunctions, builtinMapping } from './builtin'
+import { applyBuiltin, builtinInfixFunctions, builtinMapping, checkBuiltin } from './builtin'
 import * as instr from './instrCreator'
 import {
   AgendaItem,
@@ -154,7 +154,9 @@ function runECEMachine(context: Context, agenda: Agenda, stash: Stash) {
     }
     command = agenda.pop()
   }
-  return stash.peek()
+  let res = stash.peek()
+  if (res?.type == 'Literal') res = res.value
+  return res
 }
 
 /**
@@ -224,7 +226,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
    */
 
   Literal: function (command: es.Literal, context: Context, agenda: Agenda, stash: Stash) {
-    stash.push(command.value)
+    stash.push(command)
   },
 
   Identifier: function (command: es.Identifier, context: Context, agenda: Agenda, stash: Stash) {
@@ -284,7 +286,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
   ) {
     checkStackOverFlow(context, agenda)
     // Get function arguments from the stash
-    const args: Value[] = []
+    const args: es.Literal[] = []
     for (let i = 0; i < command.arity; i++) {
       args.unshift(stash.pop())
     }
@@ -304,6 +306,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
       const builtin = func as BuiltinInstr
 
       checkNumberOfArguments(context, builtin, args, command.srcNode)
+      checkBuiltin(context, builtin, args, command.srcNode)
       stash.push(applyBuiltin(builtin.identifier, args))
     } else {
       // not a callable function, error
@@ -333,15 +336,15 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     agenda: Agenda,
     stash: Stash
   ) {
-    const test = stash.pop()
+    const test: es.BoolLiteral = stash.pop()
 
     // Check if predicate is a boolean
-    const error = rttc.checkIsBool(command.srcNode, test)
+    const error = rttc.checkIsBool(command.srcNode, ' as condition', test)
     if (error) {
       handleRuntimeError(context, error)
     }
 
-    if (test) {
+    if (test.value) {
       agenda.push(command.consequent)
     } else {
       agenda.push(command.alternate)
