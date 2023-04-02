@@ -281,9 +281,9 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     agenda: Agenda,
     stash: Stash
   ) {
-    const blockStmt : es.BlockStatement = {
+    const blockStmt: es.BlockStatement = {
       type: 'BlockStatement',
-      body: [...command.declarations, expressionStatement(command.body)],
+      body: [...command.declarations, expressionStatement(command.body)]
     }
     agenda.push(blockStmt)
   },
