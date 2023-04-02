@@ -109,6 +109,7 @@ export type Pattern = PatternMap[keyof PatternMap]
 export interface BasePattern extends BaseNode {
   annotedType?: Type
   inferredType?: Type
+  runtimeType?: Type
 }
 
 export interface CallExpression extends BaseExpression {
@@ -136,10 +137,31 @@ export interface Identifier extends BaseExpression, BasePattern {
   name: string
 }
 
-export type Literal = SimpleLiteral
+export type Literal = BoolLiteral | StringLiteral | IntLiteral | RealLiteral
 
 export interface SimpleLiteral extends BaseExpression, BasePattern {
   type: 'Literal'
-  value: string | boolean | number | null
   raw?: string | undefined
 }
+
+export interface BoolLiteral extends SimpleLiteral {
+  litType: 'bool'
+  value: boolean
+}
+
+export interface StringLiteral extends SimpleLiteral {
+  litType: 'string'
+  value: string
+}
+
+export interface IntLiteral extends SimpleLiteral {
+  litType: 'int'
+  value: number
+}
+
+export interface RealLiteral extends SimpleLiteral {
+  litType: 'real'
+  value: number
+}
+
+export type NumLiteral = IntLiteral | RealLiteral

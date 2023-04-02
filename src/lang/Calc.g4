@@ -30,14 +30,18 @@ literal
    ;
 
 expression
-   : literal                                                            # LiteralExpression
-   | identifier                                                         # IdentifierExpression
-   | expression ':' TYPE                                                # TypedExpression
-   | left=expression op=identifier right=expression                     # InfixApplication
-   | fn=expression args=expression                                      # FunctionApplication
-   | 'if' pred=expression 'then' cons=expression 'else' alt=expression  # ConditionalExpression
-   | 'fn' pattern '=>' expression                                       # LambdaExpression
-   | '(' expression ')'                                                 # ParenthesizedExpression
+   : literal                                                                        # LiteralExpression
+   | identifier                                                                     # IdentifierExpression
+   | expression ':' TYPE                                                            # TypedExpression
+   | fn=expression args=expression                                                  # FunctionApplication
+   | left=expression op=('*' | '/' | 'div' | 'mod') right=expression                # InfixApplication
+   | left=expression op=('+' | '-') right=expression                                # InfixApplication
+   | left=expression op=('<>' | '<' | '>' | '<=' | '>=' | '=') right=expression     # InfixApplication
+   | left=expression op=('andalso' | 'orelse') right=expression                     # InfixApplication
+   | left=expression op='^' right=expression                                        # InfixApplication
+   | 'if' pred=expression 'then' cons=expression 'else' alt=expression              # ConditionalExpression
+   | 'fn' pattern '=>' expression                                                   # LambdaExpression
+   | '(' expression ')'                                                             # ParenthesizedExpression
    ;
 
 pattern

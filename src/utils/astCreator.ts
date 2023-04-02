@@ -5,7 +5,7 @@ export const getValueDeclarationName = (decl: es.ValueDeclaration) =>
   (decl.declarations[0].id as es.Identifier).name
 
 export const locationDummyNode = (line: number, column: number) =>
-  literal('Dummy', { start: { line, column }, end: { line, column } })
+  literal('Dummy', 'string', { start: { line, column }, end: { line, column } })
 
 export const identifier = (name: string, loc?: es.SourceLocation | null): es.Identifier => ({
   type: 'Identifier',
@@ -14,11 +14,13 @@ export const identifier = (name: string, loc?: es.SourceLocation | null): es.Ide
 })
 
 export const literal = (
-  value: string | number | boolean | null,
+  value: any,
+  litType: es.Type,
   loc?: es.SourceLocation | null
 ): es.Literal => ({
   type: 'Literal',
   value,
+  litType,
   loc
 })
 
@@ -37,11 +39,6 @@ export const mutateToExpressionStatement = (node: es.Node, expr: es.Expression) 
   node.type = 'ExpressionStatement'
   node = node as es.ExpressionStatement
   node.expression = expr
-}
-
-// primitive: undefined is a possible value
-export const primitive = (value: any): es.Expression => {
-  return value === undefined ? identifier('undefined') : literal(value)
 }
 
 export const blockExpression = (
