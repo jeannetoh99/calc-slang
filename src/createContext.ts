@@ -76,6 +76,8 @@ const createEmptyRuntime = () => ({
   isRunning: false,
   environmentTree: new EnvTree(),
   environments: [],
+  localEnvironments: [],
+  assignOuter: true,
   value: undefined,
   nodes: []
 })

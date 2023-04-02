@@ -12,7 +12,8 @@ import {
   ClosureInstr,
   EnvInstr,
   Instr,
-  InstrType
+  InstrType,
+  LocalEnvInstr
 } from './types'
 
 export const assmtInstr = (symbol: string, declaration: boolean, srcNode: es.Node): AssmtInstr => ({
@@ -61,6 +62,15 @@ export const closureInstr = (env: Environment, srcNode: es.LambdaExpression): Cl
 export const envInstr = (env: Environment): EnvInstr => ({
   instrType: InstrType.ENVIRONMENT,
   env
+})
+
+export const localEnvInstr = (): LocalEnvInstr => ({
+  instrType: InstrType.LOCAL_ENVIRONMENT,
+})
+
+export const assignEnvInstr = (assignOuter: boolean) => ({
+  instrType: InstrType.ASSIGN_ENVRIONMENT,
+  assignOuter
 })
 
 export const pushUndefIfNeededInstr = (): Instr => ({

@@ -56,8 +56,9 @@ pattern
    ;
 
 declaration
-   : 'val' pattern '=' expression               # ValueDeclaration
-   | 'fun' identifier pattern '=' expression    # FunctionDeclaration
+   : 'val' pattern '=' expression                                       # ValueDeclaration
+   | 'fun' identifier pattern '=' expression                            # FunctionDeclaration
+   | 'local' local=declarationList 'in' body=declarationList 'end'     # LocalDeclaration
    ;
 
 declarationList : declaration (';' declaration)*;

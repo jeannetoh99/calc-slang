@@ -10,6 +10,8 @@ export enum InstrType {
   BUILTIN = 'Builtin',
   CLOSURE = 'Closure',
   ENVIRONMENT = 'Environment',
+  LOCAL_ENVIRONMENT = 'LocalEnvironment',
+  ASSIGN_ENVRIONMENT = 'AssignEnvironment',
   POP = 'Pop',
   PUSH_UNDEFINED_IF_NEEDED = 'PushUndefinedIfNeeded'
 }
@@ -48,6 +50,12 @@ export interface ClosureInstr extends BaseInstr {
 
 export interface EnvInstr extends BaseInstr {
   env: Environment
+}
+
+export type LocalEnvInstr = BaseInstr
+
+export interface AssignEnvInstr extends BaseInstr {
+  assignOuter: boolean
 }
 
 export type Instr =
