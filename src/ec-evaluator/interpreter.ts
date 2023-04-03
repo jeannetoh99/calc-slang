@@ -166,7 +166,6 @@ function runECEMachine(context: Context, agenda: Agenda, stash: Stash) {
   return res
 }
 
-
 export const evaluateCallInstr = (
   command: CallInstr | TailCallInstr,
   context: Context,
@@ -182,7 +181,7 @@ export const evaluateCallInstr = (
 
   const func: ClosureInstr | BuiltinInstr = stash.pop()
   if (func?.instrType === InstrType.CLOSURE) {
-    console.log("start")
+    console.log('start')
     console.log(currentEnvironment(context))
 
     const closure = func as ClosureInstr
@@ -191,7 +190,7 @@ export const evaluateCallInstr = (
 
     // Push on top of current environment and then restore if call
     // if (command.instrType === InstrType.CALL) {
-      agenda.push(instr.envInstr(currentEnvironment(context)))
+    agenda.push(instr.envInstr(currentEnvironment(context)))
     // }
     agenda.push(closure.srcNode.body)
 
@@ -203,7 +202,7 @@ export const evaluateCallInstr = (
     // }
     pushEnvironment(context, environment)
 
-    console.log("end")
+    console.log('end')
     console.log(currentEnvironment(context))
   } else if (func?.instrType == InstrType.BUILTIN) {
     const builtin = func as BuiltinInstr
@@ -392,8 +391,8 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     agenda: Agenda,
     stash: Stash
   ) {
-    if (command.body.type === "SequenceExpression") {
-      command.body.expressions[command.body.expressions.length-1].tail = true
+    if (command.body.type === 'SequenceExpression') {
+      command.body.expressions[command.body.expressions.length - 1].tail = true
     } else {
       command.body.tail = true
     }
@@ -469,12 +468,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     }
   },
 
-  [InstrType.CALL]: function (
-    command: CallInstr,
-    context: Context,
-    agenda: Agenda,
-    stash: Stash
-  ) {
+  [InstrType.CALL]: function (command: CallInstr, context: Context, agenda: Agenda, stash: Stash) {
     evaluateCallInstr(command, context, agenda, stash)
   },
 
@@ -511,6 +505,5 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     stash: Stash
   ) {
     evaluateCallInstr(command, context, agenda, stash)
-  },
-
+  }
 }

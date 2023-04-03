@@ -13,7 +13,7 @@ export enum InstrType {
   LOCAL_ENVIRONMENT = 'LocalEnvironment',
   POP = 'Pop',
   PUSH_UNDEFINED_IF_NEEDED = 'PushUndefinedIfNeeded',
-  TAIL_CALL = 'TailCall',
+  TAIL_CALL = 'TailCall'
 }
 
 interface BaseInstr {

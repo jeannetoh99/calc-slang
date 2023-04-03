@@ -127,7 +127,7 @@ export type Expression = ExpressionMap[keyof ExpressionMap]
 export interface BaseExpression extends BaseNode {
   annotatedType?: Type
   inferredType?: Type
-  tail?: boolean 
+  tail?: boolean
 }
 
 export interface PatternMap {
