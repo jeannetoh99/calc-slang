@@ -22,7 +22,6 @@ import {
   IdentifierContext,
   IdentifierExpressionContext,
   IdentifierPatternContext,
-  InfixApplicationContext,
   IntegerContext,
   LambdaExpressionContext,
   LiteralContext,
@@ -36,12 +35,10 @@ import {
   StringContext,
   TypedExpressionContext,
   TypedPatternContext,
-  UnitContext,
   ValueDeclarationContext
 } from '../lang/CalcParser'
 import { CalcVisitor } from '../lang/CalcVisitor'
 import { Context, ErrorSeverity, ErrorType, SourceError } from '../types'
-import { identifier } from '../utils/astCreator'
 
 export class FatalSyntaxError implements SourceError {
   public type = ErrorType.SYNTAX
@@ -132,26 +129,19 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitIdentifierExpression(ctx: IdentifierExpressionContext): es.Identifier {
     return this.visit(ctx.identifier()) as es.Identifier
   }
-  visitTypedExpression(ctx: TypedExpressionContext): es.Expression {
-    const expr = this.visit(ctx.expression()) as es.Expression
-    expr.annotatedType = ctx.TYPE().text as es.Type
-    return expr
-  }
   visitFunctionApplication(ctx: FunctionApplicationContext): es.CallExpression {
     return {
       type: 'CallExpression',
       callee: this.visit(ctx._fn) as es.Expression,
       args: [this.visit(ctx._args) as es.Expression],
-      isInfix: false,
       loc: contextToLocation(ctx)
     }
   }
-  visitInfixApplication(ctx: InfixApplicationContext): es.CallExpression {
+  visitLambdaExpression(ctx: LambdaExpressionContext): es.LambdaExpression {
     return {
-      type: 'CallExpression',
-      callee: identifier(ctx._op.text ?? '', contextToLocation(ctx)),
-      args: [this.visit(ctx._left) as es.Expression, this.visit(ctx._right) as es.Expression],
-      isInfix: true,
+      type: 'LambdaExpression',
+      params: [this.visit(ctx.pattern()) as es.Pattern],
+      body: this.visit(ctx.expression()) as es.Expression,
       loc: contextToLocation(ctx)
     }
   }
@@ -164,16 +154,13 @@ class AstConverter implements CalcVisitor<es.Node> {
       loc: contextToLocation(ctx)
     }
   }
-  visitLambdaExpression(ctx: LambdaExpressionContext): es.LambdaExpression {
-    return {
-      type: 'LambdaExpression',
-      params: [this.visit(ctx.pattern()) as es.Pattern],
-      body: this.visit(ctx.expression()) as es.Expression,
-      loc: contextToLocation(ctx)
-    }
-  }
   visitParenthesizedExpression(ctx: ParenthesizedExpressionContext): es.Expression {
     return this.visit(ctx.expression()) as es.Expression
+  }
+  visitTypedExpression(ctx: TypedExpressionContext): es.Expression {
+    const expr = this.visit(ctx.expression()) as es.Expression
+    expr.annotatedType = ctx.TYPE().text as es.Type
+    return expr
   }
   visitLiteralPattern(ctx: LiteralPatternContext): es.Literal {
     return this.visit(ctx.literal()) as es.Literal
@@ -220,48 +207,35 @@ class AstConverter implements CalcVisitor<es.Node> {
       body: this.visit(ctx.expression()) as es.Expression
     }
   }
-  visitInteger(ctx: IntegerContext): es.IntLiteral {
+  visitInteger(ctx: IntegerContext): es.Literal {
     return {
       type: 'Literal',
-      litType: 'int',
       value: parseInt(ctx.text),
       raw: ctx.text,
       loc: contextToLocation(ctx)
     }
   }
-  visitBoolean(ctx: BooleanContext): es.BoolLiteral {
+  visitBoolean(ctx: BooleanContext): es.Literal {
     return {
       type: 'Literal',
-      litType: 'bool',
       value: ctx.text === 'true',
       raw: ctx.text,
       loc: contextToLocation(ctx)
     }
   }
-  visitReal(ctx: RealContext): es.RealLiteral {
+  visitReal(ctx: RealContext): es.Literal {
     return {
       type: 'Literal',
-      litType: 'real',
       value: parseFloat(ctx.text.replace('~', '-')),
       raw: ctx.text,
       loc: contextToLocation(ctx)
     }
   }
-  visitString(ctx: StringContext): es.StringLiteral {
+  visitString(ctx: StringContext): es.Literal {
     return {
       type: 'Literal',
-      litType: 'string',
       value: ctx.text.substring(1, ctx.text.length - 1),
       raw: ctx.text,
-      loc: contextToLocation(ctx)
-    }
-  }
-  visitUnit(ctx: UnitContext): es.UnitLiteral {
-    return {
-      type: 'Literal',
-      litType: 'unit',
-      value: undefined,
-      raw: undefined,
       loc: contextToLocation(ctx)
     }
   }
