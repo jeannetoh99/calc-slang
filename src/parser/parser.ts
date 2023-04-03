@@ -141,18 +141,18 @@ class AstConverter implements CalcVisitor<es.Node> {
     expr.annotatedType = ctx.TYPE().text as es.Type
     return expr
   }
-  visitFunctionApplication(ctx: FunctionApplicationContext): es.CallExpression {
+  visitFunctionApplication(ctx: FunctionApplicationContext): es.ApplicationExpression {
     return {
-      type: 'CallExpression',
+      type: 'ApplicationExpression',
       callee: this.visit(ctx._fn) as es.Expression,
       args: [this.visit(ctx._args) as es.Expression],
       isInfix: false,
       loc: contextToLocation(ctx)
     }
   }
-  visitInfixApplication(ctx: InfixApplicationContext): es.CallExpression {
+  visitInfixApplication(ctx: InfixApplicationContext): es.ApplicationExpression {
     return {
-      type: 'CallExpression',
+      type: 'ApplicationExpression',
       callee: identifier(ctx._op.text ?? '', contextToLocation(ctx)),
       args: [this.visit(ctx._left) as es.Expression, this.visit(ctx._right) as es.Expression],
       isInfix: true,

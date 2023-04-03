@@ -111,7 +111,7 @@ export interface DeclarationList extends BaseDeclaration {
 }
 
 export interface ExpressionMap {
-  CallExpression: CallExpression
+  CallExpression: ApplicationExpression
   ConditionalExpression: ConditionalExpression
   Identifier: Identifier
   LambdaExpression: LambdaExpression
@@ -127,6 +127,7 @@ export type Expression = ExpressionMap[keyof ExpressionMap]
 export interface BaseExpression extends BaseNode {
   annotatedType?: Type
   inferredType?: Type
+  tail?: boolean 
 }
 
 export interface PatternMap {
@@ -141,8 +142,8 @@ export interface BasePattern extends BaseNode {
   inferredType?: Type
 }
 
-export interface CallExpression extends BaseExpression {
-  type: 'CallExpression'
+export interface ApplicationExpression extends BaseExpression {
+  type: 'ApplicationExpression'
   callee: Expression
   args: Array<Expression>
   isInfix: boolean

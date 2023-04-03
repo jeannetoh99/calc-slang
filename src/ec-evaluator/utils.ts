@@ -99,7 +99,7 @@ export const localEnvironment = (context: Context) => context.runtime.localEnvir
 export const createEnvironment = (
   closure: ClosureInstr,
   args: Value[],
-  callExpression: es.CallExpression
+  callExpression: es.ApplicationExpression
 ): Environment => {
   const id = uniqueId()
   const environment: Environment = {
@@ -222,7 +222,7 @@ export const checkNumberOfArguments = (
   context: Context,
   callee: ClosureInstr | BuiltinInstr,
   args: Value[],
-  exp: es.CallExpression
+  exp: es.ApplicationExpression
 ) => {
   if (callee?.instrType === InstrType.CLOSURE) {
     // User-defined or Pre-defined functions
@@ -254,7 +254,7 @@ export const checkNumberOfArguments = (
  */
 export const checkStackOverFlow = (context: Context, agenda: Agenda) => {
   if (agenda.size() > 100000) {
-    const stacks: es.CallExpression[] = []
+    const stacks: es.ApplicationExpression[] = []
     let counter = 0
     for (
       let i = 0;
