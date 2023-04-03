@@ -6,6 +6,8 @@
  */
 
 /* tslint:disable:max-classes-per-file */
+import { cloneDeep } from 'lodash'
+
 import * as es from '../ast'
 import * as errors from '../errors/errors'
 import { arity } from '../stdlib/misc'
@@ -213,16 +215,36 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     agenda.push(init)
   },
 
+  RecValueDeclaration: function (
+    command: es.RecValueDeclaration, 
+    context: Context, 
+    agenda: Agenda,
+    stash: Stash
+  ) {
+    agenda.push(
+      instr.assmtInstr(
+        command.id.name,
+        true,
+        command,
+        command.declEnv ?? currentEnvironment(context)
+      )
+    )
+    command.lambda.recursiveId = command.id.name
+    agenda.push(command.lambda)
+    stash.push(true) // recursive
+  },
+
   FunctionDeclaration: function (
     command: es.FunctionDeclaration,
     context: Context,
-    agenda: Agenda
+    agenda: Agenda,
+    stash: Stash
   ) {
-    const env = command.declEnv ?? currentEnvironment(context)
     const lambdaExpression: es.LambdaExpression = {
       type: 'LambdaExpression',
       params: command.params,
-      body: command.body
+      body: command.body,
+      recursiveId: command.id.name,
     }
     agenda.push(
       instr.assmtInstr(
@@ -310,7 +332,14 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     agenda: Agenda,
     stash: Stash
   ) {
-    stash.push(instr.closureInstr(currentEnvironment(context), command))
+    const env = cloneDeep(currentEnvironment(context))
+    if (command.recursiveId) {
+      defineVariable(env, command.recursiveId, instr.closureInstr(env, command))
+    }
+
+    console.log("lambda env")
+    console.log(env)
+    stash.push(instr.closureInstr(env, command))
   },
 
   LetExpression: function (
@@ -356,10 +385,11 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     const func: ClosureInstr | BuiltinInstr = stash.pop()
     if (func?.instrType === InstrType.CLOSURE) {
       const closure = func as ClosureInstr
-      //  Check for number of arguments mismatch error
+      // Check for number of arguments mismatch error
       checkNumberOfArguments(context, closure, args, command.srcNode)
 
-      agenda.push(instr.envInstr(currentEnvironment(context)))
+      // Restore current environment 
+      agenda.push(instr.envInstr(currentEnvironment(context)))   
       agenda.push(closure.srcNode.body)
 
       const environment = createEnvironment(closure, args, command.srcNode)
