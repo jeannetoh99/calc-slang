@@ -216,8 +216,8 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
   },
 
   RecValueDeclaration: function (
-    command: es.RecValueDeclaration, 
-    context: Context, 
+    command: es.RecValueDeclaration,
+    context: Context,
     agenda: Agenda,
     stash: Stash
   ) {
@@ -244,7 +244,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
       type: 'LambdaExpression',
       params: command.params,
       body: command.body,
-      recursiveId: command.id.name,
+      recursiveId: command.id.name
     }
     agenda.push(
       instr.assmtInstr(
@@ -337,7 +337,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
       defineVariable(env, command.recursiveId, instr.closureInstr(env, command))
     }
 
-    console.log("lambda env")
+    console.log('lambda env')
     console.log(env)
     stash.push(instr.closureInstr(env, command))
   },
@@ -388,8 +388,8 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
       // Check for number of arguments mismatch error
       checkNumberOfArguments(context, closure, args, command.srcNode)
 
-      // Restore current environment 
-      agenda.push(instr.envInstr(currentEnvironment(context)))   
+      // Restore current environment
+      agenda.push(instr.envInstr(currentEnvironment(context)))
       agenda.push(closure.srcNode.body)
 
       const environment = createEnvironment(closure, args, command.srcNode)

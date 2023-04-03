@@ -169,7 +169,7 @@ class AstConverter implements CalcVisitor<es.Node> {
     }
   }
   visitLambdaExpression(ctx: LambdaExpressionContext): es.LambdaExpression {
-    return this.visit(ctx.lambda()) as es.LambdaExpression;
+    return this.visit(ctx.lambda()) as es.LambdaExpression
   }
   visitLetExpression(ctx: LetExpressionContext): es.LetExpression {
     return {
@@ -296,7 +296,7 @@ class AstConverter implements CalcVisitor<es.Node> {
       type: 'LambdaExpression',
       params: [this.visit(ctx.pattern()) as es.Pattern],
       body: this.visit(ctx.expression()) as es.Expression,
-      loc: contextToLocation(ctx),
+      loc: contextToLocation(ctx)
     }
   }
 
