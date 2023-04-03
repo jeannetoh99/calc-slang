@@ -181,29 +181,23 @@ export const evaluateCallInstr = (
 
   const func: ClosureInstr | BuiltinInstr = stash.pop()
   if (func?.instrType === InstrType.CLOSURE) {
-    console.log('start')
-    console.log(currentEnvironment(context))
-
     const closure = func as ClosureInstr
     // Check for number of arguments mismatch error
     checkNumberOfArguments(context, closure, args, command.srcNode)
 
     // Push on top of current environment and then restore if call
-    // if (command.instrType === InstrType.CALL) {
-    agenda.push(instr.envInstr(currentEnvironment(context)))
-    // }
+    if (command.instrType === InstrType.CALL) {
+      agenda.push(instr.envInstr(currentEnvironment(context)))
+    }
     agenda.push(closure.srcNode.body)
 
     const environment = createEnvironment(closure, args, command.srcNode)
 
     // Replace current environment if tail call
-    // if (command.instrType === InstrType.TAIL_CALL) {
-    //   popEnvironment(context)
-    // }
+    if (command.instrType === InstrType.TAIL_CALL) {
+      popEnvironment(context)
+    }
     pushEnvironment(context, environment)
-
-    console.log('end')
-    console.log(currentEnvironment(context))
   } else if (func?.instrType == InstrType.BUILTIN) {
     const builtin = func as BuiltinInstr
 
