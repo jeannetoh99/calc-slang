@@ -90,7 +90,7 @@ export interface ExpressionMap {
   Literal: Literal
 }
 
-export type Type = 'int' | 'bool' | 'real' | 'string'
+export type Type = 'int' | 'bool' | 'real' | 'string' | 'unit'
 
 export type Expression = ExpressionMap[keyof ExpressionMap]
 
@@ -136,7 +136,7 @@ export interface Identifier extends BaseExpression, BasePattern {
   name: string
 }
 
-export type Literal = BoolLiteral | StringLiteral | IntLiteral | RealLiteral
+export type Literal = BoolLiteral | StringLiteral | IntLiteral | RealLiteral | UnitLiteral
 
 export interface SimpleLiteral extends BaseExpression, BasePattern {
   type: 'Literal'
@@ -161,6 +161,11 @@ export interface IntLiteral extends SimpleLiteral {
 export interface RealLiteral extends SimpleLiteral {
   litType: 'real'
   value: number
+}
+
+export interface UnitLiteral extends SimpleLiteral {
+  litType: 'unit'
+  value: undefined
 }
 
 export type NumLiteral = IntLiteral | RealLiteral

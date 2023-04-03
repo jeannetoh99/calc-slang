@@ -25,6 +25,7 @@ export const isReal = (v: es.Literal) => v.litType === 'real'
 export const isNum = (v: es.Literal) => isInt(v) || isReal(v)
 export const isString = (v: es.Literal) => v.litType === 'string'
 export const isBool = (v: es.Literal) => v.litType === 'bool'
+export const isUnit = (v: es.Literal) => v.litType === 'unit'
 
 export const checkIsInt = (node: es.Node, side: string, test: es.Literal) => {
   return isInt(test) ? undefined : new TypeError(node, side, 'int', test.litType)
@@ -46,6 +47,10 @@ export const checkIsBool = (node: es.Node, side: string, test: es.Literal) => {
   return isBool(test) ? undefined : new TypeError(node, side, 'boolean', test.litType)
 }
 
+export const checkIsUnit = (node: es.Node, side: string, test:es.Literal) => {
+  return isUnit(test) ? undefined : new TypeError(node, side, 'unit', test.litType)
+}
+
 export const checkIsType = (node: es.Node, side: string, test: es.Literal, type: es.Type) => {
   switch (type) {
     case 'int':
@@ -56,5 +61,7 @@ export const checkIsType = (node: es.Node, side: string, test: es.Literal, type:
       return checkIsString(node, side, test)
     case 'bool':
       return checkIsBool(node, side, test)
+    case 'unit':
+      return checkIsUnit(node, side, test)
   }
 }

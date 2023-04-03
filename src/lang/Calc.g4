@@ -7,8 +7,9 @@ INTEGER_LITERAL: [0-9]+;
 BOOLEAN_LITERAL: 'true' | 'false';
 REAL_LITERAL: ([0-9]+[.])?[0-9]+([eE][~]?[0-9]+)?;
 STRING_LITERAL:  '"' ('\\' ["\\] | ~["\\\r\n])* '"' ;
+UNIT_LITERAL: '()';
 
-TYPE: 'bool' | 'int' | 'real' | 'string';
+TYPE: 'bool' | 'int' | 'real' | 'string' | 'unit';
 
 fragment SYMBOLIC_IDENTIFIER: [!%&$#+-/:<=>?@\\~'^|*]+;
 fragment ALPHANUMERIC_IDENTIFIER: [a-zA-Z][a-zA-Z0-9'_]*;
@@ -27,6 +28,7 @@ literal
    | BOOLEAN_LITERAL                            # Boolean
    | REAL_LITERAL                               # Real
    | STRING_LITERAL                             # String
+   | UNIT_LITERAL                               # Unit
    ;
 
 expression
