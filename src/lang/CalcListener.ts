@@ -10,8 +10,8 @@ import { InfixApplicationContext } from './CalcParser'
 import { ConditionalExpressionContext } from './CalcParser'
 import { LambdaExpressionContext } from './CalcParser'
 import { LetExpressionContext } from './CalcParser'
-import { SequenceExpressionContext } from './CalcParser'
 import { ParenthesizedExpressionContext } from './CalcParser'
+import { SequenceExpressionContext } from './CalcParser'
 import { LiteralPatternContext } from './CalcParser'
 import { IdentifierPatternContext } from './CalcParser'
 import { TypedPatternContext } from './CalcParser'
@@ -19,6 +19,7 @@ import { ParenthesizedPatternContext } from './CalcParser'
 import { ExpressionStatementContext } from './CalcParser'
 import { DeclarationStatementContext } from './CalcParser'
 import { ValueDeclarationContext } from './CalcParser'
+import { RecursiveDeclarationContext } from './CalcParser'
 import { FunctionDeclarationContext } from './CalcParser'
 import { LocalDeclarationContext } from './CalcParser'
 import { IntegerContext } from './CalcParser'
@@ -28,6 +29,7 @@ import { StringContext } from './CalcParser'
 import { IdentifierContext } from './CalcParser'
 import { LiteralContext } from './CalcParser'
 import { ExpressionContext } from './CalcParser'
+import { LambdaContext } from './CalcParser'
 import { ExpressionListContext } from './CalcParser'
 import { PatternContext } from './CalcParser'
 import { DeclarationContext } from './CalcParser'
@@ -145,19 +147,6 @@ export interface CalcListener extends ParseTreeListener {
   exitLetExpression?: (ctx: LetExpressionContext) => void
 
   /**
-   * Enter a parse tree produced by the `SequenceExpression`
-   * labeled alternative in `CalcParser.expression`.
-   * @param ctx the parse tree
-   */
-  enterSequenceExpression?: (ctx: SequenceExpressionContext) => void
-  /**
-   * Exit a parse tree produced by the `SequenceExpression`
-   * labeled alternative in `CalcParser.expression`.
-   * @param ctx the parse tree
-   */
-  exitSequenceExpression?: (ctx: SequenceExpressionContext) => void
-
-  /**
    * Enter a parse tree produced by the `ParenthesizedExpression`
    * labeled alternative in `CalcParser.expression`.
    * @param ctx the parse tree
@@ -169,6 +158,19 @@ export interface CalcListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   exitParenthesizedExpression?: (ctx: ParenthesizedExpressionContext) => void
+
+  /**
+   * Enter a parse tree produced by the `SequenceExpression`
+   * labeled alternative in `CalcParser.expression`.
+   * @param ctx the parse tree
+   */
+  enterSequenceExpression?: (ctx: SequenceExpressionContext) => void
+  /**
+   * Exit a parse tree produced by the `SequenceExpression`
+   * labeled alternative in `CalcParser.expression`.
+   * @param ctx the parse tree
+   */
+  exitSequenceExpression?: (ctx: SequenceExpressionContext) => void
 
   /**
    * Enter a parse tree produced by the `LiteralPattern`
@@ -260,6 +262,19 @@ export interface CalcListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   exitValueDeclaration?: (ctx: ValueDeclarationContext) => void
+
+  /**
+   * Enter a parse tree produced by the `RecursiveDeclaration`
+   * labeled alternative in `CalcParser.declaration`.
+   * @param ctx the parse tree
+   */
+  enterRecursiveDeclaration?: (ctx: RecursiveDeclarationContext) => void
+  /**
+   * Exit a parse tree produced by the `RecursiveDeclaration`
+   * labeled alternative in `CalcParser.declaration`.
+   * @param ctx the parse tree
+   */
+  exitRecursiveDeclaration?: (ctx: RecursiveDeclarationContext) => void
 
   /**
    * Enter a parse tree produced by the `FunctionDeclaration`
@@ -371,6 +386,17 @@ export interface CalcListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   exitExpression?: (ctx: ExpressionContext) => void
+
+  /**
+   * Enter a parse tree produced by `CalcParser.lambda`.
+   * @param ctx the parse tree
+   */
+  enterLambda?: (ctx: LambdaContext) => void
+  /**
+   * Exit a parse tree produced by `CalcParser.lambda`.
+   * @param ctx the parse tree
+   */
+  exitLambda?: (ctx: LambdaContext) => void
 
   /**
    * Enter a parse tree produced by `CalcParser.expressionList`.

@@ -25,6 +25,7 @@ import {
   IdentifierPatternContext,
   InfixApplicationContext,
   IntegerContext,
+  LambdaContext,
   LambdaExpressionContext,
   LetExpressionContext,
   LiteralContext,
@@ -35,6 +36,7 @@ import {
   ParenthesizedPatternContext,
   ProgramContext,
   RealContext,
+  RecursiveDeclarationContext,
   StatementContext,
   StringContext,
   TypedExpressionContext,
@@ -167,12 +169,7 @@ class AstConverter implements CalcVisitor<es.Node> {
     }
   }
   visitLambdaExpression(ctx: LambdaExpressionContext): es.LambdaExpression {
-    return {
-      type: 'LambdaExpression',
-      params: [this.visit(ctx.pattern()) as es.Pattern],
-      body: this.visit(ctx.expression()) as es.Expression,
-      loc: contextToLocation(ctx)
-    }
+    return this.visit(ctx.lambda()) as es.LambdaExpression
   }
   visitLetExpression(ctx: LetExpressionContext): es.LetExpression {
     return {
@@ -219,6 +216,14 @@ class AstConverter implements CalcVisitor<es.Node> {
           init: this.visit(ctx.expression()) as es.Expression
         }
       ],
+      loc: contextToLocation(ctx)
+    }
+  }
+  visitRecursiveDeclaration(ctx: RecursiveDeclarationContext): es.RecValueDeclaration {
+    return {
+      type: 'RecValueDeclaration',
+      id: this.visit(ctx.identifier()) as es.Identifier,
+      lambda: this.visit(ctx.lambda()) as es.LambdaExpression,
       loc: contextToLocation(ctx)
     }
   }
@@ -285,6 +290,15 @@ class AstConverter implements CalcVisitor<es.Node> {
 
   visitLiteral?: ((ctx: LiteralContext) => es.Literal) | undefined
   visitExpression?: ((ctx: ExpressionContext) => es.Expression) | undefined
+
+  visitLambda(ctx: LambdaContext): es.LambdaExpression {
+    return {
+      type: 'LambdaExpression',
+      params: [this.visit(ctx.pattern()) as es.Pattern],
+      body: this.visit(ctx.expression()) as es.Expression,
+      loc: contextToLocation(ctx)
+    }
+  }
 
   visitExpressionList(ctx: ExpressionListContext): es.SequenceExpression {
     return {

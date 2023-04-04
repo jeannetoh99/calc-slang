@@ -66,6 +66,7 @@ export interface ExpressionStatement extends BaseStatement {
 
 export type Declaration =
   | ValueDeclaration
+  | RecValueDeclaration
   | FunctionDeclaration
   | LocalDeclaration
   | DeclarationList
@@ -77,6 +78,12 @@ interface BaseDeclaration extends BaseStatement {
 export interface ValueDeclaration extends BaseDeclaration {
   type: 'ValueDeclaration'
   declarations: Array<ValueDeclarator>
+}
+
+export interface RecValueDeclaration extends BaseDeclaration {
+  type: 'RecValueDeclaration'
+  id: Identifier
+  lambda: LambdaExpression
 }
 
 export interface FunctionDeclaration extends BaseDeclaration {
@@ -152,6 +159,7 @@ export interface LambdaExpression extends BaseExpression {
   type: 'LambdaExpression'
   params: Array<Pattern>
   body: Expression
+  recursiveId?: string
 }
 
 export interface LetExpression extends BaseExpression {

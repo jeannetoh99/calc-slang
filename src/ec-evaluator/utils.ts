@@ -6,11 +6,10 @@ import * as errors from '../errors/errors'
 import { RuntimeSourceError } from '../errors/runtimeSourceError'
 import { arity } from '../stdlib/misc'
 import { Environment, Frame, Value } from '../types'
-import * as ast from '../utils/astCreator'
-import { builtinFunctions, builtinInfixFunctions } from './builtin'
+import { builtinFunctions } from './builtin'
 import * as instr from './instrCreator'
 import { Agenda } from './interpreter'
-import { AgendaItem, BuiltinInstr, ClosureInstr, Instr, InstrType } from './types'
+import { AgendaItem, BuiltinInstr, ClosureInstr, InstrType } from './types'
 
 /**
  * Stack is implemented for agenda and stash registers.
@@ -192,7 +191,6 @@ export function defineVariable(
     writable: !constant,
     enumerable: true
   })
-
   return environment
 }
 
