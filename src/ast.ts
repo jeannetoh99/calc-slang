@@ -14,6 +14,7 @@ interface NodeMap {
   NodeArray: NodeArray
   Program: Program
   Statement: Statement
+  DeclarationList: DeclarationList
   ValueDeclarator: ValueDeclarator
 }
 
@@ -43,7 +44,12 @@ export interface Program extends BaseNode {
   body: Array<Statement>
 }
 
-export type Statement = BlockStatement | ExpressionStatement | EmptyStatement | Declaration
+export type Statement =
+  | BlockStatement
+  | ExpressionStatement
+  | EmptyStatement
+  | Declaration
+  | DeclarationList
 
 type BaseStatement = BaseNode
 
@@ -82,12 +88,19 @@ export interface ValueDeclarator extends BaseNode {
   init?: Expression | null | undefined
 }
 
+export interface DeclarationList extends BaseStatement {
+  type: 'DeclarationList'
+  declarations: Array<Declaration>
+}
+
 export interface ExpressionMap {
   CallExpression: CallExpression
   ConditionalExpression: ConditionalExpression
   Identifier: Identifier
   LambdaExpression: LambdaExpression
+  LetExpression: LetExpression
   Literal: Literal
+  SequenceExpression: SequenceExpression
 }
 
 export type Type = 'int' | 'bool' | 'real' | 'string'
@@ -129,6 +142,17 @@ export interface LambdaExpression extends BaseExpression {
   type: 'LambdaExpression'
   params: Array<Pattern>
   body: Expression
+}
+
+export interface LetExpression extends BaseExpression {
+  type: 'LetExpression'
+  declarations: DeclarationList
+  body: SequenceExpression
+}
+
+export interface SequenceExpression extends BaseExpression {
+  type: 'SequenceExpression'
+  expressions: Expression[]
 }
 
 export interface Identifier extends BaseExpression, BasePattern {

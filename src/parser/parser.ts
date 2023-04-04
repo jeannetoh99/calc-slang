@@ -1,5 +1,4 @@
 /* tslint:disable:max-classes-per-file */
-import { parseExpression } from '@babel/parser'
 import { CharStreams, CommonTokenStream, RecognitionException, Recognizer } from 'antlr4ts'
 import { ANTLRErrorListener } from 'antlr4ts/ANTLRErrorListener'
 import { ErrorNode } from 'antlr4ts/tree/ErrorNode'
@@ -14,8 +13,10 @@ import {
   CalcParser,
   ConditionalExpressionContext,
   DeclarationContext,
+  DeclarationListContext,
   DeclarationStatementContext,
   ExpressionContext,
+  ExpressionListContext,
   ExpressionStatementContext,
   FunctionApplicationContext,
   FunctionDeclarationContext,
@@ -25,6 +26,7 @@ import {
   InfixApplicationContext,
   IntegerContext,
   LambdaExpressionContext,
+  LetExpressionContext,
   LiteralContext,
   LiteralExpressionContext,
   LiteralPatternContext,
@@ -171,6 +173,14 @@ class AstConverter implements CalcVisitor<es.Node> {
       loc: contextToLocation(ctx)
     }
   }
+  visitLetExpression(ctx: LetExpressionContext): es.LetExpression {
+    return {
+      type: 'LetExpression',
+      declarations: this.visit(ctx.declarationList()) as es.DeclarationList,
+      body: this.visit(ctx.expressionList()) as es.SequenceExpression,
+      loc: contextToLocation(ctx)
+    }
+  }
   visitParenthesizedExpression(ctx: ParenthesizedExpressionContext): es.Expression {
     return this.visit(ctx.expression()) as es.Expression
   }
@@ -265,8 +275,26 @@ class AstConverter implements CalcVisitor<es.Node> {
 
   visitLiteral?: ((ctx: LiteralContext) => es.Literal) | undefined
   visitExpression?: ((ctx: ExpressionContext) => es.Expression) | undefined
+
+  visitExpressionList(ctx: ExpressionListContext): es.SequenceExpression {
+    return {
+      type: 'SequenceExpression',
+      expressions: ctx.expression().map(expr => this.visit(expr) as es.Expression),
+      loc: contextToLocation(ctx)
+    }
+  }
+
   visitPattern?: ((ctx: ProgramContext) => es.Pattern) | undefined
   visitDeclaration?: ((ctx: DeclarationContext) => es.Declaration) | undefined
+
+  visitDeclarationList(ctx: DeclarationListContext): es.DeclarationList {
+    return {
+      type: 'DeclarationList',
+      declarations: ctx.declaration().map(decl => this.visit(decl) as es.Declaration),
+      loc: contextToLocation(ctx)
+    }
+  }
+
   visitStatement?: ((ctx: StatementContext) => es.Statement) | undefined
 
   visitProgram(ctx: ProgramContext): es.Program {
