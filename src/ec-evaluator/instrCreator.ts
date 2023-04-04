@@ -5,15 +5,16 @@
 import * as es from '../ast'
 import { Environment } from '../types'
 import {
-  AppInstr,
   AssmtInstr,
   BranchInstr,
   BuiltinInstr,
+  CallInstr,
   ClosureInstr,
   EnvInstr,
   Instr,
   InstrType,
-  LocalEnvInstr
+  LocalEnvInstr,
+  TailCallInstr
 } from './types'
 
 export const assmtInstr = (
@@ -27,12 +28,6 @@ export const assmtInstr = (
   declaration,
   srcNode,
   env
-})
-
-export const appInstr = (arity: number, srcNode: es.CallExpression): AppInstr => ({
-  instrType: InstrType.APPLICATION,
-  arity,
-  srcNode
 })
 
 export const popInstr = (): Instr => ({ instrType: InstrType.POP })
@@ -59,6 +54,12 @@ export const builtinInstr = (
   isInfix
 })
 
+export const callInstr = (arity: number, srcNode: es.ApplicationExpression): CallInstr => ({
+  instrType: InstrType.CALL,
+  arity,
+  srcNode
+})
+
 export const closureInstr = (env: Environment, srcNode: es.LambdaExpression): ClosureInstr => ({
   instrType: InstrType.CLOSURE,
   env,
@@ -76,4 +77,10 @@ export const localEnvInstr = (): LocalEnvInstr => ({
 
 export const pushUndefIfNeededInstr = (): Instr => ({
   instrType: InstrType.PUSH_UNDEFINED_IF_NEEDED
+})
+
+export const tailCallInstr = (arity: number, srcNode: es.ApplicationExpression): TailCallInstr => ({
+  instrType: InstrType.TAIL_CALL,
+  arity,
+  srcNode
 })

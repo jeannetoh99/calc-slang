@@ -18,17 +18,18 @@ import { applyBuiltin, builtinInfixFunctions, builtinMapping, checkBuiltin } fro
 import * as instr from './instrCreator'
 import {
   AgendaItem,
-  AppInstr,
   AssmtInstr,
   BranchInstr,
   BuiltinInstr,
+  CallInstr,
   ClosureInstr,
   CmdEvaluator,
   ECError,
   EnvInstr,
   Instr,
   InstrType,
-  LocalEnvInstr
+  LocalEnvInstr,
+  TailCallInstr
 } from './types'
 import {
   checkNumberOfArguments,
@@ -165,6 +166,50 @@ function runECEMachine(context: Context, agenda: Agenda, stash: Stash) {
   return res
 }
 
+export const evaluateCallInstr = (
+  command: CallInstr | TailCallInstr,
+  context: Context,
+  agenda: Agenda,
+  stash: Stash
+) => {
+  checkStackOverFlow(context, agenda)
+  // Get function arguments from the stash
+  const args: es.Literal[] = []
+  for (let i = 0; i < command.arity; i++) {
+    args.unshift(stash.pop())
+  }
+
+  const func: ClosureInstr | BuiltinInstr = stash.pop()
+  if (func?.instrType === InstrType.CLOSURE) {
+    const closure = func as ClosureInstr
+    // Check for number of arguments mismatch error
+    checkNumberOfArguments(context, closure, args, command.srcNode)
+
+    // Push on top of current environment and then restore if call
+    if (command.instrType === InstrType.CALL) {
+      agenda.push(instr.envInstr(currentEnvironment(context)))
+    }
+    agenda.push(closure.srcNode.body)
+
+    const environment = createEnvironment(closure, args, command.srcNode)
+
+    // Replace current environment if tail call
+    if (command.instrType === InstrType.TAIL_CALL) {
+      popEnvironment(context)
+    }
+    pushEnvironment(context, environment)
+  } else if (func?.instrType == InstrType.BUILTIN) {
+    const builtin = func as BuiltinInstr
+
+    checkNumberOfArguments(context, builtin, args, command.srcNode)
+    checkBuiltin(context, builtin, args, command.srcNode)
+    stash.push(applyBuiltin(builtin.identifier, args))
+  } else {
+    // not a callable function, error
+    handleRuntimeError(context, new errors.CallingNonFunctionValue(func, command.srcNode))
+  }
+}
+
 /**
  * Dictionary of functions which handle the logic for the response of the three registers of
  * the ASE machine to each AgendaItem.
@@ -294,13 +339,17 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     stash.push(getVariable(context, command.name, command))
   },
 
-  CallExpression: function (
-    command: es.CallExpression,
+  ApplicationExpression: function (
+    command: es.ApplicationExpression,
     context: Context,
     agenda: Agenda,
     stash: Stash
   ) {
-    agenda.push(instr.appInstr(command.args.length, command))
+    if (command.tail) {
+      agenda.push(instr.tailCallInstr(command.args.length, command))
+    } else {
+      agenda.push(instr.callInstr(command.args.length, command))
+    }
     for (let i = command.args.length - 1; i >= 0; i--) {
       agenda.push(command.args[i])
     }
@@ -322,6 +371,10 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     agenda: Agenda,
     stash: Stash
   ) {
+    if (command.tail) {
+      command.alt.tail = true
+      command.cons.tail = true
+    }
     agenda.push(instr.branchInstr(command.cons, command.alt, command))
     agenda.push(command.pred)
   },
@@ -332,13 +385,16 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     agenda: Agenda,
     stash: Stash
   ) {
+    if (command.body.type === 'SequenceExpression') {
+      command.body.expressions[command.body.expressions.length - 1].tail = true
+    } else {
+      command.body.tail = true
+    }
     const env = cloneDeep(currentEnvironment(context))
     if (command.recursiveId) {
       defineVariable(env, command.recursiveId, instr.closureInstr(env, command))
     }
 
-    console.log('lambda env')
-    console.log(env)
     stash.push(instr.closureInstr(env, command))
   },
 
@@ -368,43 +424,6 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
   /**
    * Instructions
    */
-
-  [InstrType.APPLICATION]: function (
-    command: AppInstr,
-    context: Context,
-    agenda: Agenda,
-    stash: Stash
-  ) {
-    checkStackOverFlow(context, agenda)
-    // Get function arguments from the stash
-    const args: es.Literal[] = []
-    for (let i = 0; i < command.arity; i++) {
-      args.unshift(stash.pop())
-    }
-
-    const func: ClosureInstr | BuiltinInstr = stash.pop()
-    if (func?.instrType === InstrType.CLOSURE) {
-      const closure = func as ClosureInstr
-      // Check for number of arguments mismatch error
-      checkNumberOfArguments(context, closure, args, command.srcNode)
-
-      // Restore current environment
-      agenda.push(instr.envInstr(currentEnvironment(context)))
-      agenda.push(closure.srcNode.body)
-
-      const environment = createEnvironment(closure, args, command.srcNode)
-      pushEnvironment(context, environment)
-    } else if (func?.instrType == InstrType.BUILTIN) {
-      const builtin = func as BuiltinInstr
-
-      checkNumberOfArguments(context, builtin, args, command.srcNode)
-      checkBuiltin(context, builtin, args, command.srcNode)
-      stash.push(applyBuiltin(builtin.identifier, args))
-    } else {
-      // not a callable function, error
-      handleRuntimeError(context, new errors.CallingNonFunctionValue(func, command.srcNode))
-    }
-  },
 
   [InstrType.ASSIGNMENT]: function (
     command: AssmtInstr,
@@ -443,6 +462,10 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     }
   },
 
+  [InstrType.CALL]: function (command: CallInstr, context: Context, agenda: Agenda, stash: Stash) {
+    evaluateCallInstr(command, context, agenda, stash)
+  },
+
   [InstrType.POP]: function (command: Instr, context: Context, agenda: Agenda, stash: Stash) {
     stash.pop()
   },
@@ -467,5 +490,14 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     if (stash.size() === 0) {
       stash.push(undefined)
     }
+  },
+
+  [InstrType.TAIL_CALL]: function (
+    command: TailCallInstr,
+    context: Context,
+    agenda: Agenda,
+    stash: Stash
+  ) {
+    evaluateCallInstr(command, context, agenda, stash)
   }
 }
