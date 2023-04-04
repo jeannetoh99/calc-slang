@@ -54,13 +54,14 @@ export class CalcParser extends Parser {
   public static readonly T__26 = 27
   public static readonly T__27 = 28
   public static readonly T__28 = 29
-  public static readonly INTEGER_LITERAL = 30
-  public static readonly BOOLEAN_LITERAL = 31
-  public static readonly REAL_LITERAL = 32
-  public static readonly STRING_LITERAL = 33
-  public static readonly TYPE = 34
-  public static readonly IDENTIFIER = 35
-  public static readonly WHITESPACE = 36
+  public static readonly T__29 = 30
+  public static readonly INTEGER_LITERAL = 31
+  public static readonly BOOLEAN_LITERAL = 32
+  public static readonly REAL_LITERAL = 33
+  public static readonly STRING_LITERAL = 34
+  public static readonly TYPE = 35
+  public static readonly IDENTIFIER = 36
+  public static readonly WHITESPACE = 37
   public static readonly RULE_identifier = 0
   public static readonly RULE_literal = 1
   public static readonly RULE_expression = 2
@@ -113,9 +114,11 @@ export class CalcParser extends Parser {
     "')'",
     "';'",
     "'val'",
-    "'fun'"
+    "'fun'",
+    "'local'"
   ]
   private static readonly _SYMBOLIC_NAMES: Array<string | undefined> = [
+    undefined,
     undefined,
     undefined,
     undefined,
@@ -773,7 +776,7 @@ export class CalcParser extends Parser {
     let _localctx: DeclarationContext = new DeclarationContext(this._ctx, this.state)
     this.enterRule(_localctx, 10, CalcParser.RULE_declaration)
     try {
-      this.state = 118
+      this.state = 124
       this._errHandler.sync(this)
       switch (this._input.LA(1)) {
         case CalcParser.T__27:
@@ -806,6 +809,22 @@ export class CalcParser extends Parser {
             this.expression(0)
           }
           break
+        case CalcParser.T__29:
+          _localctx = new LocalDeclarationContext(_localctx)
+          this.enterOuterAlt(_localctx, 3)
+          {
+            this.state = 118
+            this.match(CalcParser.T__29)
+            this.state = 119
+            ;(_localctx as LocalDeclarationContext)._local = this.declarationList()
+            this.state = 120
+            this.match(CalcParser.T__22)
+            this.state = 121
+            ;(_localctx as LocalDeclarationContext)._body = this.declarationList()
+            this.state = 122
+            this.match(CalcParser.T__23)
+          }
+          break
         default:
           throw new NoViableAltException(this)
       }
@@ -830,21 +849,21 @@ export class CalcParser extends Parser {
     try {
       this.enterOuterAlt(_localctx, 1)
       {
-        this.state = 120
+        this.state = 126
         this.declaration()
-        this.state = 125
+        this.state = 131
         this._errHandler.sync(this)
         _la = this._input.LA(1)
         while (_la === CalcParser.T__26) {
           {
             {
-              this.state = 121
+              this.state = 127
               this.match(CalcParser.T__26)
-              this.state = 122
+              this.state = 128
               this.declaration()
             }
           }
-          this.state = 127
+          this.state = 133
           this._errHandler.sync(this)
           _la = this._input.LA(1)
         }
@@ -867,7 +886,7 @@ export class CalcParser extends Parser {
     let _localctx: StatementContext = new StatementContext(this._ctx, this.state)
     this.enterRule(_localctx, 14, CalcParser.RULE_statement)
     try {
-      this.state = 134
+      this.state = 140
       this._errHandler.sync(this)
       switch (this._input.LA(1)) {
         case CalcParser.T__16:
@@ -882,20 +901,21 @@ export class CalcParser extends Parser {
           _localctx = new ExpressionStatementContext(_localctx)
           this.enterOuterAlt(_localctx, 1)
           {
-            this.state = 128
+            this.state = 134
             this.expression(0)
-            this.state = 129
+            this.state = 135
             this.match(CalcParser.T__26)
           }
           break
         case CalcParser.T__27:
         case CalcParser.T__28:
+        case CalcParser.T__29:
           _localctx = new DeclarationStatementContext(_localctx)
           this.enterOuterAlt(_localctx, 2)
           {
-            this.state = 131
+            this.state = 137
             this.declaration()
-            this.state = 132
+            this.state = 138
             this.match(CalcParser.T__26)
           }
           break
@@ -923,7 +943,7 @@ export class CalcParser extends Parser {
     try {
       this.enterOuterAlt(_localctx, 1)
       {
-        this.state = 139
+        this.state = 145
         this._errHandler.sync(this)
         _la = this._input.LA(1)
         while (
@@ -935,6 +955,7 @@ export class CalcParser extends Parser {
               (1 << (CalcParser.T__24 - 17)) |
               (1 << (CalcParser.T__27 - 17)) |
               (1 << (CalcParser.T__28 - 17)) |
+              (1 << (CalcParser.T__29 - 17)) |
               (1 << (CalcParser.INTEGER_LITERAL - 17)) |
               (1 << (CalcParser.BOOLEAN_LITERAL - 17)) |
               (1 << (CalcParser.REAL_LITERAL - 17)) |
@@ -944,11 +965,11 @@ export class CalcParser extends Parser {
         ) {
           {
             {
-              this.state = 136
+              this.state = 142
               this.statement()
             }
           }
-          this.state = 141
+          this.state = 147
           this._errHandler.sync(this)
           _la = this._input.LA(1)
         }
@@ -1011,7 +1032,7 @@ export class CalcParser extends Parser {
   }
 
   public static readonly _serializedATN: string =
-    '\x03\uC91D\uCABA\u058D\uAFBA\u4F53\u0607\uEA8B\uC241\x03&\x91\x04\x02' +
+    "\x03\uC91D\uCABA\u058D\uAFBA\u4F53\u0607\uEA8B\uC241\x03'\x97\x04\x02" +
     '\t\x02\x04\x03\t\x03\x04\x04\t\x04\x04\x05\t\x05\x04\x06\t\x06\x04\x07' +
     '\t\x07\x04\b\t\b\x04\t\t\t\x04\n\t\n\x03\x02\x03\x02\x03\x03\x03\x03\x03' +
     '\x03\x03\x03\x05\x03\x1B\n\x03\x03\x04\x03\x04\x03\x04\x03\x04\x03\x04' +
@@ -1024,32 +1045,33 @@ export class CalcParser extends Parser {
     '\x05X\n\x05\f\x05\x0E\x05[\v\x05\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06' +
     '\x03\x06\x03\x06\x05\x06d\n\x06\x03\x06\x03\x06\x03\x06\x07\x06i\n\x06' +
     '\f\x06\x0E\x06l\v\x06\x03\x07\x03\x07\x03\x07\x03\x07\x03\x07\x03\x07' +
-    '\x03\x07\x03\x07\x03\x07\x03\x07\x03\x07\x05\x07y\n\x07\x03\b\x03\b\x03' +
-    '\b\x07\b~\n\b\f\b\x0E\b\x81\v\b\x03\t\x03\t\x03\t\x03\t\x03\t\x03\t\x05' +
-    '\t\x89\n\t\x03\n\x07\n\x8C\n\n\f\n\x0E\n\x8F\v\n\x03\n\x02\x02\x04\x06' +
-    '\n\v\x02\x02\x04\x02\x06\x02\b\x02\n\x02\f\x02\x0E\x02\x10\x02\x12\x02' +
-    '\x02\x06\x03\x02\x04\x07\x03\x02\b\t\x03\x02\n\x0F\x03\x02\x10\x11\x02' +
-    '\x9F\x02\x14\x03\x02\x02\x02\x04\x1A\x03\x02\x02\x02\x069\x03\x02\x02' +
-    '\x02\bT\x03\x02\x02\x02\nc\x03\x02\x02\x02\fx\x03\x02\x02\x02\x0Ez\x03' +
-    '\x02\x02\x02\x10\x88\x03\x02\x02\x02\x12\x8D\x03\x02\x02\x02\x14\x15\x07' +
-    '%\x02\x02\x15\x03\x03\x02\x02\x02\x16\x1B\x07 \x02\x02\x17\x1B\x07!\x02' +
-    '\x02\x18\x1B\x07"\x02\x02\x19\x1B\x07#\x02\x02\x1A\x16\x03\x02\x02\x02' +
-    '\x1A\x17\x03\x02\x02\x02\x1A\x18\x03\x02\x02\x02\x1A\x19\x03\x02\x02\x02' +
-    '\x1B\x05\x03\x02\x02\x02\x1C\x1D\b\x04\x01\x02\x1D:\x05\x04\x03\x02\x1E' +
-    ':\x05\x02\x02\x02\x1F \x07\x13\x02\x02 !\x05\x06\x04\x02!"\x07\x14\x02' +
-    '\x02"#\x05\x06\x04\x02#$\x07\x15\x02\x02$%\x05\x06\x04\x07%:\x03\x02' +
-    "\x02\x02&'\x07\x16\x02\x02'(\x05\n\x06\x02()\x07\x17\x02\x02)*\x05\x06" +
-    '\x04\x06*:\x03\x02\x02\x02+,\x07\x18\x02\x02,-\x05\x0E\b\x02-.\x07\x19' +
-    '\x02\x02./\x05\b\x05\x02/0\x07\x1A\x02\x020:\x03\x02\x02\x0212\x07\x1B' +
-    '\x02\x0223\x05\b\x05\x0234\x07\x1C\x02\x024:\x03\x02\x02\x0256\x07\x1B' +
-    '\x02\x0267\x05\x06\x04\x0278\x07\x1C\x02\x028:\x03\x02\x02\x029\x1C\x03' +
-    '\x02\x02\x029\x1E\x03\x02\x02\x029\x1F\x03\x02\x02\x029&\x03\x02\x02\x02' +
-    '9+\x03\x02\x02\x0291\x03\x02\x02\x0295\x03\x02\x02\x02:Q\x03\x02\x02\x02' +
-    ';<\f\r\x02\x02<P\x05\x06\x04\x0E=>\f\f\x02\x02>?\t\x02\x02\x02?P\x05\x06' +
-    '\x04\r@A\f\v\x02\x02AB\t\x03\x02\x02BP\x05\x06\x04\fCD\f\n\x02\x02DE\t' +
-    '\x04\x02\x02EP\x05\x06\x04\vFG\f\t\x02\x02GH\t\x05\x02\x02HP\x05\x06\x04' +
-    '\nIJ\f\b\x02\x02JK\x07\x12\x02\x02KP\x05\x06\x04\tLM\f\x0E\x02\x02MN\x07' +
-    '\x03\x02\x02NP\x07$\x02\x02O;\x03\x02\x02\x02O=\x03\x02\x02\x02O@\x03' +
+    '\x03\x07\x03\x07\x03\x07\x03\x07\x03\x07\x03\x07\x03\x07\x03\x07\x03\x07' +
+    '\x03\x07\x03\x07\x05\x07\x7F\n\x07\x03\b\x03\b\x03\b\x07\b\x84\n\b\f\b' +
+    '\x0E\b\x87\v\b\x03\t\x03\t\x03\t\x03\t\x03\t\x03\t\x05\t\x8F\n\t\x03\n' +
+    '\x07\n\x92\n\n\f\n\x0E\n\x95\v\n\x03\n\x02\x02\x04\x06\n\v\x02\x02\x04' +
+    '\x02\x06\x02\b\x02\n\x02\f\x02\x0E\x02\x10\x02\x12\x02\x02\x06\x03\x02' +
+    '\x04\x07\x03\x02\b\t\x03\x02\n\x0F\x03\x02\x10\x11\x02\xA6\x02\x14\x03' +
+    '\x02\x02\x02\x04\x1A\x03\x02\x02\x02\x069\x03\x02\x02\x02\bT\x03\x02\x02' +
+    '\x02\nc\x03\x02\x02\x02\f~\x03\x02\x02\x02\x0E\x80\x03\x02\x02\x02\x10' +
+    '\x8E\x03\x02\x02\x02\x12\x93\x03\x02\x02\x02\x14\x15\x07&\x02\x02\x15' +
+    '\x03\x03\x02\x02\x02\x16\x1B\x07!\x02\x02\x17\x1B\x07"\x02\x02\x18\x1B' +
+    '\x07#\x02\x02\x19\x1B\x07$\x02\x02\x1A\x16\x03\x02\x02\x02\x1A\x17\x03' +
+    '\x02\x02\x02\x1A\x18\x03\x02\x02\x02\x1A\x19\x03\x02\x02\x02\x1B\x05\x03' +
+    '\x02\x02\x02\x1C\x1D\b\x04\x01\x02\x1D:\x05\x04\x03\x02\x1E:\x05\x02\x02' +
+    '\x02\x1F \x07\x13\x02\x02 !\x05\x06\x04\x02!"\x07\x14\x02\x02"#\x05' +
+    "\x06\x04\x02#$\x07\x15\x02\x02$%\x05\x06\x04\x07%:\x03\x02\x02\x02&'" +
+    "\x07\x16\x02\x02'(\x05\n\x06\x02()\x07\x17\x02\x02)*\x05\x06\x04\x06" +
+    '*:\x03\x02\x02\x02+,\x07\x18\x02\x02,-\x05\x0E\b\x02-.\x07\x19\x02\x02' +
+    './\x05\b\x05\x02/0\x07\x1A\x02\x020:\x03\x02\x02\x0212\x07\x1B\x02\x02' +
+    '23\x05\b\x05\x0234\x07\x1C\x02\x024:\x03\x02\x02\x0256\x07\x1B\x02\x02' +
+    '67\x05\x06\x04\x0278\x07\x1C\x02\x028:\x03\x02\x02\x029\x1C\x03\x02\x02' +
+    '\x029\x1E\x03\x02\x02\x029\x1F\x03\x02\x02\x029&\x03\x02\x02\x029+\x03' +
+    '\x02\x02\x0291\x03\x02\x02\x0295\x03\x02\x02\x02:Q\x03\x02\x02\x02;<\f' +
+    '\r\x02\x02<P\x05\x06\x04\x0E=>\f\f\x02\x02>?\t\x02\x02\x02?P\x05\x06\x04' +
+    '\r@A\f\v\x02\x02AB\t\x03\x02\x02BP\x05\x06\x04\fCD\f\n\x02\x02DE\t\x04' +
+    '\x02\x02EP\x05\x06\x04\vFG\f\t\x02\x02GH\t\x05\x02\x02HP\x05\x06\x04\n' +
+    'IJ\f\b\x02\x02JK\x07\x12\x02\x02KP\x05\x06\x04\tLM\f\x0E\x02\x02MN\x07' +
+    '\x03\x02\x02NP\x07%\x02\x02O;\x03\x02\x02\x02O=\x03\x02\x02\x02O@\x03' +
     '\x02\x02\x02OC\x03\x02\x02\x02OF\x03\x02\x02\x02OI\x03\x02\x02\x02OL\x03' +
     '\x02\x02\x02PS\x03\x02\x02\x02QO\x03\x02\x02\x02QR\x03\x02\x02\x02R\x07' +
     '\x03\x02\x02\x02SQ\x03\x02\x02\x02TY\x05\x06\x04\x02UV\x07\x1D\x02\x02' +
@@ -1058,20 +1080,22 @@ export class CalcParser extends Parser {
     ']d\x05\x04\x03\x02^d\x05\x02\x02\x02_`\x07\x1B\x02\x02`a\x05\n\x06\x02' +
     'ab\x07\x1C\x02\x02bd\x03\x02\x02\x02c\\\x03\x02\x02\x02c^\x03\x02\x02' +
     '\x02c_\x03\x02\x02\x02dj\x03\x02\x02\x02ef\f\x04\x02\x02fg\x07\x03\x02' +
-    '\x02gi\x07$\x02\x02he\x03\x02\x02\x02il\x03\x02\x02\x02jh\x03\x02\x02' +
+    '\x02gi\x07%\x02\x02he\x03\x02\x02\x02il\x03\x02\x02\x02jh\x03\x02\x02' +
     '\x02jk\x03\x02\x02\x02k\v\x03\x02\x02\x02lj\x03\x02\x02\x02mn\x07\x1E' +
-    '\x02\x02no\x05\n\x06\x02op\x07\x0F\x02\x02pq\x05\x06\x04\x02qy\x03\x02' +
-    '\x02\x02rs\x07\x1F\x02\x02st\x05\x02\x02\x02tu\x05\n\x06\x02uv\x07\x0F' +
-    '\x02\x02vw\x05\x06\x04\x02wy\x03\x02\x02\x02xm\x03\x02\x02\x02xr\x03\x02' +
-    '\x02\x02y\r\x03\x02\x02\x02z\x7F\x05\f\x07\x02{|\x07\x1D\x02\x02|~\x05' +
-    '\f\x07\x02}{\x03\x02\x02\x02~\x81\x03\x02\x02\x02\x7F}\x03\x02\x02\x02' +
-    '\x7F\x80\x03\x02\x02\x02\x80\x0F\x03\x02\x02\x02\x81\x7F\x03\x02\x02\x02' +
-    '\x82\x83\x05\x06\x04\x02\x83\x84\x07\x1D\x02\x02\x84\x89\x03\x02\x02\x02' +
-    '\x85\x86\x05\f\x07\x02\x86\x87\x07\x1D\x02\x02\x87\x89\x03\x02\x02\x02' +
-    '\x88\x82\x03\x02\x02\x02\x88\x85\x03\x02\x02\x02\x89\x11\x03\x02\x02\x02' +
-    '\x8A\x8C\x05\x10\t\x02\x8B\x8A\x03\x02\x02\x02\x8C\x8F\x03\x02\x02\x02' +
-    '\x8D\x8B\x03\x02\x02\x02\x8D\x8E\x03\x02\x02\x02\x8E\x13\x03\x02\x02\x02' +
-    '\x8F\x8D\x03\x02\x02\x02\r\x1A9OQYcjx\x7F\x88\x8D'
+    '\x02\x02no\x05\n\x06\x02op\x07\x0F\x02\x02pq\x05\x06\x04\x02q\x7F\x03' +
+    '\x02\x02\x02rs\x07\x1F\x02\x02st\x05\x02\x02\x02tu\x05\n\x06\x02uv\x07' +
+    '\x0F\x02\x02vw\x05\x06\x04\x02w\x7F\x03\x02\x02\x02xy\x07 \x02\x02yz\x05' +
+    '\x0E\b\x02z{\x07\x19\x02\x02{|\x05\x0E\b\x02|}\x07\x1A\x02\x02}\x7F\x03' +
+    '\x02\x02\x02~m\x03\x02\x02\x02~r\x03\x02\x02\x02~x\x03\x02\x02\x02\x7F' +
+    '\r\x03\x02\x02\x02\x80\x85\x05\f\x07\x02\x81\x82\x07\x1D\x02\x02\x82\x84' +
+    '\x05\f\x07\x02\x83\x81\x03\x02\x02\x02\x84\x87\x03\x02\x02\x02\x85\x83' +
+    '\x03\x02\x02\x02\x85\x86\x03\x02\x02\x02\x86\x0F\x03\x02\x02\x02\x87\x85' +
+    '\x03\x02\x02\x02\x88\x89\x05\x06\x04\x02\x89\x8A\x07\x1D\x02\x02\x8A\x8F' +
+    '\x03\x02\x02\x02\x8B\x8C\x05\f\x07\x02\x8C\x8D\x07\x1D\x02\x02\x8D\x8F' +
+    '\x03\x02\x02\x02\x8E\x88\x03\x02\x02\x02\x8E\x8B\x03\x02\x02\x02\x8F\x11' +
+    '\x03\x02\x02\x02\x90\x92\x05\x10\t\x02\x91\x90\x03\x02\x02\x02\x92\x95' +
+    '\x03\x02\x02\x02\x93\x91\x03\x02\x02\x02\x93\x94\x03\x02\x02\x02\x94\x13' +
+    '\x03\x02\x02\x02\x95\x93\x03\x02\x02\x02\r\x1A9OQYcj~\x85\x8E\x93'
   public static __ATN: ATN
   public static get _ATN(): ATN {
     if (!CalcParser.__ATN) {
@@ -1829,6 +1853,43 @@ export class FunctionDeclarationContext extends DeclarationContext {
   public accept<Result>(visitor: CalcVisitor<Result>): Result {
     if (visitor.visitFunctionDeclaration) {
       return visitor.visitFunctionDeclaration(this)
+    } else {
+      return visitor.visitChildren(this)
+    }
+  }
+}
+export class LocalDeclarationContext extends DeclarationContext {
+  public _local!: DeclarationListContext
+  public _body!: DeclarationListContext
+  public declarationList(): DeclarationListContext[]
+  public declarationList(i: number): DeclarationListContext
+  public declarationList(i?: number): DeclarationListContext | DeclarationListContext[] {
+    if (i === undefined) {
+      return this.getRuleContexts(DeclarationListContext)
+    } else {
+      return this.getRuleContext(i, DeclarationListContext)
+    }
+  }
+  constructor(ctx: DeclarationContext) {
+    super(ctx.parent, ctx.invokingState)
+    this.copyFrom(ctx)
+  }
+  // @Override
+  public enterRule(listener: CalcListener): void {
+    if (listener.enterLocalDeclaration) {
+      listener.enterLocalDeclaration(this)
+    }
+  }
+  // @Override
+  public exitRule(listener: CalcListener): void {
+    if (listener.exitLocalDeclaration) {
+      listener.exitLocalDeclaration(this)
+    }
+  }
+  // @Override
+  public accept<Result>(visitor: CalcVisitor<Result>): Result {
+    if (visitor.visitLocalDeclaration) {
+      return visitor.visitLocalDeclaration(this)
     } else {
       return visitor.visitChildren(this)
     }

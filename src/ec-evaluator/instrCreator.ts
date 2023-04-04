@@ -12,14 +12,21 @@ import {
   ClosureInstr,
   EnvInstr,
   Instr,
-  InstrType
+  InstrType,
+  LocalEnvInstr
 } from './types'
 
-export const assmtInstr = (symbol: string, declaration: boolean, srcNode: es.Node): AssmtInstr => ({
+export const assmtInstr = (
+  symbol: string,
+  declaration: boolean,
+  srcNode: es.Node,
+  env: Environment
+): AssmtInstr => ({
   instrType: InstrType.ASSIGNMENT,
   symbol,
   declaration,
-  srcNode
+  srcNode,
+  env
 })
 
 export const appInstr = (arity: number, srcNode: es.CallExpression): AppInstr => ({
@@ -61,6 +68,10 @@ export const closureInstr = (env: Environment, srcNode: es.LambdaExpression): Cl
 export const envInstr = (env: Environment): EnvInstr => ({
   instrType: InstrType.ENVIRONMENT,
   env
+})
+
+export const localEnvInstr = (): LocalEnvInstr => ({
+  instrType: InstrType.LOCAL_ENVIRONMENT
 })
 
 export const pushUndefIfNeededInstr = (): Instr => ({

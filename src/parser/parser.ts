@@ -30,6 +30,7 @@ import {
   LiteralContext,
   LiteralExpressionContext,
   LiteralPatternContext,
+  LocalDeclarationContext,
   ParenthesizedExpressionContext,
   ParenthesizedPatternContext,
   ProgramContext,
@@ -226,7 +227,16 @@ class AstConverter implements CalcVisitor<es.Node> {
       type: 'FunctionDeclaration',
       id: this.visit(ctx.identifier()) as es.Identifier,
       params: [this.visit(ctx.pattern()) as es.Pattern],
-      body: this.visit(ctx.expression()) as es.Expression
+      body: this.visit(ctx.expression()) as es.Expression,
+      loc: contextToLocation(ctx)
+    }
+  }
+  visitLocalDeclaration(ctx: LocalDeclarationContext): es.LocalDeclaration {
+    return {
+      type: 'LocalDeclaration',
+      local: this.visit(ctx._local) as es.DeclarationList,
+      body: this.visit(ctx._body) as es.DeclarationList,
+      loc: contextToLocation(ctx)
     }
   }
   visitInteger(ctx: IntegerContext): es.IntLiteral {
@@ -290,7 +300,7 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitDeclarationList(ctx: DeclarationListContext): es.DeclarationList {
     return {
       type: 'DeclarationList',
-      declarations: ctx.declaration().map(decl => this.visit(decl) as es.Declaration),
+      body: ctx.declaration().map(decl => this.visit(decl) as es.Declaration),
       loc: contextToLocation(ctx)
     }
   }

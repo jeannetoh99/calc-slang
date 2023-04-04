@@ -20,6 +20,7 @@ import { ExpressionStatementContext } from './CalcParser'
 import { DeclarationStatementContext } from './CalcParser'
 import { ValueDeclarationContext } from './CalcParser'
 import { FunctionDeclarationContext } from './CalcParser'
+import { LocalDeclarationContext } from './CalcParser'
 import { IntegerContext } from './CalcParser'
 import { BooleanContext } from './CalcParser'
 import { RealContext } from './CalcParser'
@@ -272,6 +273,19 @@ export interface CalcListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   exitFunctionDeclaration?: (ctx: FunctionDeclarationContext) => void
+
+  /**
+   * Enter a parse tree produced by the `LocalDeclaration`
+   * labeled alternative in `CalcParser.declaration`.
+   * @param ctx the parse tree
+   */
+  enterLocalDeclaration?: (ctx: LocalDeclarationContext) => void
+  /**
+   * Exit a parse tree produced by the `LocalDeclaration`
+   * labeled alternative in `CalcParser.declaration`.
+   * @param ctx the parse tree
+   */
+  exitLocalDeclaration?: (ctx: LocalDeclarationContext) => void
 
   /**
    * Enter a parse tree produced by the `Integer`

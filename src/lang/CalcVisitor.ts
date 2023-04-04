@@ -20,6 +20,7 @@ import { ExpressionStatementContext } from './CalcParser'
 import { DeclarationStatementContext } from './CalcParser'
 import { ValueDeclarationContext } from './CalcParser'
 import { FunctionDeclarationContext } from './CalcParser'
+import { LocalDeclarationContext } from './CalcParser'
 import { IntegerContext } from './CalcParser'
 import { BooleanContext } from './CalcParser'
 import { RealContext } from './CalcParser'
@@ -185,6 +186,14 @@ export interface CalcVisitor<Result> extends ParseTreeVisitor<Result> {
    * @return the visitor result
    */
   visitFunctionDeclaration?: (ctx: FunctionDeclarationContext) => Result
+
+  /**
+   * Visit a parse tree produced by the `LocalDeclaration`
+   * labeled alternative in `CalcParser.declaration`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitLocalDeclaration?: (ctx: LocalDeclarationContext) => Result
 
   /**
    * Visit a parse tree produced by the `Integer`

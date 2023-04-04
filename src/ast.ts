@@ -1,3 +1,5 @@
+import { Environment } from './types'
+
 interface BaseNode {
   // Every leaf interface that extends BaseNode must specify a type property.
   // The type property should be a string literal. For example, Identifier
@@ -44,12 +46,7 @@ export interface Program extends BaseNode {
   body: Array<Statement>
 }
 
-export type Statement =
-  | BlockStatement
-  | ExpressionStatement
-  | EmptyStatement
-  | Declaration
-  | DeclarationList
+export type Statement = BlockStatement | ExpressionStatement | EmptyStatement | Declaration
 
 type BaseStatement = BaseNode
 
@@ -67,9 +64,15 @@ export interface ExpressionStatement extends BaseStatement {
   expression: Expression
 }
 
-export type Declaration = ValueDeclaration | FunctionDeclaration
+export type Declaration =
+  | ValueDeclaration
+  | FunctionDeclaration
+  | LocalDeclaration
+  | DeclarationList
 
-type BaseDeclaration = BaseStatement
+interface BaseDeclaration extends BaseStatement {
+  declEnv?: Environment
+}
 
 export interface ValueDeclaration extends BaseDeclaration {
   type: 'ValueDeclaration'
@@ -82,15 +85,22 @@ export interface FunctionDeclaration extends BaseDeclaration {
   params: Array<Pattern>
   body: Expression
 }
+
 export interface ValueDeclarator extends BaseNode {
   type: 'ValueDeclarator'
   id: Identifier
   init?: Expression | null | undefined
 }
 
-export interface DeclarationList extends BaseStatement {
+export interface LocalDeclaration extends BaseDeclaration {
+  type: 'LocalDeclaration'
+  local: DeclarationList
+  body: DeclarationList
+}
+
+export interface DeclarationList extends BaseDeclaration {
   type: 'DeclarationList'
-  declarations: Array<Declaration>
+  body: Array<Declaration>
 }
 
 export interface ExpressionMap {
