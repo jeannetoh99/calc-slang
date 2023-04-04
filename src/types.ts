@@ -91,6 +91,7 @@ export interface Context<T = any> {
     isRunning: boolean
     environmentTree: EnvTree
     environments: Environment[]
+    localEnvironments: Environment[]
     nodes: es.Node[]
     agenda?: Agenda
     stash?: Stash
@@ -171,7 +172,7 @@ export interface Environment {
   id: string
   name: string
   tail: Environment | null
-  callExpression?: es.CallExpression
+  callExpression?: es.ApplicationExpression
   head: Frame
   thisContext?: Value
 }

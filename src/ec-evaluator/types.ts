@@ -4,29 +4,27 @@ import { Environment } from '../types'
 import { Agenda, Stash } from './interpreter'
 
 export enum InstrType {
-  APPLICATION = 'Application',
   ASSIGNMENT = 'Assignment',
   BRANCH = 'Branch',
   BUILTIN = 'Builtin',
+  CALL = 'Call',
   CLOSURE = 'Closure',
   ENVIRONMENT = 'Environment',
+  LOCAL_ENVIRONMENT = 'LocalEnvironment',
   POP = 'Pop',
-  PUSH_UNDEFINED_IF_NEEDED = 'PushUndefinedIfNeeded'
+  PUSH_UNDEFINED_IF_NEEDED = 'PushUndefinedIfNeeded',
+  TAIL_CALL = 'TailCall'
 }
 
 interface BaseInstr {
   instrType: InstrType
 }
 
-export interface AppInstr extends BaseInstr {
-  arity: number
-  srcNode: es.CallExpression
-}
-
 export interface AssmtInstr extends BaseInstr {
   symbol: string
   declaration: boolean
   srcNode: es.Node
+  env: Environment
 }
 
 export interface BranchInstr extends BaseInstr {
@@ -41,6 +39,11 @@ export interface BuiltinInstr extends BaseInstr {
   isInfix: boolean
 }
 
+export interface CallInstr extends BaseInstr {
+  arity: number
+  srcNode: es.ApplicationExpression
+}
+
 export interface ClosureInstr extends BaseInstr {
   env: Environment
   srcNode: es.LambdaExpression
@@ -50,14 +53,23 @@ export interface EnvInstr extends BaseInstr {
   env: Environment
 }
 
+export type LocalEnvInstr = BaseInstr
+
+export interface TailCallInstr extends BaseInstr {
+  arity: number
+  srcNode: es.ApplicationExpression
+}
+
 export type Instr =
-  | AppInstr
   | AssmtInstr
   | BaseInstr
   | BranchInstr
   | BuiltinInstr
+  | CallInstr
   | ClosureInstr
   | EnvInstr
+  | LocalEnvInstr
+  | TailCallInstr
 
 export type AgendaItem = es.Node | Instr
 

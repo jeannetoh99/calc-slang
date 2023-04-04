@@ -1,5 +1,4 @@
 /* tslint:disable:max-classes-per-file */
-import { parseExpression } from '@babel/parser'
 import { CharStreams, CommonTokenStream, RecognitionException, Recognizer } from 'antlr4ts'
 import { ANTLRErrorListener } from 'antlr4ts/ANTLRErrorListener'
 import { ErrorNode } from 'antlr4ts/tree/ErrorNode'
@@ -14,8 +13,10 @@ import {
   CalcParser,
   ConditionalExpressionContext,
   DeclarationContext,
+  DeclarationListContext,
   DeclarationStatementContext,
   ExpressionContext,
+  ExpressionListContext,
   ExpressionStatementContext,
   FunctionApplicationContext,
   FunctionDeclarationContext,
@@ -24,14 +25,18 @@ import {
   IdentifierPatternContext,
   InfixApplicationContext,
   IntegerContext,
+  LambdaContext,
   LambdaExpressionContext,
+  LetExpressionContext,
   LiteralContext,
   LiteralExpressionContext,
   LiteralPatternContext,
+  LocalDeclarationContext,
   ParenthesizedExpressionContext,
   ParenthesizedPatternContext,
   ProgramContext,
   RealContext,
+  RecursiveDeclarationContext,
   StatementContext,
   StringContext,
   TypedExpressionContext,
@@ -137,18 +142,18 @@ class AstConverter implements CalcVisitor<es.Node> {
     expr.annotatedType = ctx.TYPE().text as es.Type
     return expr
   }
-  visitFunctionApplication(ctx: FunctionApplicationContext): es.CallExpression {
+  visitFunctionApplication(ctx: FunctionApplicationContext): es.ApplicationExpression {
     return {
-      type: 'CallExpression',
+      type: 'ApplicationExpression',
       callee: this.visit(ctx._fn) as es.Expression,
       args: [this.visit(ctx._args) as es.Expression],
       isInfix: false,
       loc: contextToLocation(ctx)
     }
   }
-  visitInfixApplication(ctx: InfixApplicationContext): es.CallExpression {
+  visitInfixApplication(ctx: InfixApplicationContext): es.ApplicationExpression {
     return {
-      type: 'CallExpression',
+      type: 'ApplicationExpression',
       callee: identifier(ctx._op.text ?? '', contextToLocation(ctx)),
       args: [this.visit(ctx._left) as es.Expression, this.visit(ctx._right) as es.Expression],
       isInfix: true,
@@ -165,10 +170,13 @@ class AstConverter implements CalcVisitor<es.Node> {
     }
   }
   visitLambdaExpression(ctx: LambdaExpressionContext): es.LambdaExpression {
+    return this.visit(ctx.lambda()) as es.LambdaExpression
+  }
+  visitLetExpression(ctx: LetExpressionContext): es.LetExpression {
     return {
-      type: 'LambdaExpression',
-      params: [this.visit(ctx.pattern()) as es.Pattern],
-      body: this.visit(ctx.expression()) as es.Expression,
+      type: 'LetExpression',
+      declarations: this.visit(ctx.declarationList()) as es.DeclarationList,
+      body: this.visit(ctx.expressionList()) as es.SequenceExpression,
       loc: contextToLocation(ctx)
     }
   }
@@ -212,12 +220,29 @@ class AstConverter implements CalcVisitor<es.Node> {
       loc: contextToLocation(ctx)
     }
   }
+  visitRecursiveDeclaration(ctx: RecursiveDeclarationContext): es.RecValueDeclaration {
+    return {
+      type: 'RecValueDeclaration',
+      id: this.visit(ctx.identifier()) as es.Identifier,
+      lambda: this.visit(ctx.lambda()) as es.LambdaExpression,
+      loc: contextToLocation(ctx)
+    }
+  }
   visitFunctionDeclaration(ctx: FunctionDeclarationContext): es.FunctionDeclaration {
     return {
       type: 'FunctionDeclaration',
       id: this.visit(ctx.identifier()) as es.Identifier,
       params: [this.visit(ctx.pattern()) as es.Pattern],
-      body: this.visit(ctx.expression()) as es.Expression
+      body: this.visit(ctx.expression()) as es.Expression,
+      loc: contextToLocation(ctx)
+    }
+  }
+  visitLocalDeclaration(ctx: LocalDeclarationContext): es.LocalDeclaration {
+    return {
+      type: 'LocalDeclaration',
+      local: this.visit(ctx._local) as es.DeclarationList,
+      body: this.visit(ctx._body) as es.DeclarationList,
+      loc: contextToLocation(ctx)
     }
   }
   visitInteger(ctx: IntegerContext): es.IntLiteral {
@@ -275,8 +300,35 @@ class AstConverter implements CalcVisitor<es.Node> {
 
   visitLiteral?: ((ctx: LiteralContext) => es.Literal) | undefined
   visitExpression?: ((ctx: ExpressionContext) => es.Expression) | undefined
+
+  visitLambda(ctx: LambdaContext): es.LambdaExpression {
+    return {
+      type: 'LambdaExpression',
+      params: [this.visit(ctx.pattern()) as es.Pattern],
+      body: this.visit(ctx.expression()) as es.Expression,
+      loc: contextToLocation(ctx)
+    }
+  }
+
+  visitExpressionList(ctx: ExpressionListContext): es.SequenceExpression {
+    return {
+      type: 'SequenceExpression',
+      expressions: ctx.expression().map(expr => this.visit(expr) as es.Expression),
+      loc: contextToLocation(ctx)
+    }
+  }
+
   visitPattern?: ((ctx: ProgramContext) => es.Pattern) | undefined
   visitDeclaration?: ((ctx: DeclarationContext) => es.Declaration) | undefined
+
+  visitDeclarationList(ctx: DeclarationListContext): es.DeclarationList {
+    return {
+      type: 'DeclarationList',
+      body: ctx.declaration().map(decl => this.visit(decl) as es.Declaration),
+      loc: contextToLocation(ctx)
+    }
+  }
+
   visitStatement?: ((ctx: StatementContext) => es.Statement) | undefined
 
   visitProgram(ctx: ProgramContext): es.Program {

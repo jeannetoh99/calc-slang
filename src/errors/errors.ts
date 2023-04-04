@@ -50,12 +50,13 @@ export class MaximumStackLimitExceeded extends RuntimeSourceError {
     }
   }
 
-  constructor(node: es.Node, private calls: es.CallExpression[]) {
+  constructor(node: es.Node, private calls: es.ApplicationExpression[]) {
     super(node)
   }
 
   public explain() {
-    const repr = (call: es.CallExpression) => generate(call, { generator: this.customGenerator })
+    const repr = (call: es.ApplicationExpression) =>
+      generate(call, { generator: this.customGenerator })
     return (
       'Maximum call stack size exceeded\n  ' + this.calls.map(call => repr(call) + '..').join('  ')
     )
@@ -80,7 +81,7 @@ export class CallingNonFunctionValue extends RuntimeSourceError {
     const calleeStr = stringify(calleeVal)
     let argStr = ''
 
-    const callArgs = (this.node as es.CallExpression).args
+    const callArgs = (this.node as es.ApplicationExpression).args
 
     argStr = callArgs.map(generate).join(', ')
 
@@ -142,7 +143,7 @@ export class InvalidNumberOfArguments extends RuntimeSourceError {
 
   constructor(node: es.Node, private expected: number, private got: number) {
     super(node)
-    this.calleeStr = generate((node as es.CallExpression).callee)
+    this.calleeStr = generate((node as es.ApplicationExpression).callee)
   }
 
   public explain() {

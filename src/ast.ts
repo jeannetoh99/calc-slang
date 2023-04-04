@@ -1,3 +1,5 @@
+import { Environment } from './types'
+
 interface BaseNode {
   // Every leaf interface that extends BaseNode must specify a type property.
   // The type property should be a string literal. For example, Identifier
@@ -14,6 +16,7 @@ interface NodeMap {
   NodeArray: NodeArray
   Program: Program
   Statement: Statement
+  DeclarationList: DeclarationList
   ValueDeclarator: ValueDeclarator
 }
 
@@ -61,13 +64,26 @@ export interface ExpressionStatement extends BaseStatement {
   expression: Expression
 }
 
-export type Declaration = ValueDeclaration | FunctionDeclaration
+export type Declaration =
+  | ValueDeclaration
+  | RecValueDeclaration
+  | FunctionDeclaration
+  | LocalDeclaration
+  | DeclarationList
 
-type BaseDeclaration = BaseStatement
+interface BaseDeclaration extends BaseStatement {
+  declEnv?: Environment
+}
 
 export interface ValueDeclaration extends BaseDeclaration {
   type: 'ValueDeclaration'
   declarations: Array<ValueDeclarator>
+}
+
+export interface RecValueDeclaration extends BaseDeclaration {
+  type: 'RecValueDeclaration'
+  id: Identifier
+  lambda: LambdaExpression
 }
 
 export interface FunctionDeclaration extends BaseDeclaration {
@@ -76,18 +92,32 @@ export interface FunctionDeclaration extends BaseDeclaration {
   params: Array<Pattern>
   body: Expression
 }
+
 export interface ValueDeclarator extends BaseNode {
   type: 'ValueDeclarator'
   id: Identifier
   init?: Expression | null | undefined
 }
 
+export interface LocalDeclaration extends BaseDeclaration {
+  type: 'LocalDeclaration'
+  local: DeclarationList
+  body: DeclarationList
+}
+
+export interface DeclarationList extends BaseDeclaration {
+  type: 'DeclarationList'
+  body: Array<Declaration>
+}
+
 export interface ExpressionMap {
-  CallExpression: CallExpression
+  CallExpression: ApplicationExpression
   ConditionalExpression: ConditionalExpression
   Identifier: Identifier
   LambdaExpression: LambdaExpression
+  LetExpression: LetExpression
   Literal: Literal
+  SequenceExpression: SequenceExpression
 }
 
 export type Type = 'int' | 'bool' | 'real' | 'string' | 'unit'
@@ -97,6 +127,7 @@ export type Expression = ExpressionMap[keyof ExpressionMap]
 export interface BaseExpression extends BaseNode {
   annotatedType?: Type
   inferredType?: Type
+  tail?: boolean
 }
 
 export interface PatternMap {
@@ -111,8 +142,8 @@ export interface BasePattern extends BaseNode {
   inferredType?: Type
 }
 
-export interface CallExpression extends BaseExpression {
-  type: 'CallExpression'
+export interface ApplicationExpression extends BaseExpression {
+  type: 'ApplicationExpression'
   callee: Expression
   args: Array<Expression>
   isInfix: boolean
@@ -129,6 +160,18 @@ export interface LambdaExpression extends BaseExpression {
   type: 'LambdaExpression'
   params: Array<Pattern>
   body: Expression
+  recursiveId?: string
+}
+
+export interface LetExpression extends BaseExpression {
+  type: 'LetExpression'
+  declarations: DeclarationList
+  body: SequenceExpression
+}
+
+export interface SequenceExpression extends BaseExpression {
+  type: 'SequenceExpression'
+  expressions: Expression[]
 }
 
 export interface Identifier extends BaseExpression, BasePattern {

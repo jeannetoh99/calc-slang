@@ -42,9 +42,15 @@ expression
    | left=expression op=('andalso' | 'orelse') right=expression                     # InfixApplication
    | left=expression op='^' right=expression                                        # InfixApplication
    | 'if' pred=expression 'then' cons=expression 'else' alt=expression              # ConditionalExpression
-   | 'fn' pattern '=>' expression                                                   # LambdaExpression
+   | lambda                                                                         # LambdaExpression
+   | 'let' declarationList 'in' expressionList 'end'                                # LetExpression
    | '(' expression ')'                                                             # ParenthesizedExpression
+   | '(' expressionList ')'                                                         # SequenceExpression
    ;
+
+lambda : 'fn' pattern '=>' expression;
+
+expressionList : expression (';' expression)*;
 
 pattern
    : literal                                    # LiteralPattern
@@ -54,9 +60,13 @@ pattern
    ;
 
 declaration
-   : 'val' pattern '=' expression               # ValueDeclaration
-   | 'fun' identifier pattern '=' expression    # FunctionDeclaration
+   : 'val' pattern '=' expression                                       # ValueDeclaration
+   | 'val' 'rec' identifier '=' lambda                                  # RecursiveDeclaration 
+   | 'fun' identifier pattern '=' expression                            # FunctionDeclaration
+   | 'local' local=declarationList 'in' body=declarationList 'end'      # LocalDeclaration
    ;
+
+declarationList : declaration (';' declaration)*;
 
 statement
    : expression ';'                             # ExpressionStatement

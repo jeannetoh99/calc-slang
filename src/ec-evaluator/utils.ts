@@ -6,11 +6,10 @@ import * as errors from '../errors/errors'
 import { RuntimeSourceError } from '../errors/runtimeSourceError'
 import { arity } from '../stdlib/misc'
 import { Environment, Frame, Value } from '../types'
-import * as ast from '../utils/astCreator'
-import { builtinFunctions, builtinInfixFunctions } from './builtin'
+import { builtinFunctions } from './builtin'
 import * as instr from './instrCreator'
 import { Agenda } from './interpreter'
-import { AgendaItem, BuiltinInstr, ClosureInstr, Instr, InstrType } from './types'
+import { AgendaItem, BuiltinInstr, ClosureInstr, InstrType } from './types'
 
 /**
  * Stack is implemented for agenda and stash registers.
@@ -95,10 +94,12 @@ export const handleSequence = (seq: es.Statement[]): AgendaItem[] => {
 
 export const currentEnvironment = (context: Context) => context.runtime.environments[0]
 
+export const localEnvironment = (context: Context) => context.runtime.localEnvironments[0]
+
 export const createEnvironment = (
   closure: ClosureInstr,
   args: Value[],
-  callExpression: es.CallExpression
+  callExpression: es.ApplicationExpression
 ): Environment => {
   const id = uniqueId()
   const environment: Environment = {
@@ -126,14 +127,20 @@ export const pushEnvironment = (context: Context, environment: Environment) => {
   context.runtime.environmentTree.insert(environment)
 }
 
+export const popLocalEnvironment = (context: Context) => context.runtime.localEnvironments.shift()
+
+export const pushLocalEnvironment = (context: Context, environment: Environment) => {
+  context.runtime.localEnvironments.unshift(environment)
+}
+
 export const createBlockEnvironment = (
-  context: Context,
+  tail: Environment,
   name = 'blockEnvironment',
   head: Frame = {}
 ): Environment => {
   return {
     name,
-    tail: currentEnvironment(context),
+    tail,
     head,
     id: uniqueId()
   }
@@ -144,44 +151,51 @@ export const createBlockEnvironment = (
 
 const DECLARED_BUT_NOT_YET_ASSIGNED = Symbol('Used to implement hoisting')
 
-function declareIdentifier(context: Context, name: string, node: es.Node) {
-  const environment = currentEnvironment(context)
+function declareIdentifier(environment: Environment, name: string, node: es.Node) {
   if (!environment.head.hasOwnProperty(name)) {
     environment.head[name] = DECLARED_BUT_NOT_YET_ASSIGNED
   }
   return environment
 }
 
-function declareVariables(context: Context, node: es.ValueDeclaration) {
+function declareVariables(environment: Environment, node: es.ValueDeclaration) {
   for (const declaration of node.declarations) {
-    declareIdentifier(context, (declaration.id as es.Identifier).name, node)
+    declareIdentifier(environment, (declaration.id as es.Identifier).name, node)
   }
 }
 
-export function declareFunctionsAndVariables(context: Context, node: es.BlockStatement) {
+export function declareFunctionsAndVariables(
+  environment: Environment,
+  node: es.BlockStatement | es.DeclarationList
+) {
   for (const statement of node.body) {
     switch (statement.type) {
       case 'ValueDeclaration':
-        declareVariables(context, statement)
+        declareVariables(environment, statement)
+        break
+      case 'FunctionDeclaration':
+        declareIdentifier(environment, (statement.id as es.Identifier).name, statement)
         break
     }
   }
 }
 
-export function defineVariable(context: Context, name: string, value: Value, constant = false) {
-  const environment = currentEnvironment(context)
-
+export function defineVariable(
+  environment: Environment,
+  name: string,
+  value: Value,
+  constant = false
+) {
   Object.defineProperty(environment.head, name, {
     value,
     writable: !constant,
     enumerable: true
   })
-
   return environment
 }
 
 export const getVariable = (context: Context, name: string, node: es.Identifier) => {
-  let environment: Environment | null = currentEnvironment(context)
+  let environment: Environment | null = localEnvironment(context) ?? currentEnvironment(context)
   while (environment) {
     if (environment.head.hasOwnProperty(name)) {
       if (environment.head[name] === DECLARED_BUT_NOT_YET_ASSIGNED) {
@@ -208,7 +222,7 @@ export const checkNumberOfArguments = (
   context: Context,
   callee: ClosureInstr | BuiltinInstr,
   args: Value[],
-  exp: es.CallExpression
+  exp: es.ApplicationExpression
 ) => {
   if (callee?.instrType === InstrType.CLOSURE) {
     // User-defined or Pre-defined functions
@@ -240,7 +254,7 @@ export const checkNumberOfArguments = (
  */
 export const checkStackOverFlow = (context: Context, agenda: Agenda) => {
   if (agenda.size() > 100000) {
-    const stacks: es.CallExpression[] = []
+    const stacks: es.ApplicationExpression[] = []
     let counter = 0
     for (
       let i = 0;
@@ -263,6 +277,6 @@ export const checkStackOverFlow = (context: Context, agenda: Agenda) => {
 export const populateBuiltInIdentifiers = (context: Context) => {
   for (const key in builtinFunctions) {
     const builtinInstr = instr.builtinInstr(key, arity(builtinFunctions[key]), false)
-    defineVariable(context, key, builtinInstr)
+    defineVariable(currentEnvironment(context), key, builtinInstr)
   }
 }
