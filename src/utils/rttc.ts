@@ -47,7 +47,7 @@ export const checkIsBool = (node: es.Node, side: string, test: es.Literal) => {
   return isBool(test) ? undefined : new TypeError(node, side, 'boolean', test.litType)
 }
 
-export const checkIsUnit = (node: es.Node, side: string, test:es.Literal) => {
+export const checkIsUnit = (node: es.Node, side: string, test: es.Literal) => {
   return isUnit(test) ? undefined : new TypeError(node, side, 'unit', test.litType)
 }
 
