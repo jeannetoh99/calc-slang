@@ -261,7 +261,7 @@ class AstConverter implements CalcVisitor<es.Node> {
       type: 'Literal',
       litType: 'unit',
       value: undefined,
-      raw: undefined,
+      raw: ctx.text,
       loc: contextToLocation(ctx)
     }
   }
