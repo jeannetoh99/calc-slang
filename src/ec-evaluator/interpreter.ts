@@ -174,8 +174,8 @@ function unwrapList(list: Value): Value {
     if (list?.type == 'Literal') return list.value
     else return list
   }
-  return list.map((element) => {
-      return unwrapList(element)
+  return list.map(element => {
+    return unwrapList(element)
   })
 }
 
