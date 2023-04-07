@@ -5,6 +5,7 @@ import { ErrorNode } from 'antlr4ts/tree/ErrorNode'
 import { ParseTree } from 'antlr4ts/tree/ParseTree'
 import { RuleNode } from 'antlr4ts/tree/RuleNode'
 import { TerminalNode } from 'antlr4ts/tree/TerminalNode'
+import { unwatchFile } from 'fs'
 
 import * as es from '../ast'
 import { CalcLexer } from '../lang/CalcLexer'
@@ -15,6 +16,7 @@ import {
   DeclarationContext,
   DeclarationListContext,
   DeclarationStatementContext,
+  EmptyListExpressionContext,
   ExpressionContext,
   ExpressionListContext,
   ExpressionStatementContext,
@@ -28,6 +30,7 @@ import {
   LambdaContext,
   LambdaExpressionContext,
   LetExpressionContext,
+  ListExpressionContext,
   LiteralContext,
   LiteralExpressionContext,
   LiteralPatternContext,
@@ -177,6 +180,20 @@ class AstConverter implements CalcVisitor<es.Node> {
       type: 'LetExpression',
       declarations: this.visit(ctx.declarationList()) as es.DeclarationList,
       body: this.visit(ctx.expressionList()) as es.SequenceExpression,
+      loc: contextToLocation(ctx)
+    }
+  }
+  visitListExpression(ctx: ListExpressionContext): es.ListExpression {
+    console.log('visit list expression ctx: ' + ctx.listElements)
+    return {
+      type: 'ListExpression',
+      elements: ctx.listElements().expression().map(expr => this.visit(expr) as es.Expression),
+      loc: contextToLocation(ctx)
+    }
+  }
+  visitEmptyListExpression(ctx: EmptyListExpressionContext): es.EmptyListExpression {
+    return {
+      type: 'EmptyListExpression',
       loc: contextToLocation(ctx)
     }
   }

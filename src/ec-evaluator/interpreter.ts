@@ -28,9 +28,9 @@ import {
   EnvInstr,
   Instr,
   InstrType,
+  ListInstr,
   LocalEnvInstr,
-  TailCallInstr
-} from './types'
+  TailCallInstr} from './types'
 import {
   checkNumberOfArguments,
   checkStackOverFlow,
@@ -409,7 +409,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
       body: [command.declarations, expressionStatement(command.body)]
     }
     agenda.push(blockStmt)
-  },
+  }, 
 
   SequenceExpression: function (
     command: es.SequenceExpression,
@@ -419,6 +419,27 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
   ) {
     const expressionStatements = command.expressions.map(expr => expressionStatement(expr))
     agenda.push(...handleSequence(expressionStatements))
+  },
+
+  ListExpression: function (
+    command: es.ListExpression,
+    context: Context,
+    agenda: Agenda,
+    stash: Stash
+  ) {
+    agenda.push(instr.listInstr(command.elements.length, command))
+    for (let i = command.elements.length - 1; i >= 0; i--) {
+      agenda.push(command.elements[i])
+    } 
+  },
+
+  EmptyListExpression: function (
+    command: es.EmptyListExpression,
+    context: Context,
+    agenda: Agenda,
+    stash: Stash
+  ) {
+    stash.push([])
   },
 
   /**
@@ -499,5 +520,13 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     stash: Stash
   ) {
     evaluateCallInstr(command, context, agenda, stash)
+  },
+
+  [InstrType.LIST]: function (command: ListInstr, context: Context, agenda: Agenda, stash: Stash) {
+    const elements: es.Literal[] = []
+    for (let i = 0; i < command.arity; i++) {
+      elements.push(stash.pop().value)
+    }
+    stash.push(elements.reverse())
   }
 }
