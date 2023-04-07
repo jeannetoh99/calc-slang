@@ -120,7 +120,9 @@ export interface ExpressionMap {
   SequenceExpression: SequenceExpression
 }
 
-export type Type = 'int' | 'bool' | 'real' | 'string' | 'unit'
+export type Type = PrimitiveType
+
+export type PrimitiveType = 'int' | 'bool' | 'real' | 'string' | 'unit'
 
 export type Expression = ExpressionMap[keyof ExpressionMap]
 

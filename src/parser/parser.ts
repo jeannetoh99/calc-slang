@@ -203,8 +203,14 @@ class AstConverter implements CalcVisitor<es.Node> {
   }
   visitExpressionStatement(ctx: ExpressionStatementContext): es.Statement {
     return {
-      type: 'ExpressionStatement',
-      expression: this.visit(ctx.expression()) as es.Expression,
+      type: 'ValueDeclaration',
+      declarations: [
+        {
+          type: 'ValueDeclarator',
+          id: identifier('it', contextToLocation(ctx)),
+          init: this.visit(ctx.expression()) as es.Expression,
+        }
+      ],
       loc: contextToLocation(ctx)
     }
   }

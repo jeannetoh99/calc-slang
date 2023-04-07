@@ -11,7 +11,7 @@ import { cloneDeep } from 'lodash'
 import * as es from '../ast'
 import * as errors from '../errors/errors'
 import { arity } from '../stdlib/misc'
-import { Context, Environment, Result, Value } from '../types'
+import { Context, Result, Value } from '../types'
 import { expressionStatement } from '../utils/astCreator'
 import * as rttc from '../utils/rttc'
 import { applyBuiltin, builtinInfixFunctions, builtinMapping, checkBuiltin } from './builtin'
@@ -161,9 +161,7 @@ function runECEMachine(context: Context, agenda: Agenda, stash: Stash) {
     }
     command = agenda.pop()
   }
-  let res = stash.peek()
-  if (res?.type == 'Literal') res = res.value
-  return res
+  return context.globalDeclarations
 }
 
 export const evaluateCallInstr = (
@@ -248,16 +246,18 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
   },
 
   ValueDeclaration: function (command: es.ValueDeclaration, context: Context, agenda: Agenda) {
-    const declaration: es.ValueDeclarator = command.declarations[0]
-    const id = declaration.id as es.Identifier
+    const env = command.declEnv ?? currentEnvironment(context)
+    for (let declaration of command.declarations) {
+      const id = declaration.id as es.Identifier
 
-    // Parser enforces initialisation during variable declaration
-    const init = declaration.init!
+      // Parser enforces initialisation during variable declaration
+      const init = declaration.init!
 
-    agenda.push(
-      instr.assmtInstr(id.name, true, command, command.declEnv ?? currentEnvironment(context))
-    )
-    agenda.push(init)
+      agenda.push(
+        instr.assmtInstr(id.name, true, command, env)
+      )
+      agenda.push(init)
+    }
   },
 
   RecValueDeclaration: function (
@@ -392,7 +392,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     }
     const env = cloneDeep(currentEnvironment(context))
     if (command.recursiveId) {
-      defineVariable(env, command.recursiveId, instr.closureInstr(env, command))
+      defineVariable(context, env, command.recursiveId, instr.closureInstr(env, command))
     }
 
     stash.push(instr.closureInstr(env, command))
@@ -438,7 +438,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
         new errors.ReservedKeywordVariable(command.srcNode, command.symbol, 'builtin function')
       )
     }
-    defineVariable(command.env, command.symbol, stash.peek(), false)
+    defineVariable(context, command.env, command.symbol, stash.peek(), false)
   },
 
   [InstrType.BRANCH]: function (

@@ -135,6 +135,11 @@ export interface Context<T = any> {
    * Code previously executed in this context
    */
   previousCode: string[]
+
+  /**
+   * 
+   */
+  globalDeclarations: DeclarationType[]
 }
 
 export type ModuleContext = {
@@ -350,3 +355,8 @@ export type TypeEnvironment = {
   declKindMap: Map<string, AllowedDeclarations>
   typeAliasMap: Map<string, Type>
 }[]
+
+export type DeclarationType = {
+  name: string
+  value: Value
+}
