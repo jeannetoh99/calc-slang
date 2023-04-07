@@ -6,6 +6,7 @@
  */
 
 /* tslint:disable:max-classes-per-file */
+import { Literal } from 'estree'
 import { cloneDeep } from 'lodash'
 
 import * as es from '../ast'
@@ -164,8 +165,18 @@ function runECEMachine(context: Context, agenda: Agenda, stash: Stash) {
   }
   let res = stash.peek()
   if (res?.type == 'Literal') res = res.value
-  else if (Array.isArray(res)) res = res.map(e => e.value)
+  else if (Array.isArray(res)) res = unwrapList(res)
   return res
+}
+
+function unwrapList(list: Value): Value {
+  if (!Array.isArray(list)) {
+    if (list?.type == 'Literal') return list.value
+    else return list
+  }
+  return list.map((element) => {
+      return unwrapList(element)
+  })
 }
 
 export const evaluateCallInstr = (
