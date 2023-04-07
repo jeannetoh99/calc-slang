@@ -1,4 +1,4 @@
-import { ImportSpecifier } from 'estree';
+import { ImportSpecifier } from 'estree'
 
 import {
   BlockStatement,
@@ -7,15 +7,10 @@ import {
   LambdaExpression,
   Node,
   SourceLocation,
-  ValueDeclarator,
+  ValueDeclarator
 } from './ast'
 import { Context } from './types'
-import {
-  ancestor,
-  findNodeAt,
-  recursive,
-  WalkerCallback,
-} from './utils/walkers'
+import { ancestor, findNodeAt, recursive, WalkerCallback } from './utils/walkers'
 
 // Finds the innermost node that matches the given location
 export function findIdentifierNode(
@@ -80,7 +75,7 @@ export function findDeclarationNode(program: Node, identifier: Identifier): Node
         if ((node.id as Identifier).name === identifier.name) {
           declarations.push(node.id)
         }
-      },
+      }
     })
     if (declarations.length > 0) {
       return declarations.shift()
@@ -127,26 +122,23 @@ export function isInLoc(line: number, col: number, location: SourceLocation): bo
 
 export function findAncestors(root: Node, identifier: Identifier): Node[] | undefined {
   let foundAncestors: Node[] = []
-  ancestor(
-    root,
-    {
-      Identifier: (node: Identifier, ancestors: [Node]) => {
-        if (identifier.name === node.name && identifier.loc === node.loc) {
-          foundAncestors = Object.assign([], ancestors).reverse()
-          foundAncestors.shift() // Remove the identifier node
-        }
-      },
-      /* We need a separate visitor for VariablePattern because
+  ancestor(root, {
+    Identifier: (node: Identifier, ancestors: [Node]) => {
+      if (identifier.name === node.name && identifier.loc === node.loc) {
+        foundAncestors = Object.assign([], ancestors).reverse()
+        foundAncestors.shift() // Remove the identifier node
+      }
+    },
+    /* We need a separate visitor for VariablePattern because
     acorn walk ignores Identifers on the left side of expressions.
     Here is a github issue in acorn-walk related to this:
     https://github.com/acornjs/acorn/issues/686
     */
-      VariablePattern: (node: any, ancestors: [Node]) => {
-        if (identifier.name === node.name && identifier.loc === node.loc) {
-          foundAncestors = Object.assign([], ancestors).reverse()
-        }
+    VariablePattern: (node: any, ancestors: [Node]) => {
+      if (identifier.name === node.name && identifier.loc === node.loc) {
+        foundAncestors = Object.assign([], ancestors).reverse()
       }
     }
-  )
+  })
   return foundAncestors
 }

@@ -45,7 +45,7 @@ interface TestOptions {
 export function createTestContext({
   context,
   chapter = Chapter.CALC,
-  variant = Variant.DEFAULT,
+  variant = Variant.DEFAULT
 }: {
   context?: TestContext
   chapter?: Chapter

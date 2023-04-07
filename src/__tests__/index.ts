@@ -1,10 +1,6 @@
-import { Value } from '../types'
 import {
     expectResult,
 } from '../utils/testing'
-
-const toString = (x: Value) => '' + x
-
 
 ////////////////////////////////////// LITERALS //////////////////////////////////////
 
