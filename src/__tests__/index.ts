@@ -1,6 +1,6 @@
 import { expectResult } from '../utils/testing'
 
-////////////////////////////////////// LITERALS //////////////////////////////////////
+///////////////////// LITERALS /////////////////////
 
 test('Empty code returns undefined', () => {
   return expectResult('').toBe(undefined)
