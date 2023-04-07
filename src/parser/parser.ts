@@ -297,7 +297,7 @@ class AstConverter implements CalcVisitor<es.Node> {
     return {
       type: 'Literal',
       litType: 'string',
-      value: ctx.text.substring(1, ctx.text.length - 1),
+      value: eval(ctx.text),
       raw: ctx.text,
       loc: contextToLocation(ctx)
     }

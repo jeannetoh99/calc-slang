@@ -3,10 +3,11 @@ grammar Calc;
 /*
  * Tokens (terminal)
  */
+
 INTEGER_LITERAL: [0-9]+;
 BOOLEAN_LITERAL: 'true' | 'false';
 REAL_LITERAL: ([0-9]+[.])?[0-9]+([eE][~]?[0-9]+)?;
-STRING_LITERAL:  '"' ('\\' ["\\] | ~["\\\r\n])* '"' ;
+STRING_LITERAL:  '"' ( '\\' [btnfr"'\\] | ~[\r\n\\"] )* '"';
 UNIT_LITERAL: '()';
 NIL: 'nil' | '[' WHITESPACE* ']' ;
 

@@ -1,0 +1,93 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Empty code returns undefined: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": undefined,
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Multiline string self-evaluates to itself: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "\\"1\\\\n1\\";",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "1
+1",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Single boolean self-evaluates to itself: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "true;",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": true,
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Single integer self-evaluates to itself: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "42;",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": 42,
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Single real self-evaluates to itself: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "42.5;",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": 42.5,
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Single string self-evaluates to itself: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "\\"42\\";",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "42",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Unit evaluates to undefined: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "();",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": undefined,
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
