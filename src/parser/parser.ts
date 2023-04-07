@@ -41,6 +41,7 @@ import {
   StringContext,
   TypedExpressionContext,
   TypedPatternContext,
+  UnitContext,
   ValueDeclarationContext
 } from '../lang/CalcParser'
 import { CalcVisitor } from '../lang/CalcVisitor'
@@ -276,6 +277,15 @@ class AstConverter implements CalcVisitor<es.Node> {
       type: 'Literal',
       litType: 'string',
       value: ctx.text.substring(1, ctx.text.length - 1),
+      raw: ctx.text,
+      loc: contextToLocation(ctx)
+    }
+  }
+  visitUnit(ctx: UnitContext): es.UnitLiteral {
+    return {
+      type: 'Literal',
+      litType: 'unit',
+      value: undefined,
       raw: ctx.text,
       loc: contextToLocation(ctx)
     }
