@@ -30,7 +30,8 @@ import {
   InstrType,
   ListInstr,
   LocalEnvInstr,
-  TailCallInstr} from './types'
+  TailCallInstr
+} from './types'
 import {
   checkNumberOfArguments,
   checkStackOverFlow,
@@ -409,7 +410,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
       body: [command.declarations, expressionStatement(command.body)]
     }
     agenda.push(blockStmt)
-  }, 
+  },
 
   SequenceExpression: function (
     command: es.SequenceExpression,
@@ -430,7 +431,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     agenda.push(instr.listInstr(command.elements.length, command))
     for (let i = command.elements.length - 1; i >= 0; i--) {
       agenda.push(command.elements[i])
-    } 
+    }
   },
 
   EmptyListExpression: function (
