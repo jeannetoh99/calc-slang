@@ -105,7 +105,7 @@ export const createEmptyContext = <T>(
     moduleContexts: {},
     unTypecheckedCode: [],
     previousCode: [],
-    globalDeclarations: [],
+    globalDeclarations: []
   }
 }
 

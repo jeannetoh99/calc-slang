@@ -137,7 +137,7 @@ export interface Context<T = any> {
   previousCode: string[]
 
   /**
-   * 
+   *
    */
   globalDeclarations: DeclarationType[]
 }

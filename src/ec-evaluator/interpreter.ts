@@ -247,15 +247,13 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
 
   ValueDeclaration: function (command: es.ValueDeclaration, context: Context, agenda: Agenda) {
     const env = command.declEnv ?? currentEnvironment(context)
-    for (let declaration of command.declarations) {
+    for (const declaration of command.declarations) {
       const id = declaration.id as es.Identifier
 
       // Parser enforces initialisation during variable declaration
       const init = declaration.init!
 
-      agenda.push(
-        instr.assmtInstr(id.name, true, command, env)
-      )
+      agenda.push(instr.assmtInstr(id.name, true, command, env))
       agenda.push(init)
     }
   },

@@ -208,7 +208,7 @@ class AstConverter implements CalcVisitor<es.Node> {
         {
           type: 'ValueDeclarator',
           id: identifier('it', contextToLocation(ctx)),
-          init: this.visit(ctx.expression()) as es.Expression,
+          init: this.visit(ctx.expression()) as es.Expression
         }
       ],
       loc: contextToLocation(ctx)
