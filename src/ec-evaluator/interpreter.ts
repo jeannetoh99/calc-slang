@@ -149,7 +149,7 @@ function runECEMachine(context: Context, agenda: Agenda, stash: Stash) {
   context.runtime.nodes = []
   let command = agenda.pop()
   while (command) {
-    // console.log(command)
+    console.log(command)
     // console.log(currentEnvironment(context))
     if (isNode(command)) {
       context.runtime.nodes.unshift(command)
@@ -274,7 +274,6 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     )
     command.lambda.recursiveId = command.id.name
     agenda.push(command.lambda)
-    stash.push(true) // recursive
   },
 
   FunctionDeclaration: function (
@@ -389,6 +388,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
       command.body.tail = true
     }
     const env = cloneDeep(currentEnvironment(context))
+    env.name += "_clone"
     if (command.recursiveId) {
       defineVariable(context, env, command.recursiveId, instr.closureInstr(env, command))
     }
