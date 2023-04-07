@@ -395,12 +395,15 @@ export function parse(source: string, context: Context) {
   let program: es.Program | undefined
 
   if (context.variant === 'calc') {
+    const errorListener = new ThrowingErrorListener()
     const inputStream = CharStreams.fromString(source)
     const lexer = new CalcLexer(inputStream)
+    lexer.removeErrorListeners()
+    lexer.addErrorListener(errorListener)
     const tokenStream = new CommonTokenStream(lexer)
     const parser = new CalcParser(tokenStream)
     parser.removeErrorListeners()
-    parser.addErrorListener(new ThrowingErrorListener())
+    parser.addErrorListener(errorListener)
     parser.buildParseTree = true
     try {
       const tree = parser.program()
