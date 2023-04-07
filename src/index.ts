@@ -18,6 +18,7 @@ import {
 export { SourceDocumentation } from './editors/ace/docTooltip'
 
 import { CannotFindModuleError } from './errors/localImportErrors'
+import { findDeclarationNode, findIdentifierNode } from './finder'
 import { resolvedErrorPromise, sourceFilesRunner } from './runner'
 
 export interface IOptions {
@@ -58,15 +59,15 @@ export function findDeclaration(
   if (!program) {
     return null
   }
-  // const identifierNode = findIdentifierNode(program, context, loc)
-  // if (!identifierNode) {
-  //   return null
-  // }
-  // const declarationNode = findDeclarationNode(program, identifierNode)
-  // if (!declarationNode || identifierNode === declarationNode) {
-  //   return null
-  // }
-  // return declarationNode.loc
+  const identifierNode = findIdentifierNode(program, context, loc)
+  if (!identifierNode) {
+    return null
+  }
+  const declarationNode = findDeclarationNode(program, identifierNode)
+  if (!declarationNode || identifierNode === declarationNode) {
+    return null
+  }
+  return declarationNode.loc
   return null
 }
 
@@ -79,14 +80,14 @@ export function hasDeclaration(
   if (!program) {
     return false
   }
-  // const identifierNode = findIdentifierNode(program, context, loc)
-  // if (!identifierNode) {
-  //   return false
-  // }
-  // const declarationNode = findDeclarationNode(program, identifierNode)
-  // if (declarationNode == null || declarationNode.loc == null) {
-  //   return false
-  // }
+  const identifierNode = findIdentifierNode(program, context, loc)
+  if (!identifierNode) {
+    return false
+  }
+  const declarationNode = findDeclarationNode(program, identifierNode)
+  if (declarationNode == null || declarationNode.loc == null) {
+    return false
+  }
 
   return false
 }

@@ -149,7 +149,7 @@ function runECEMachine(context: Context, agenda: Agenda, stash: Stash) {
   context.runtime.nodes = []
   let command = agenda.pop()
   while (command) {
-    console.log(command)
+    // console.log(command)
     // console.log(currentEnvironment(context))
     if (isNode(command)) {
       context.runtime.nodes.unshift(command)
