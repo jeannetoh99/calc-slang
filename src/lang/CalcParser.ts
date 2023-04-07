@@ -3,25 +3,24 @@
 
 import { ATN } from "antlr4ts/atn/ATN";
 import { ATNDeserializer } from "antlr4ts/atn/ATNDeserializer";
-import { FailedPredicateException } from "antlr4ts/FailedPredicateException";
+import { ParserATNSimulator } from "antlr4ts/atn/ParserATNSimulator";
 import { NotNull } from "antlr4ts/Decorators";
-import { NoViableAltException } from "antlr4ts/NoViableAltException";
 import { Override } from "antlr4ts/Decorators";
+import { FailedPredicateException } from "antlr4ts/FailedPredicateException";
+import * as Utils from "antlr4ts/misc/Utils";
+import { NoViableAltException } from "antlr4ts/NoViableAltException";
 import { Parser } from "antlr4ts/Parser";
 import { ParserRuleContext } from "antlr4ts/ParserRuleContext";
-import { ParserATNSimulator } from "antlr4ts/atn/ParserATNSimulator";
-import { ParseTreeListener } from "antlr4ts/tree/ParseTreeListener";
-import { ParseTreeVisitor } from "antlr4ts/tree/ParseTreeVisitor";
 import { RecognitionException } from "antlr4ts/RecognitionException";
 import { RuleContext } from "antlr4ts/RuleContext";
-//import { RuleVersion } from "antlr4ts/RuleVersion";
-import { TerminalNode } from "antlr4ts/tree/TerminalNode";
 import { Token } from "antlr4ts/Token";
 import { TokenStream } from "antlr4ts/TokenStream";
+import { ParseTreeListener } from "antlr4ts/tree/ParseTreeListener";
+import { ParseTreeVisitor } from "antlr4ts/tree/ParseTreeVisitor";
+//import { RuleVersion } from "antlr4ts/RuleVersion";
+import { TerminalNode } from "antlr4ts/tree/TerminalNode";
 import { Vocabulary } from "antlr4ts/Vocabulary";
 import { VocabularyImpl } from "antlr4ts/VocabularyImpl";
-
-import * as Utils from "antlr4ts/misc/Utils";
 
 import { CalcListener } from "./CalcListener";
 import { CalcVisitor } from "./CalcVisitor";
@@ -127,7 +126,7 @@ export class CalcParser extends Parser {
 	}
 	// @RuleVersion(0)
 	public identifier(): IdentifierContext {
-		let _localctx: IdentifierContext = new IdentifierContext(this._ctx, this.state);
+		const _localctx: IdentifierContext = new IdentifierContext(this._ctx, this.state);
 		this.enterRule(_localctx, 0, CalcParser.RULE_identifier);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -225,11 +224,11 @@ export class CalcParser extends Parser {
 			_p = 0;
 		}
 
-		let _parentctx: ParserRuleContext = this._ctx;
-		let _parentState: number = this.state;
+		const _parentctx: ParserRuleContext = this._ctx;
+		const _parentState: number = this.state;
 		let _localctx: ExpressionContext = new ExpressionContext(this._ctx, _parentState);
 		let _prevctx: ExpressionContext = _localctx;
-		let _startState: number = 4;
+		const _startState: number = 4;
 		this.enterRecursionRule(_localctx, 4, CalcParser.RULE_expression, _p);
 		let _la: number;
 		try {
@@ -527,7 +526,7 @@ export class CalcParser extends Parser {
 	}
 	// @RuleVersion(0)
 	public lambda(): LambdaContext {
-		let _localctx: LambdaContext = new LambdaContext(this._ctx, this.state);
+		const _localctx: LambdaContext = new LambdaContext(this._ctx, this.state);
 		this.enterRule(_localctx, 6, CalcParser.RULE_lambda);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -558,7 +557,7 @@ export class CalcParser extends Parser {
 	}
 	// @RuleVersion(0)
 	public expressionList(): ExpressionListContext {
-		let _localctx: ExpressionListContext = new ExpressionListContext(this._ctx, this.state);
+		const _localctx: ExpressionListContext = new ExpressionListContext(this._ctx, this.state);
 		this.enterRule(_localctx, 8, CalcParser.RULE_expressionList);
 		let _la: number;
 		try {
@@ -607,11 +606,11 @@ export class CalcParser extends Parser {
 			_p = 0;
 		}
 
-		let _parentctx: ParserRuleContext = this._ctx;
-		let _parentState: number = this.state;
+		const _parentctx: ParserRuleContext = this._ctx;
+		const _parentState: number = this.state;
 		let _localctx: PatternContext = new PatternContext(this._ctx, _parentState);
 		let _prevctx: PatternContext = _localctx;
-		let _startState: number = 10;
+		const _startState: number = 10;
 		this.enterRecursionRule(_localctx, 10, CalcParser.RULE_pattern, _p);
 		try {
 			let _alt: number;
@@ -795,7 +794,7 @@ export class CalcParser extends Parser {
 	}
 	// @RuleVersion(0)
 	public declarationList(): DeclarationListContext {
-		let _localctx: DeclarationListContext = new DeclarationListContext(this._ctx, this.state);
+		const _localctx: DeclarationListContext = new DeclarationListContext(this._ctx, this.state);
 		this.enterRule(_localctx, 14, CalcParser.RULE_declarationList);
 		let _la: number;
 		try {
@@ -894,7 +893,7 @@ export class CalcParser extends Parser {
 	}
 	// @RuleVersion(0)
 	public program(): ProgramContext {
-		let _localctx: ProgramContext = new ProgramContext(this._ctx, this.state);
+		const _localctx: ProgramContext = new ProgramContext(this._ctx, this.state);
 		this.enterRule(_localctx, 18, CalcParser.RULE_program);
 		let _la: number;
 		try {
