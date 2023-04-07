@@ -8,24 +8,35 @@ export interface ArrayLike {
   replArrayContents: () => Value[]
 }
 
-const formatDeclaration = (declaration: DeclarationType) => {
-  const type = declaration.value.type === 'Literal' ? declaration.value.litType : 'function'
-  const val =
-    declaration.value.type === 'Literal'
-      ? declaration.value.litType === 'string'
-        ? '"' + declaration.value.value + '"'
-        : declaration.value.litType === 'real' && isInteger(declaration.value.value)
-        ? declaration.value.value + '.0'
-        : declaration.value.value
-      : 'fn'
-
-  return ['val', declaration.name, '=', val, ':', type].join(' ') + ';'
+export type ResultType = {
+  name: string
+  value: Value
+  type: string
 }
 
-const formatDeclarations = (declarations: DeclarationType[]) => {
-  return declarations.map(formatDeclaration).join('\n')
+const formatResult = (result: ResultType) => {
+  return ['val', result.name, '=', result.value, ':', result.type].join(' ') + ';'
+}
+
+const extractDeclaration = (declaration: DeclarationType) : ResultType => {
+  const type = declaration.value.type === 'Literal' ? declaration.value.litType : 'function'
+  const value =
+    declaration.value.type === 'Literal'
+      ? declaration.value.litType === 'string'
+      ? '"' + declaration.value.value + '"'
+      : declaration.value.litType === 'unit'
+      ? '()'
+      : declaration.value.litType === 'real' && isInteger(declaration.value.value)
+      ? declaration.value.value + '.0'
+      : declaration.value.value
+      : 'fn'
+  return {name: declaration.name, value, type};
+}
+
+export const formatResults = (result: ResultType[]) => {
+  return result.map(formatResult).join('\n')
 }
 
 export const stringify = (value: Value): string => {
-  return formatDeclarations(value)
+  return value.map(extractDeclaration).map(formatResult).join("\n")
 }

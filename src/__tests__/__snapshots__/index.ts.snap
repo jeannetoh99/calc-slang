@@ -7,7 +7,7 @@ Object {
   "displayResult": Array [],
   "numErrors": 0,
   "parsedErrors": "",
-  "result": undefined,
+  "result": "",
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }
@@ -20,8 +20,8 @@ Object {
   "displayResult": Array [],
   "numErrors": 0,
   "parsedErrors": "",
-  "result": "1
-1",
+  "result": "val it = \\"1
+1\\" : string;",
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }
@@ -34,7 +34,7 @@ Object {
   "displayResult": Array [],
   "numErrors": 0,
   "parsedErrors": "",
-  "result": true,
+  "result": "val it = true : bool;",
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }
@@ -47,7 +47,7 @@ Object {
   "displayResult": Array [],
   "numErrors": 0,
   "parsedErrors": "",
-  "result": 42,
+  "result": "val it = 42 : int;",
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }
@@ -60,7 +60,7 @@ Object {
   "displayResult": Array [],
   "numErrors": 0,
   "parsedErrors": "",
-  "result": 42.5,
+  "result": "val it = 42.5 : real;",
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }
@@ -73,7 +73,7 @@ Object {
   "displayResult": Array [],
   "numErrors": 0,
   "parsedErrors": "",
-  "result": "42",
+  "result": "val it = \\"42\\" : string;",
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }
@@ -86,7 +86,7 @@ Object {
   "displayResult": Array [],
   "numErrors": 0,
   "parsedErrors": "",
-  "result": undefined,
+  "result": "val it = () : unit;",
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }
