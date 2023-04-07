@@ -40,6 +40,7 @@ import {
   ProgramContext,
   RealContext,
   RecursiveDeclarationContext,
+  SequenceExpressionContext,
   StatementContext,
   StringContext,
   TypedExpressionContext,
@@ -202,6 +203,9 @@ class AstConverter implements CalcVisitor<es.Node> {
   }
   visitParenthesizedExpression(ctx: ParenthesizedExpressionContext): es.Expression {
     return this.visit(ctx.expression()) as es.Expression
+  }
+  visitSequenceExpression(ctx: SequenceExpressionContext): es.SequenceExpression {
+    return this.visit(ctx.expressionList()) as es.SequenceExpression
   }
   visitLiteralPattern(ctx: LiteralPatternContext): es.Literal {
     return this.visit(ctx.literal()) as es.Literal
