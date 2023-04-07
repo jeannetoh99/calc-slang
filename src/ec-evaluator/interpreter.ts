@@ -434,15 +434,6 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     }
   },
 
-  EmptyListExpression: function (
-    command: es.EmptyListExpression,
-    context: Context,
-    agenda: Agenda,
-    stash: Stash
-  ) {
-    stash.push([])
-  },
-
   /**
    * Instructions
    */
@@ -526,7 +517,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
   [InstrType.LIST]: function (command: ListInstr, context: Context, agenda: Agenda, stash: Stash) {
     const elements: es.Literal[] = []
     for (let i = 0; i < command.arity; i++) {
-      elements.push(stash.pop().value)
+      elements.push(stash.pop())
     }
     stash.push(elements.reverse())
   }

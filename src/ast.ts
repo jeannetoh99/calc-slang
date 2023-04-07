@@ -119,7 +119,6 @@ export interface ExpressionMap {
   Literal: Literal
   SequenceExpression: SequenceExpression
   ListExpression: ListExpression
-  EmptyListExpression: EmptyListExpression
 }
 
 export type Type = 'int' | 'bool' | 'real' | 'string' | 'unit'
@@ -179,10 +178,6 @@ export interface SequenceExpression extends BaseExpression {
 export interface ListExpression extends BaseExpression {
   type: 'ListExpression'
   elements: Expression[]
-}
-
-export interface EmptyListExpression extends BaseExpression {
-  type: 'EmptyListExpression'
 }
 
 export interface Identifier extends BaseExpression, BasePattern {

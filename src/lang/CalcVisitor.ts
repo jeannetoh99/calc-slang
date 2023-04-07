@@ -34,7 +34,6 @@ import { LiteralContext } from './CalcParser'
 import { ExpressionContext } from './CalcParser'
 import { LambdaContext } from './CalcParser'
 import { ExpressionListContext } from './CalcParser'
-import { ListElementsContext } from './CalcParser'
 import { PatternContext } from './CalcParser'
 import { DeclarationContext } from './CalcParser'
 import { DeclarationListContext } from './CalcParser'
@@ -299,13 +298,6 @@ export interface CalcVisitor<Result> extends ParseTreeVisitor<Result> {
    * @return the visitor result
    */
   visitExpressionList?: (ctx: ExpressionListContext) => Result
-
-  /**
-   * Visit a parse tree produced by `CalcParser.listElements`.
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  visitListElements?: (ctx: ListElementsContext) => Result
 
   /**
    * Visit a parse tree produced by `CalcParser.pattern`.

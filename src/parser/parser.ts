@@ -185,19 +185,16 @@ class AstConverter implements CalcVisitor<es.Node> {
     }
   }
   visitListExpression(ctx: ListExpressionContext): es.ListExpression {
-    console.log('visit list expression ctx: ' + ctx.listElements)
     return {
       type: 'ListExpression',
-      elements: ctx
-        .listElements()
-        .expression()
-        .map(expr => this.visit(expr) as es.Expression),
+      elements: ctx.expression().map(expr => this.visit(expr) as es.Expression),
       loc: contextToLocation(ctx)
     }
   }
-  visitEmptyListExpression(ctx: EmptyListExpressionContext): es.EmptyListExpression {
+  visitEmptyListExpression(ctx: EmptyListExpressionContext): es.ListExpression {
     return {
-      type: 'EmptyListExpression',
+      type: 'ListExpression',
+      elements: [],
       loc: contextToLocation(ctx)
     }
   }
