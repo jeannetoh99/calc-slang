@@ -30,3 +30,19 @@ test('Multiline string self-evaluates to itself', () => {
 test('Unit evaluates to undefined', () => {
   return expectResult('();').toBe(undefined)
 })
+
+///////////////// LIST_EXPRESSION //////////////////
+
+test('Empty list evaluates to empty list', () => {
+  return expectResult('[];').toEqual([])
+})
+
+test('List nil evaluates to empty list', () => {
+  return expectResult('nil;').toEqual([])
+})
+
+test('List evaluates to list', () => {
+  return expectResult('[1, 2, 3];').toEqual([1, 2, 3])
+})
+
+// TODO: Add test for type checking of list

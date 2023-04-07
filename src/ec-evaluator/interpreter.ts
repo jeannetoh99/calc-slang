@@ -163,9 +163,9 @@ function runECEMachine(context: Context, agenda: Agenda, stash: Stash) {
     command = agenda.pop()
   }
   let res = stash.peek()
-  console.log("------"+Array.isArray(res))
+  console.log('------' + Array.isArray(res))
   if (res?.type == 'Literal') res = res.value
-  else if (Array.isArray(res)) (res = res.map((e) => e.value))
+  else if (Array.isArray(res)) res = res.map(e => e.value)
   return res
 }
 

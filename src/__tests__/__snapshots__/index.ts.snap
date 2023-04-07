@@ -13,6 +13,49 @@ Object {
 }
 `;
 
+exports[`Empty list evaluates to empty list: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "[];",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": Array [],
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`List evaluates to list: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "[1, 2, 3];",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": Array [
+    1,
+    2,
+    3,
+  ],
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`List nil evaluates to empty list: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "nil;",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": Array [],
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
 exports[`Multiline string self-evaluates to itself: expectResult 1`] = `
 Object {
   "alertResult": Array [],
