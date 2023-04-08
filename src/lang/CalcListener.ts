@@ -4,6 +4,7 @@ import { ParseTreeListener } from 'antlr4ts/tree/ParseTreeListener'
 
 import { LiteralExpressionContext } from './CalcParser'
 import { IdentifierExpressionContext } from './CalcParser'
+import { ListConstructionExpressionContext } from './CalcParser'
 import { TypedExpressionContext } from './CalcParser'
 import { FunctionApplicationContext } from './CalcParser'
 import { InfixApplicationContext } from './CalcParser'
@@ -13,7 +14,6 @@ import { LetExpressionContext } from './CalcParser'
 import { ParenthesizedExpressionContext } from './CalcParser'
 import { SequenceExpressionContext } from './CalcParser'
 import { ListExpressionContext } from './CalcParser'
-import { EmptyListExpressionContext } from './CalcParser'
 import { LiteralPatternContext } from './CalcParser'
 import { IdentifierPatternContext } from './CalcParser'
 import { TypedPatternContext } from './CalcParser'
@@ -24,6 +24,8 @@ import { LiteralTypeContext } from './CalcParser'
 import { ListTypeContext } from './CalcParser'
 import { FunctionTypeContext } from './CalcParser'
 import { ParenthesizedTypeContext } from './CalcParser'
+import { SquareBracketListContext } from './CalcParser'
+import { EmptyListContext } from './CalcParser'
 import { ValueDeclarationContext } from './CalcParser'
 import { RecursiveDeclarationContext } from './CalcParser'
 import { FunctionDeclarationContext } from './CalcParser'
@@ -37,6 +39,7 @@ import { TypeContext } from './CalcParser'
 import { IdentifierContext } from './CalcParser'
 import { LiteralContext } from './CalcParser'
 import { ExpressionContext } from './CalcParser'
+import { ListContext } from './CalcParser'
 import { LambdaContext } from './CalcParser'
 import { ExpressionListContext } from './CalcParser'
 import { PatternContext } from './CalcParser'
@@ -75,6 +78,19 @@ export interface CalcListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   exitIdentifierExpression?: (ctx: IdentifierExpressionContext) => void
+
+  /**
+   * Enter a parse tree produced by the `ListConstructionExpression`
+   * labeled alternative in `CalcParser.expression`.
+   * @param ctx the parse tree
+   */
+  enterListConstructionExpression?: (ctx: ListConstructionExpressionContext) => void
+  /**
+   * Exit a parse tree produced by the `ListConstructionExpression`
+   * labeled alternative in `CalcParser.expression`.
+   * @param ctx the parse tree
+   */
+  exitListConstructionExpression?: (ctx: ListConstructionExpressionContext) => void
 
   /**
    * Enter a parse tree produced by the `TypedExpression`
@@ -192,19 +208,6 @@ export interface CalcListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   exitListExpression?: (ctx: ListExpressionContext) => void
-
-  /**
-   * Enter a parse tree produced by the `EmptyListExpression`
-   * labeled alternative in `CalcParser.expression`.
-   * @param ctx the parse tree
-   */
-  enterEmptyListExpression?: (ctx: EmptyListExpressionContext) => void
-  /**
-   * Exit a parse tree produced by the `EmptyListExpression`
-   * labeled alternative in `CalcParser.expression`.
-   * @param ctx the parse tree
-   */
-  exitEmptyListExpression?: (ctx: EmptyListExpressionContext) => void
 
   /**
    * Enter a parse tree produced by the `LiteralPattern`
@@ -335,6 +338,32 @@ export interface CalcListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   exitParenthesizedType?: (ctx: ParenthesizedTypeContext) => void
+
+  /**
+   * Enter a parse tree produced by the `SquareBracketList`
+   * labeled alternative in `CalcParser.list`.
+   * @param ctx the parse tree
+   */
+  enterSquareBracketList?: (ctx: SquareBracketListContext) => void
+  /**
+   * Exit a parse tree produced by the `SquareBracketList`
+   * labeled alternative in `CalcParser.list`.
+   * @param ctx the parse tree
+   */
+  exitSquareBracketList?: (ctx: SquareBracketListContext) => void
+
+  /**
+   * Enter a parse tree produced by the `EmptyList`
+   * labeled alternative in `CalcParser.list`.
+   * @param ctx the parse tree
+   */
+  enterEmptyList?: (ctx: EmptyListContext) => void
+  /**
+   * Exit a parse tree produced by the `EmptyList`
+   * labeled alternative in `CalcParser.list`.
+   * @param ctx the parse tree
+   */
+  exitEmptyList?: (ctx: EmptyListContext) => void
 
   /**
    * Enter a parse tree produced by the `ValueDeclaration`
@@ -496,6 +525,17 @@ export interface CalcListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   exitExpression?: (ctx: ExpressionContext) => void
+
+  /**
+   * Enter a parse tree produced by `CalcParser.list`.
+   * @param ctx the parse tree
+   */
+  enterList?: (ctx: ListContext) => void
+  /**
+   * Exit a parse tree produced by `CalcParser.list`.
+   * @param ctx the parse tree
+   */
+  exitList?: (ctx: ListContext) => void
 
   /**
    * Enter a parse tree produced by `CalcParser.lambda`.

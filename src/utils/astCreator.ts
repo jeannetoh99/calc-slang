@@ -54,6 +54,16 @@ export const literal = (
   loc
 })
 
+export const list = (
+  value: Array<es.SmlValue>,
+  smlType: es.ListType,
+  loc?: es.SourceLocation | null
+): es.List => ({
+  type: 'List',
+  smlType,
+  value
+})
+
 export const expressionStatement = (expression: es.Expression): es.ExpressionStatement => ({
   type: 'ExpressionStatement',
   expression

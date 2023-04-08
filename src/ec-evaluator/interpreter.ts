@@ -28,10 +28,8 @@ import {
   EnvInstr,
   Instr,
   InstrType,
-  List,
   ListInstr,
   LocalEnvInstr,
-  StorageType,
   TailCallInstr
 } from './types'
 import {
@@ -165,16 +163,6 @@ function runECEMachine(context: Context, agenda: Agenda, stash: Stash) {
     command = agenda.pop()
   }
   return context.globalDeclarations
-}
-
-function unwrapList(list: Value): Value {
-  if (!Array.isArray(list)) {
-    if (list?.type == 'Literal') return list.value
-    else return list
-  }
-  return list.map(element => {
-    return unwrapList(element)
-  })
 }
 
 export const evaluateCallInstr = (
@@ -526,12 +514,12 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
   },
 
   [InstrType.LIST]: function (command: ListInstr, context: Context, agenda: Agenda, stash: Stash) {
-    const elements: StorageType[] = []
+    const elements: es.SmlValue[] = []
     for (let i = 0; i < command.arity; i++) {
       elements.push(stash.pop())
     }
-    const list: List = {
-      type: 'list',
+    const list: es.List = {
+      type: 'List',
       smlType: listType(elements[0]?.smlType),
       value: elements.reverse()
     }
