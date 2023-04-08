@@ -1,5 +1,21 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Boolean list evaluates to list: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "[true, false];",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": Array [
+    true,
+    false,
+  ],
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
 exports[`Empty code returns undefined: expectResult 1`] = `
 Object {
   "alertResult": Array [],
@@ -8,6 +24,87 @@ Object {
   "numErrors": 0,
   "parsedErrors": "",
   "result": undefined,
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Empty list evaluates to empty list: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "[];",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": Array [],
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Integer list evaluates to list: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "[1, 2, 3];",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": Array [
+    1,
+    2,
+    3,
+  ],
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`List nil evaluates to empty list: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "nil;",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": Array [],
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`List of expressions evaluates to list: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "[1 + 2, 3 + 4];",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": Array [
+    3,
+    7,
+  ],
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`List of lists evaluates to list: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "[[1, 2], [3, 4]];",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": Array [
+    Array [
+      1,
+      2,
+    ],
+    Array [
+      3,
+      4,
+    ],
+  ],
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }
@@ -22,6 +119,23 @@ Object {
   "parsedErrors": "",
   "result": "1
 1",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Real list evaluates to list: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "[1.5, 2.5, 3.5];",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": Array [
+    1.5,
+    2.5,
+    3.5,
+  ],
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }
@@ -74,6 +188,23 @@ Object {
   "numErrors": 0,
   "parsedErrors": "",
   "result": "42",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`String list evaluates to list: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "[\\"1\\", \\"2\\", \\"3\\"];",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": Array [
+    "1",
+    "2",
+    "3",
+  ],
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }

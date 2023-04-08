@@ -12,6 +12,8 @@ import { LambdaExpressionContext } from './CalcParser'
 import { LetExpressionContext } from './CalcParser'
 import { ParenthesizedExpressionContext } from './CalcParser'
 import { SequenceExpressionContext } from './CalcParser'
+import { ListExpressionContext } from './CalcParser'
+import { EmptyListExpressionContext } from './CalcParser'
 import { LiteralPatternContext } from './CalcParser'
 import { IdentifierPatternContext } from './CalcParser'
 import { TypedPatternContext } from './CalcParser'
@@ -125,6 +127,22 @@ export interface CalcVisitor<Result> extends ParseTreeVisitor<Result> {
    * @return the visitor result
    */
   visitSequenceExpression?: (ctx: SequenceExpressionContext) => Result
+
+  /**
+   * Visit a parse tree produced by the `ListExpression`
+   * labeled alternative in `CalcParser.expression`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitListExpression?: (ctx: ListExpressionContext) => Result
+
+  /**
+   * Visit a parse tree produced by the `EmptyListExpression`
+   * labeled alternative in `CalcParser.expression`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitEmptyListExpression?: (ctx: EmptyListExpressionContext) => Result
 
   /**
    * Visit a parse tree produced by the `LiteralPattern`

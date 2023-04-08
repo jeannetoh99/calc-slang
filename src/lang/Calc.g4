@@ -9,6 +9,7 @@ BOOLEAN_LITERAL: 'true' | 'false';
 REAL_LITERAL: ([0-9]+[.])?[0-9]+([eE][~]?[0-9]+)?;
 STRING_LITERAL:  '"' ( '\\' [btnfr"'\\] | ~[\r\n\\"] )* '"';
 UNIT_LITERAL: '()';
+NIL: 'nil' | '[' WHITESPACE* ']' ;
 
 TYPE: 'bool' | 'int' | 'real' | 'string' | 'unit';
 
@@ -47,6 +48,8 @@ expression
    | 'let' declarationList 'in' expressionList 'end'                                # LetExpression
    | '(' expression ')'                                                             # ParenthesizedExpression
    | '(' expressionList ')'                                                         # SequenceExpression
+   | '[' expression (',' expression)* ']'                                                           # ListExpression
+   | NIL                                                                            # EmptyListExpression
    ;
 
 lambda : 'fn' pattern '=>' expression;
