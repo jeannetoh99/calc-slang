@@ -10,6 +10,7 @@ interface BaseNode {
 }
 
 interface NodeMap {
+  Type: Type
   Expression: Expression
   Identifier: Identifier
   Literal: Literal
@@ -121,13 +122,31 @@ export interface ExpressionMap {
   ListExpression: ListExpression
 }
 
-export type Type = PrimitiveType
+export type Type = LiteralType | ListType | FunctionType
 
-export type PrimitiveType = 'int' | 'bool' | 'real' | 'string' | 'unit'
+export interface BaseType extends BaseNode {}
+
+export type LiteralTypeType = 'bool' | 'real' | 'int' | 'string' | 'unit'
+
+export interface LiteralType extends BaseType {
+  type: LiteralTypeType
+}
+
+export interface ListType extends BaseType {
+  type: 'list'
+  elementType?: Type
+}
+
+export interface FunctionType extends BaseType {
+  type: 'function'
+  paramType?: Type
+  returnType?: Type
+}
 
 export type Expression = ExpressionMap[keyof ExpressionMap]
 
 export interface BaseExpression extends BaseNode {
+  smlType?: Type
   annotatedType?: Type
   inferredType?: Type
   tail?: boolean
@@ -141,6 +160,7 @@ export interface PatternMap {
 export type Pattern = PatternMap[keyof PatternMap]
 
 export interface BasePattern extends BaseNode {
+  smlType?: Type
   annotedType?: Type
   inferredType?: Type
 }
@@ -161,6 +181,7 @@ export interface ConditionalExpression extends BaseExpression {
 
 export interface LambdaExpression extends BaseExpression {
   type: 'LambdaExpression'
+  smlType: FunctionType
   params: Array<Pattern>
   body: Expression
   recursiveId?: string
@@ -178,6 +199,7 @@ export interface SequenceExpression extends BaseExpression {
 }
 
 export interface ListExpression extends BaseExpression {
+  smlType: ListType
   type: 'ListExpression'
   elements: Expression[]
 }
@@ -191,31 +213,27 @@ export type Literal = BoolLiteral | StringLiteral | IntLiteral | RealLiteral | U
 
 export interface SimpleLiteral extends BaseExpression, BasePattern {
   type: 'Literal'
+  smlType: LiteralType
   raw?: string | undefined
 }
 
 export interface BoolLiteral extends SimpleLiteral {
-  litType: 'bool'
   value: boolean
 }
 
 export interface StringLiteral extends SimpleLiteral {
-  litType: 'string'
   value: string
 }
 
 export interface IntLiteral extends SimpleLiteral {
-  litType: 'int'
   value: number
 }
 
 export interface RealLiteral extends SimpleLiteral {
-  litType: 'real'
   value: number
 }
 
 export interface UnitLiteral extends SimpleLiteral {
-  litType: 'unit'
   value: undefined
 }
 

@@ -5,7 +5,6 @@ import { ErrorNode } from 'antlr4ts/tree/ErrorNode'
 import { ParseTree } from 'antlr4ts/tree/ParseTree'
 import { RuleNode } from 'antlr4ts/tree/RuleNode'
 import { TerminalNode } from 'antlr4ts/tree/TerminalNode'
-import { unwatchFile } from 'fs'
 
 import * as es from '../ast'
 import { CalcLexer } from '../lang/CalcLexer'
@@ -22,6 +21,7 @@ import {
   ExpressionStatementContext,
   FunctionApplicationContext,
   FunctionDeclarationContext,
+  FunctionTypeContext,
   IdentifierContext,
   IdentifierExpressionContext,
   IdentifierPatternContext,
@@ -31,18 +31,22 @@ import {
   LambdaExpressionContext,
   LetExpressionContext,
   ListExpressionContext,
+  ListTypeContext,
   LiteralContext,
   LiteralExpressionContext,
   LiteralPatternContext,
+  LiteralTypeContext,
   LocalDeclarationContext,
   ParenthesizedExpressionContext,
   ParenthesizedPatternContext,
+  ParenthesizedTypeContext,
   ProgramContext,
   RealContext,
   RecursiveDeclarationContext,
   SequenceExpressionContext,
   StatementContext,
   StringContext,
+  TypeContext,
   TypedExpressionContext,
   TypedPatternContext,
   UnitContext,
@@ -50,7 +54,7 @@ import {
 } from '../lang/CalcParser'
 import { CalcVisitor } from '../lang/CalcVisitor'
 import { Context, ErrorSeverity, ErrorType, SourceError } from '../types'
-import { identifier } from '../utils/astCreator'
+import { boolType, functionType, identifier, intType, listType, realType, stringType, unitType } from '../utils/astCreator'
 
 export class FatalSyntaxError implements SourceError {
   public type = ErrorType.SYNTAX
@@ -143,7 +147,7 @@ class AstConverter implements CalcVisitor<es.Node> {
   }
   visitTypedExpression(ctx: TypedExpressionContext): es.Expression {
     const expr = this.visit(ctx.expression()) as es.Expression
-    expr.annotatedType = ctx.TYPE().text as es.Type
+    expr.annotatedType = this.visit(ctx.type()) as es.Type
     return expr
   }
   visitFunctionApplication(ctx: FunctionApplicationContext): es.ApplicationExpression {
@@ -185,15 +189,20 @@ class AstConverter implements CalcVisitor<es.Node> {
     }
   }
   visitListExpression(ctx: ListExpressionContext): es.ListExpression {
+    const elements =  ctx.expression().map(expr => this.visit(expr) as es.Expression)
     return {
       type: 'ListExpression',
-      elements: ctx.expression().map(expr => this.visit(expr) as es.Expression),
+      smlType: { type: 'list' },
+      inferredType: { type: 'list' },
+      elements,
       loc: contextToLocation(ctx)
     }
   }
   visitEmptyListExpression(ctx: EmptyListExpressionContext): es.ListExpression {
     return {
       type: 'ListExpression',
+      smlType: { type: 'list' },
+      inferredType: { type: 'list' },
       elements: [],
       loc: contextToLocation(ctx)
     }
@@ -212,7 +221,7 @@ class AstConverter implements CalcVisitor<es.Node> {
   }
   visitTypedPattern(ctx: TypedPatternContext): es.Pattern {
     const pat = this.visit(ctx.pattern()) as es.Pattern
-    pat.annotedType = ctx.TYPE().text as es.Type
+    pat.annotedType = this.visit(ctx.type()) as es.Type
     return pat
   }
   visitParenthesizedPattern(ctx: ParenthesizedPatternContext): es.Pattern {
@@ -233,6 +242,30 @@ class AstConverter implements CalcVisitor<es.Node> {
   }
   visitDeclarationStatement(ctx: DeclarationStatementContext): es.Statement {
     return this.visit(ctx.declaration()) as es.Statement
+  }
+  visitLiteralType(ctx: LiteralTypeContext): es.LiteralType {
+    return {
+      type: ctx._litType.text as es.LiteralTypeType,
+      loc: contextToLocation(ctx)
+    }
+  }
+  visitListType(ctx: ListTypeContext): es.ListType {
+    return {
+      type: 'list',
+      elementType: this.visit(ctx._elType) as es.Type,
+      loc: contextToLocation(ctx)
+    }
+  }
+  visitFunctionType(ctx: FunctionTypeContext): es.FunctionType {
+    return {
+      type: 'function',
+      paramType: this.visit(ctx._param) as es.Type,
+      returnType: this.visit(ctx._return) as es.Type,
+      loc: contextToLocation(ctx)
+    }
+  }
+  visitParenthesizedType(ctx: ParenthesizedTypeContext): es.Type {
+    return this.visit(ctx._inner) as es.Type
   }
   visitValueDeclaration(ctx: ValueDeclarationContext): es.ValueDeclaration {
     return {
@@ -275,7 +308,8 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitInteger(ctx: IntegerContext): es.IntLiteral {
     return {
       type: 'Literal',
-      litType: 'int',
+      smlType: intType(),
+      inferredType: intType(),
       value: parseInt(ctx.text),
       raw: ctx.text,
       loc: contextToLocation(ctx)
@@ -284,7 +318,8 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitBoolean(ctx: BooleanContext): es.BoolLiteral {
     return {
       type: 'Literal',
-      litType: 'bool',
+      smlType: boolType(),
+      inferredType: boolType(),
       value: ctx.text === 'true',
       raw: ctx.text,
       loc: contextToLocation(ctx)
@@ -293,7 +328,8 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitReal(ctx: RealContext): es.RealLiteral {
     return {
       type: 'Literal',
-      litType: 'real',
+      smlType: realType(),
+      inferredType: realType(),
       value: parseFloat(ctx.text.replace('~', '-')),
       raw: ctx.text,
       loc: contextToLocation(ctx)
@@ -302,7 +338,8 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitString(ctx: StringContext): es.StringLiteral {
     return {
       type: 'Literal',
-      litType: 'string',
+      smlType: stringType(),
+      inferredType: stringType(),
       value: eval(ctx.text),
       raw: ctx.text,
       loc: contextToLocation(ctx)
@@ -311,12 +348,14 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitUnit(ctx: UnitContext): es.UnitLiteral {
     return {
       type: 'Literal',
-      litType: 'unit',
+      smlType: unitType(),
+      inferredType: unitType(),
       value: undefined,
       raw: ctx.text,
       loc: contextToLocation(ctx)
     }
   }
+  visitType?: ((ctx: TypeContext) => es.Type) | undefined;
   visitIdentifier(ctx: IdentifierContext): es.Identifier {
     return {
       type: 'Identifier',
@@ -329,10 +368,13 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitExpression?: ((ctx: ExpressionContext) => es.Expression) | undefined
 
   visitLambda(ctx: LambdaContext): es.LambdaExpression {
+    const params = [this.visit(ctx.pattern()) as es.Pattern]
+    const body = this.visit(ctx.expression()) as es.Expression
     return {
       type: 'LambdaExpression',
-      params: [this.visit(ctx.pattern()) as es.Pattern],
-      body: this.visit(ctx.expression()) as es.Expression,
+      smlType: functionType(params[0]?.smlType, body.smlType),
+      params,
+      body,
       loc: contextToLocation(ctx)
     }
   }

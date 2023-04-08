@@ -3,8 +3,39 @@ import * as es from '../ast'
 export const getValueDeclarationName = (decl: es.ValueDeclaration) =>
   (decl.declarations[0].id as es.Identifier).name
 
+export const stringType = () : es.LiteralType => ({
+  type: 'string'
+})
+
+export const intType = () : es.LiteralType => ({
+  type: 'int'
+})
+
+export const realType = () : es.LiteralType => ({
+  type: 'real'
+})
+
+export const boolType = () : es.LiteralType => ({
+  type: 'bool'
+})
+
+export const unitType = () : es.LiteralType => ({
+  type: 'unit'
+})
+
+export const listType = ( elementType?: es.Type ) : es.ListType => ({
+  type: 'list',
+  elementType
+})
+
+export const functionType = ( paramType?: es.Type, returnType?: es.Type ) : es.FunctionType => ({
+  type: 'function',
+  paramType,
+  returnType
+})
+
 export const locationDummyNode = (line: number, column: number) =>
-  literal('Dummy', 'string', { start: { line, column }, end: { line, column } })
+  literal('Dummy', stringType(), { start: { line, column }, end: { line, column } })
 
 export const identifier = (name: string, loc?: es.SourceLocation | null): es.Identifier => ({
   type: 'Identifier',
@@ -14,13 +45,13 @@ export const identifier = (name: string, loc?: es.SourceLocation | null): es.Ide
 
 export const literal = (
   value: any,
-  litType: es.Type,
+  smlType: es.LiteralType,
   loc?: es.SourceLocation | null
 ): es.Literal => ({
   type: 'Literal',
+  smlType,
   value,
-  litType,
-  loc
+  loc,
 })
 
 export const expressionStatement = (expression: es.Expression): es.ExpressionStatement => ({

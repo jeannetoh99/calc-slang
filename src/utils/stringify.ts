@@ -1,5 +1,7 @@
 import { isInteger } from 'lodash'
+import { Type } from '../ast'
 
+import { StorageType } from '../ec-evaluator/types'
 import { DeclarationType, Value } from '../types'
 
 export interface ArrayLike {
@@ -18,19 +20,34 @@ const formatResult = (result: ResultType) => {
   return ['val', result.name, '=', result.value, ':', result.type].join(' ') + ';'
 }
 
+const extractType = (type: Type): string => {
+  return type.type === 'function'
+      ? (type.paramType ? extractType(type.paramType) : '?') + ' -> ' + (type.returnType ? extractType(type.returnType) : '?')
+      : type.type === 'list'
+      ? (type.elementType ? extractType(type.elementType) : '?') + ' list'
+      : type.type
+}
+
+const extractValue = (value: StorageType): Value => {
+  const type = value.smlType.type
+
+  return type === 'string'
+      ? '"' + value.value + '"'
+      : type === 'unit'
+      ? '()'
+      : type === 'real'  && isInteger(value.value)
+      ? value.value + '.0'
+      : type === 'list' && Array.isArray(value.value)
+      ? '[' + value.value.map(extractValue) + ']'
+      : value.value;
+}
+
 const extractDeclaration = (declaration: DeclarationType): ResultType => {
-  const type = declaration.value.type === 'Literal' ? declaration.value.litType : 'function'
-  const value =
-    declaration.value.type === 'Literal'
-      ? declaration.value.litType === 'string'
-        ? '"' + declaration.value.value + '"'
-        : declaration.value.litType === 'unit'
-        ? '()'
-        : declaration.value.litType === 'real' && isInteger(declaration.value.value)
-        ? declaration.value.value + '.0'
-        : declaration.value.value
-      : 'fn'
-  return { name: declaration.name, value, type }
+  return { 
+    name: declaration.name, 
+    value: extractValue(declaration.value), 
+    type: extractType(declaration.value.smlType) 
+  }
 }
 
 export const formatResults = (result: ResultType[]) => {

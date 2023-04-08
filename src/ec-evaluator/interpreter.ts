@@ -6,14 +6,13 @@
  */
 
 /* tslint:disable:max-classes-per-file */
-import { Literal } from 'estree'
 import { cloneDeep } from 'lodash'
 
 import * as es from '../ast'
 import * as errors from '../errors/errors'
 import { arity } from '../stdlib/misc'
 import { Context, Result, Value } from '../types'
-import { expressionStatement } from '../utils/astCreator'
+import { expressionStatement, functionType, listType } from '../utils/astCreator'
 import * as rttc from '../utils/rttc'
 import { applyBuiltin, builtinInfixFunctions, builtinMapping, checkBuiltin } from './builtin'
 import * as instr from './instrCreator'
@@ -29,8 +28,10 @@ import {
   EnvInstr,
   Instr,
   InstrType,
+  List,
   ListInstr,
   LocalEnvInstr,
+  StorageType,
   TailCallInstr
 } from './types'
 import {
@@ -296,6 +297,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
   ) {
     const lambdaExpression: es.LambdaExpression = {
       type: 'LambdaExpression',
+      smlType: functionType(command.params[0]?.smlType, command.body.smlType),
       params: command.params,
       body: command.body,
       recursiveId: command.id.name
@@ -524,10 +526,15 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
   },
 
   [InstrType.LIST]: function (command: ListInstr, context: Context, agenda: Agenda, stash: Stash) {
-    const elements: es.Literal[] = []
+    const elements: StorageType[] = []
     for (let i = 0; i < command.arity; i++) {
       elements.push(stash.pop())
     }
-    stash.push(elements.reverse())
+    const list : List = {
+      type: 'list',
+      smlType: listType(elements[0]?.smlType),
+      value: elements.reverse()
+    }
+    stash.push(list)
   }
 }
