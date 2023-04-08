@@ -156,7 +156,9 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitIdentifierExpression(ctx: IdentifierExpressionContext): es.Identifier {
     return this.visit(ctx.identifier()) as es.Identifier
   }
-  visitListConstructionExpression(ctx: ListConstructionExpressionContext): es.ApplicationExpression {
+  visitListConstructionExpression(
+    ctx: ListConstructionExpressionContext
+  ): es.ApplicationExpression {
     return {
       type: 'ApplicationExpression',
       callee: identifier('::', contextToLocation(ctx)),

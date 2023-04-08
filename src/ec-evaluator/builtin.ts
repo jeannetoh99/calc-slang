@@ -1,6 +1,14 @@
 import { Context } from '..'
 import * as es from '../ast'
-import { boolType, intType, list, listType, literal, realType, stringType } from '../utils/astCreator'
+import {
+  boolType,
+  intType,
+  list,
+  listType,
+  literal,
+  realType,
+  stringType
+} from '../utils/astCreator'
 import {
   checkIsBool,
   checkIsInt,
@@ -17,8 +25,6 @@ import { handleRuntimeError } from './utils'
 const side = (id: string) => {
   return ' as operand for ' + id
 }
-
-
 
 export const checkBuiltin = (
   context: Context,
@@ -40,24 +46,24 @@ export const checkBuiltin = (
     case '>=':
     case '=':
     case '~':
-      error = checkIsNum(node, side(builtin.identifier), args[0]) 
+      error = checkIsNum(node, side(builtin.identifier), args[0])
       for (const arg of args) {
         if (error) break
-        error =  checkIsType(node, side(builtin.identifier), arg, args[0].smlType)
+        error = checkIsType(node, side(builtin.identifier), arg, args[0].smlType)
       }
       break
     case 'div':
     case 'mod':
     case 'real':
       for (const arg of args) {
-        error =  checkIsInt(node, side(builtin.identifier), arg)
+        error = checkIsInt(node, side(builtin.identifier), arg)
         if (error) break
       }
       break
     case 'floor':
     case '/':
       for (const arg of args) {
-        error =  checkIsReal(node, side(builtin.identifier), arg)
+        error = checkIsReal(node, side(builtin.identifier), arg)
         if (error) break
       }
       break
@@ -65,20 +71,20 @@ export const checkBuiltin = (
     case 'andalso':
     case 'orelse':
       for (const arg of args) {
-        error =  checkIsBool(node, side(builtin.identifier), arg)
+        error = checkIsBool(node, side(builtin.identifier), arg)
         if (error) break
       }
       break
     case 'size':
     case '^':
       for (const arg of args) {
-        error =  checkIsString(node, side(builtin.identifier), arg)
+        error = checkIsString(node, side(builtin.identifier), arg)
         if (error) break
       }
       break
     case '@':
       for (const arg of args) {
-        error =  checkIsList(node, side(builtin.identifier), arg)
+        error = checkIsList(node, side(builtin.identifier), arg)
         if (error) break
       }
       if (error) break
@@ -87,7 +93,7 @@ export const checkBuiltin = (
     case '::':
       error = checkIsList(node, side(builtin.identifier), args[1])
       if (error) break
-      let listType = args[args.length - 1].smlType as es.ListType
+      const listType = args[args.length - 1].smlType as es.ListType
       if (listType.elementType == undefined) break
       error = checkIsType(node, side(builtin.identifier), args[0], listType.elementType)
       break
@@ -117,7 +123,8 @@ export const builtinInfixFunctions = {
   orelse: (x: es.BoolLiteral, y: es.BoolLiteral) => literal(x.value || y.value, boolType()),
   '^': (x: es.StringLiteral, y: es.StringLiteral) => literal(x.value + y.value, stringType()),
   '@': (x: es.List, y: es.List) => list([...x.value, ...y.value], x.smlType),
-  '::': (x: es.SmlValue, y: es.List) => list([x, ...y.value], y.smlType.elementType ? y.smlType : listType(x.smlType)),
+  '::': (x: es.SmlValue, y: es.List) =>
+    list([x, ...y.value], y.smlType.elementType ? y.smlType : listType(x.smlType))
 }
 
 export const builtinFunctions = {
