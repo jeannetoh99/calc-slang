@@ -20,6 +20,10 @@ import { TypedPatternContext } from './CalcParser'
 import { ParenthesizedPatternContext } from './CalcParser'
 import { ExpressionStatementContext } from './CalcParser'
 import { DeclarationStatementContext } from './CalcParser'
+import { LiteralTypeContext } from './CalcParser'
+import { ListTypeContext } from './CalcParser'
+import { FunctionTypeContext } from './CalcParser'
+import { ParenthesizedTypeContext } from './CalcParser'
 import { ValueDeclarationContext } from './CalcParser'
 import { RecursiveDeclarationContext } from './CalcParser'
 import { FunctionDeclarationContext } from './CalcParser'
@@ -29,6 +33,7 @@ import { BooleanContext } from './CalcParser'
 import { RealContext } from './CalcParser'
 import { StringContext } from './CalcParser'
 import { UnitContext } from './CalcParser'
+import { TypeContext } from './CalcParser'
 import { IdentifierContext } from './CalcParser'
 import { LiteralContext } from './CalcParser'
 import { ExpressionContext } from './CalcParser'
@@ -280,6 +285,58 @@ export interface CalcListener extends ParseTreeListener {
   exitDeclarationStatement?: (ctx: DeclarationStatementContext) => void
 
   /**
+   * Enter a parse tree produced by the `LiteralType`
+   * labeled alternative in `CalcParser.type`.
+   * @param ctx the parse tree
+   */
+  enterLiteralType?: (ctx: LiteralTypeContext) => void
+  /**
+   * Exit a parse tree produced by the `LiteralType`
+   * labeled alternative in `CalcParser.type`.
+   * @param ctx the parse tree
+   */
+  exitLiteralType?: (ctx: LiteralTypeContext) => void
+
+  /**
+   * Enter a parse tree produced by the `ListType`
+   * labeled alternative in `CalcParser.type`.
+   * @param ctx the parse tree
+   */
+  enterListType?: (ctx: ListTypeContext) => void
+  /**
+   * Exit a parse tree produced by the `ListType`
+   * labeled alternative in `CalcParser.type`.
+   * @param ctx the parse tree
+   */
+  exitListType?: (ctx: ListTypeContext) => void
+
+  /**
+   * Enter a parse tree produced by the `FunctionType`
+   * labeled alternative in `CalcParser.type`.
+   * @param ctx the parse tree
+   */
+  enterFunctionType?: (ctx: FunctionTypeContext) => void
+  /**
+   * Exit a parse tree produced by the `FunctionType`
+   * labeled alternative in `CalcParser.type`.
+   * @param ctx the parse tree
+   */
+  exitFunctionType?: (ctx: FunctionTypeContext) => void
+
+  /**
+   * Enter a parse tree produced by the `ParenthesizedType`
+   * labeled alternative in `CalcParser.type`.
+   * @param ctx the parse tree
+   */
+  enterParenthesizedType?: (ctx: ParenthesizedTypeContext) => void
+  /**
+   * Exit a parse tree produced by the `ParenthesizedType`
+   * labeled alternative in `CalcParser.type`.
+   * @param ctx the parse tree
+   */
+  exitParenthesizedType?: (ctx: ParenthesizedTypeContext) => void
+
+  /**
    * Enter a parse tree produced by the `ValueDeclaration`
    * labeled alternative in `CalcParser.declaration`.
    * @param ctx the parse tree
@@ -395,6 +452,17 @@ export interface CalcListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   exitUnit?: (ctx: UnitContext) => void
+
+  /**
+   * Enter a parse tree produced by `CalcParser.type`.
+   * @param ctx the parse tree
+   */
+  enterType?: (ctx: TypeContext) => void
+  /**
+   * Exit a parse tree produced by `CalcParser.type`.
+   * @param ctx the parse tree
+   */
+  exitType?: (ctx: TypeContext) => void
 
   /**
    * Enter a parse tree produced by `CalcParser.identifier`.

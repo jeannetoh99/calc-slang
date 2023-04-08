@@ -6,14 +6,13 @@
  */
 
 /* tslint:disable:max-classes-per-file */
-import { Literal } from 'estree'
 import { cloneDeep } from 'lodash'
 
 import * as es from '../ast'
 import * as errors from '../errors/errors'
 import { arity } from '../stdlib/misc'
-import { Context, Environment, Result, Value } from '../types'
-import { expressionStatement } from '../utils/astCreator'
+import { Context, Result, Value } from '../types'
+import { expressionStatement, functionType, listType } from '../utils/astCreator'
 import * as rttc from '../utils/rttc'
 import { applyBuiltin, builtinInfixFunctions, builtinMapping, checkBuiltin } from './builtin'
 import * as instr from './instrCreator'
@@ -29,8 +28,10 @@ import {
   EnvInstr,
   Instr,
   InstrType,
+  List,
   ListInstr,
   LocalEnvInstr,
+  StorageType,
   TailCallInstr
 } from './types'
 import {
@@ -163,10 +164,7 @@ function runECEMachine(context: Context, agenda: Agenda, stash: Stash) {
     }
     command = agenda.pop()
   }
-  let res = stash.peek()
-  if (res?.type == 'Literal') res = res.value
-  else if (Array.isArray(res)) res = unwrapList(res)
-  return res
+  return context.globalDeclarations
 }
 
 function unwrapList(list: Value): Value {
@@ -261,16 +259,16 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
   },
 
   ValueDeclaration: function (command: es.ValueDeclaration, context: Context, agenda: Agenda) {
-    const declaration: es.ValueDeclarator = command.declarations[0]
-    const id = declaration.id as es.Identifier
+    const env = command.declEnv ?? currentEnvironment(context)
+    for (const declaration of command.declarations) {
+      const id = declaration.id as es.Identifier
 
-    // Parser enforces initialisation during variable declaration
-    const init = declaration.init!
+      // Parser enforces initialisation during variable declaration
+      const init = declaration.init!
 
-    agenda.push(
-      instr.assmtInstr(id.name, true, command, command.declEnv ?? currentEnvironment(context))
-    )
-    agenda.push(init)
+      agenda.push(instr.assmtInstr(id.name, true, command, env))
+      agenda.push(init)
+    }
   },
 
   RecValueDeclaration: function (
@@ -289,7 +287,6 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     )
     command.lambda.recursiveId = command.id.name
     agenda.push(command.lambda)
-    stash.push(true) // recursive
   },
 
   FunctionDeclaration: function (
@@ -300,6 +297,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
   ) {
     const lambdaExpression: es.LambdaExpression = {
       type: 'LambdaExpression',
+      smlType: functionType(command.params[0]?.smlType, command.body.smlType),
       params: command.params,
       body: command.body,
       recursiveId: command.id.name
@@ -404,8 +402,9 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
       command.body.tail = true
     }
     const env = cloneDeep(currentEnvironment(context))
+    env.name += '_clone'
     if (command.recursiveId) {
-      defineVariable(env, command.recursiveId, instr.closureInstr(env, command))
+      defineVariable(context, env, command.recursiveId, instr.closureInstr(env, command))
     }
 
     stash.push(instr.closureInstr(env, command))
@@ -463,7 +462,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
         new errors.ReservedKeywordVariable(command.srcNode, command.symbol, 'builtin function')
       )
     }
-    defineVariable(command.env, command.symbol, stash.peek(), false)
+    defineVariable(context, command.env, command.symbol, stash.peek(), false)
   },
 
   [InstrType.BRANCH]: function (
@@ -527,10 +526,15 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
   },
 
   [InstrType.LIST]: function (command: ListInstr, context: Context, agenda: Agenda, stash: Stash) {
-    const elements: es.Literal[] = []
+    const elements: StorageType[] = []
     for (let i = 0; i < command.arity; i++) {
       elements.push(stash.pop())
     }
-    stash.push(elements.reverse())
+    const list: List = {
+      type: 'list',
+      smlType: listType(elements[0]?.smlType),
+      value: elements.reverse()
+    }
+    stash.push(list)
   }
 }

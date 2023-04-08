@@ -46,6 +46,9 @@ export interface CallInstr extends BaseInstr {
 }
 
 export interface ClosureInstr extends BaseInstr {
+  type: 'function'
+  smlType: es.FunctionType
+  value: 'fn'
   env: Environment
   srcNode: es.LambdaExpression
 }
@@ -90,3 +93,20 @@ export type CmdEvaluator = (
 // Special value that cannot be found on the stash so is safe to be used
 // as an indicator of an error from running the ECE machine
 export class ECError {}
+
+// Types that can be stored in env and assigned to variables
+export type StorageType = es.Literal | List | ClosureInstr
+
+export type List = {
+  type: 'list'
+  smlType: es.ListType
+  value: StorageType[]
+}
+
+export type Closure = {
+  type: 'function'
+  smlType: es.FunctionType
+  value: 'fn'
+  env: Environment
+  srcNode: es.LambdaExpression
+}

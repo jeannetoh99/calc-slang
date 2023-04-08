@@ -5,7 +5,7 @@ import * as es from '../ast'
 import * as errors from '../errors/errors'
 import { RuntimeSourceError } from '../errors/runtimeSourceError'
 import { arity } from '../stdlib/misc'
-import { Environment, Frame, Value } from '../types'
+import { DeclarationType, Environment, Frame, Value } from '../types'
 import { builtinFunctions } from './builtin'
 import * as instr from './instrCreator'
 import { Agenda } from './interpreter'
@@ -181,11 +181,15 @@ export function declareFunctionsAndVariables(
 }
 
 export function defineVariable(
+  context: Context,
   environment: Environment,
   name: string,
   value: Value,
   constant = false
 ) {
+  if (environment.name === 'programEnvironment') {
+    context.globalDeclarations.push({ name, value })
+  }
   Object.defineProperty(environment.head, name, {
     value,
     writable: !constant,
@@ -277,6 +281,6 @@ export const checkStackOverFlow = (context: Context, agenda: Agenda) => {
 export const populateBuiltInIdentifiers = (context: Context) => {
   for (const key in builtinFunctions) {
     const builtinInstr = instr.builtinInstr(key, arity(builtinFunctions[key]), false)
-    defineVariable(currentEnvironment(context), key, builtinInstr)
+    defineVariable(context, currentEnvironment(context), key, builtinInstr)
   }
 }

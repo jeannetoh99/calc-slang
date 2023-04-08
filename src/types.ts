@@ -8,6 +8,7 @@
 import * as es from './ast'
 import { EnvTree } from './createContext'
 import { Agenda, Stash } from './ec-evaluator/interpreter'
+import { StorageType } from './ec-evaluator/types'
 
 /**
  * Defines functions that act as built-ins, but might rely on
@@ -135,6 +136,11 @@ export interface Context<T = any> {
    * Code previously executed in this context
    */
   previousCode: string[]
+
+  /**
+   *
+   */
+  globalDeclarations: DeclarationType[]
 }
 
 export type ModuleContext = {
@@ -350,3 +356,8 @@ export type TypeEnvironment = {
   declKindMap: Map<string, AllowedDeclarations>
   typeAliasMap: Map<string, Type>
 }[]
+
+export type DeclarationType = {
+  name: string
+  value: StorageType
+}

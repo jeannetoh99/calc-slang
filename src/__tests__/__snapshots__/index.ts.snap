@@ -7,10 +7,7 @@ Object {
   "displayResult": Array [],
   "numErrors": 0,
   "parsedErrors": "",
-  "result": Array [
-    true,
-    false,
-  ],
+  "result": "val it = [true,false] : bool list;",
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }
@@ -23,7 +20,7 @@ Object {
   "displayResult": Array [],
   "numErrors": 0,
   "parsedErrors": "",
-  "result": undefined,
+  "result": "",
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }
@@ -36,7 +33,7 @@ Object {
   "displayResult": Array [],
   "numErrors": 0,
   "parsedErrors": "",
-  "result": Array [],
+  "result": "val it = [] : ? list;",
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }
@@ -49,11 +46,7 @@ Object {
   "displayResult": Array [],
   "numErrors": 0,
   "parsedErrors": "",
-  "result": Array [
-    1,
-    2,
-    3,
-  ],
+  "result": "val it = [1,2,3] : int list;",
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }
@@ -66,7 +59,7 @@ Object {
   "displayResult": Array [],
   "numErrors": 0,
   "parsedErrors": "",
-  "result": Array [],
+  "result": "val it = [] : ? list;",
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }
@@ -79,10 +72,7 @@ Object {
   "displayResult": Array [],
   "numErrors": 0,
   "parsedErrors": "",
-  "result": Array [
-    3,
-    7,
-  ],
+  "result": "val it = [3,7] : int list;",
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }
@@ -95,16 +85,7 @@ Object {
   "displayResult": Array [],
   "numErrors": 0,
   "parsedErrors": "",
-  "result": Array [
-    Array [
-      1,
-      2,
-    ],
-    Array [
-      3,
-      4,
-    ],
-  ],
+  "result": "val it = [[1,2],[3,4]] : int list list;",
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }
@@ -117,8 +98,8 @@ Object {
   "displayResult": Array [],
   "numErrors": 0,
   "parsedErrors": "",
-  "result": "1
-1",
+  "result": "val it = \\"1
+1\\" : string;",
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }
@@ -131,11 +112,7 @@ Object {
   "displayResult": Array [],
   "numErrors": 0,
   "parsedErrors": "",
-  "result": Array [
-    1.5,
-    2.5,
-    3.5,
-  ],
+  "result": "val it = [1.5,2.5,3.5] : real list;",
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }
@@ -148,7 +125,7 @@ Object {
   "displayResult": Array [],
   "numErrors": 0,
   "parsedErrors": "",
-  "result": true,
+  "result": "val it = true : bool;",
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }
@@ -161,7 +138,7 @@ Object {
   "displayResult": Array [],
   "numErrors": 0,
   "parsedErrors": "",
-  "result": 42,
+  "result": "val it = 42 : int;",
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }
@@ -174,7 +151,7 @@ Object {
   "displayResult": Array [],
   "numErrors": 0,
   "parsedErrors": "",
-  "result": 42.5,
+  "result": "val it = 42.5 : real;",
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }
@@ -187,7 +164,7 @@ Object {
   "displayResult": Array [],
   "numErrors": 0,
   "parsedErrors": "",
-  "result": "42",
+  "result": "val it = \\"42\\" : string;",
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }
@@ -200,11 +177,7 @@ Object {
   "displayResult": Array [],
   "numErrors": 0,
   "parsedErrors": "",
-  "result": Array [
-    "1",
-    "2",
-    "3",
-  ],
+  "result": "val it = [\\"1\\",\\"2\\",\\"3\\"] : string list;",
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }
@@ -217,7 +190,7 @@ Object {
   "displayResult": Array [],
   "numErrors": 0,
   "parsedErrors": "",
-  "result": undefined,
+  "result": "val it = () : unit;",
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }

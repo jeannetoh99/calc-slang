@@ -4,6 +4,7 @@
 
 import * as es from '../ast'
 import { Environment } from '../types'
+import { functionType } from '../utils/astCreator'
 import {
   AssmtInstr,
   BranchInstr,
@@ -63,6 +64,9 @@ export const callInstr = (arity: number, srcNode: es.ApplicationExpression): Cal
 
 export const closureInstr = (env: Environment, srcNode: es.LambdaExpression): ClosureInstr => ({
   instrType: InstrType.CLOSURE,
+  type: 'function',
+  smlType: srcNode.smlType,
+  value: 'fn',
   env,
   srcNode
 })

@@ -1,6 +1,7 @@
 import { default as createContext } from '../createContext'
 import { parseError, Result, runInContext } from '../index'
 import { Chapter, Context, SourceError, Value, Variant } from '../types'
+import { stringify } from './stringify'
 
 export interface CodeSnippetTestCase {
   name: string
@@ -77,7 +78,7 @@ async function testInContext(code: string, options: TestOptions): Promise<TestRe
       numErrors: context.errors.length,
       parsedErrors: parseError(context.errors),
       resultStatus: result.status,
-      result: result.status === 'finished' ? result.value : undefined
+      result: result.status === 'finished' ? stringify(result.value) : undefined
     }
     if (options.showErrorJSON) {
       testResult['errors'] = context.errors

@@ -11,8 +11,6 @@ STRING_LITERAL:  '"' ( '\\' [btnfr"'\\] | ~[\r\n\\"] )* '"';
 UNIT_LITERAL: '()';
 NIL: 'nil' | '[' WHITESPACE* ']' ;
 
-TYPE: 'bool' | 'int' | 'real' | 'string' | 'unit';
-
 fragment SYMBOLIC_IDENTIFIER: [!%&$#+-/:<=>?@\\~'^|*]+;
 fragment ALPHANUMERIC_IDENTIFIER: [a-zA-Z][a-zA-Z0-9'_]*;
 IDENTIFIER: ALPHANUMERIC_IDENTIFIER | SYMBOLIC_IDENTIFIER;
@@ -22,6 +20,13 @@ WHITESPACE: [ \r\n\t]+ -> skip;
 /*
  * Productions
  */
+
+ type
+   : litType= ('bool' | 'int' | 'real' | 'string' | 'unit')    # LiteralType
+   | elType=type 'list'                                        # ListType
+   | param=type '->' return=type                               # FunctionType
+   | '(' inner=type ')'                                        # ParenthesizedType
+   ;
 
 identifier : IDENTIFIER;
 
@@ -36,7 +41,7 @@ literal
 expression
    : literal                                                                        # LiteralExpression
    | identifier                                                                     # IdentifierExpression
-   | expression ':' TYPE                                                            # TypedExpression
+   | expression ':' type                                                            # TypedExpression
    | fn=expression args=expression                                                  # FunctionApplication
    | left=expression op=('*' | '/' | 'div' | 'mod') right=expression                # InfixApplication
    | left=expression op=('+' | '-') right=expression                                # InfixApplication
@@ -59,7 +64,7 @@ expressionList : expression (';' expression)*;
 pattern
    : literal                                    # LiteralPattern
    | identifier                                 # IdentifierPattern
-   | pattern ':' TYPE                           # TypedPattern
+   | pattern ':' type                           # TypedPattern
    | '(' pattern ')'                            # ParenthesizedPattern
    ;
 
