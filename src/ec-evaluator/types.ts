@@ -13,7 +13,8 @@ export enum InstrType {
   LOCAL_ENVIRONMENT = 'LocalEnvironment',
   POP = 'Pop',
   PUSH_UNDEFINED_IF_NEEDED = 'PushUndefinedIfNeeded',
-  TAIL_CALL = 'TailCall'
+  TAIL_CALL = 'TailCall',
+  LIST = 'List'
 }
 
 interface BaseInstr {
@@ -60,6 +61,11 @@ export interface TailCallInstr extends BaseInstr {
   srcNode: es.ApplicationExpression
 }
 
+export interface ListInstr extends BaseInstr {
+  arity: number
+  srcNode: es.ListExpression
+}
+
 export type Instr =
   | AssmtInstr
   | BaseInstr
@@ -70,6 +76,7 @@ export type Instr =
   | EnvInstr
   | LocalEnvInstr
   | TailCallInstr
+  | ListInstr
 
 export type AgendaItem = es.Node | Instr
 

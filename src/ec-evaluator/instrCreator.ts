@@ -13,6 +13,7 @@ import {
   EnvInstr,
   Instr,
   InstrType,
+  ListInstr,
   LocalEnvInstr,
   TailCallInstr
 } from './types'
@@ -81,6 +82,12 @@ export const pushUndefIfNeededInstr = (): Instr => ({
 
 export const tailCallInstr = (arity: number, srcNode: es.ApplicationExpression): TailCallInstr => ({
   instrType: InstrType.TAIL_CALL,
+  arity,
+  srcNode
+})
+
+export const listInstr = (arity: number, srcNode: es.ListExpression): ListInstr => ({
+  instrType: InstrType.LIST,
   arity,
   srcNode
 })

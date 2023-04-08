@@ -6,6 +6,7 @@
  */
 
 /* tslint:disable:max-classes-per-file */
+import { Literal } from 'estree'
 import { cloneDeep } from 'lodash'
 
 import * as es from '../ast'
@@ -28,6 +29,7 @@ import {
   EnvInstr,
   Instr,
   InstrType,
+  ListInstr,
   LocalEnvInstr,
   TailCallInstr
 } from './types'
@@ -162,6 +164,16 @@ function runECEMachine(context: Context, agenda: Agenda, stash: Stash) {
     command = agenda.pop()
   }
   return context.globalDeclarations
+}
+
+function unwrapList(list: Value): Value {
+  if (!Array.isArray(list)) {
+    if (list?.type == 'Literal') return list.value
+    else return list
+  }
+  return list.map(element => {
+    return unwrapList(element)
+  })
 }
 
 export const evaluateCallInstr = (
@@ -419,6 +431,18 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     agenda.push(...handleSequence(expressionStatements))
   },
 
+  ListExpression: function (
+    command: es.ListExpression,
+    context: Context,
+    agenda: Agenda,
+    stash: Stash
+  ) {
+    agenda.push(instr.listInstr(command.elements.length, command))
+    for (let i = command.elements.length - 1; i >= 0; i--) {
+      agenda.push(command.elements[i])
+    }
+  },
+
   /**
    * Instructions
    */
@@ -497,5 +521,13 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     stash: Stash
   ) {
     evaluateCallInstr(command, context, agenda, stash)
+  },
+
+  [InstrType.LIST]: function (command: ListInstr, context: Context, agenda: Agenda, stash: Stash) {
+    const elements: es.Literal[] = []
+    for (let i = 0; i < command.arity; i++) {
+      elements.push(stash.pop())
+    }
+    stash.push(elements.reverse())
   }
 }

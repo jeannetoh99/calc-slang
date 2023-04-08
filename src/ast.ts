@@ -118,6 +118,7 @@ export interface ExpressionMap {
   LetExpression: LetExpression
   Literal: Literal
   SequenceExpression: SequenceExpression
+  ListExpression: ListExpression
 }
 
 export type Type = PrimitiveType
@@ -174,6 +175,11 @@ export interface LetExpression extends BaseExpression {
 export interface SequenceExpression extends BaseExpression {
   type: 'SequenceExpression'
   expressions: Expression[]
+}
+
+export interface ListExpression extends BaseExpression {
+  type: 'ListExpression'
+  elements: Expression[]
 }
 
 export interface Identifier extends BaseExpression, BasePattern {
