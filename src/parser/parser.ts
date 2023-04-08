@@ -15,7 +15,7 @@ import {
   DeclarationContext,
   DeclarationListContext,
   DeclarationStatementContext,
-  EmptyListExpressionContext,
+  EmptyListContext,
   ExpressionContext,
   ExpressionListContext,
   ExpressionStatementContext,
@@ -30,6 +30,7 @@ import {
   LambdaContext,
   LambdaExpressionContext,
   LetExpressionContext,
+  ListConstructionExpressionContext,
   ListExpressionContext,
   ListTypeContext,
   LiteralContext,
@@ -44,6 +45,7 @@ import {
   RealContext,
   RecursiveDeclarationContext,
   SequenceExpressionContext,
+  SquareBracketListContext,
   StatementContext,
   StringContext,
   TypeContext,
@@ -154,6 +156,15 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitIdentifierExpression(ctx: IdentifierExpressionContext): es.Identifier {
     return this.visit(ctx.identifier()) as es.Identifier
   }
+  visitListConstructionExpression(ctx: ListConstructionExpressionContext): es.ApplicationExpression {
+    return {
+      type: 'ApplicationExpression',
+      callee: identifier('::', contextToLocation(ctx)),
+      args: ctx.expression().map(arg => this.visit(arg) as es.Expression),
+      isInfix: true,
+      loc: contextToLocation(ctx)
+    }
+  }
   visitTypedExpression(ctx: TypedExpressionContext): es.Expression {
     const expr = this.visit(ctx.expression()) as es.Expression
     expr.annotatedType = this.visit(ctx.type()) as es.Type
@@ -198,23 +209,7 @@ class AstConverter implements CalcVisitor<es.Node> {
     }
   }
   visitListExpression(ctx: ListExpressionContext): es.ListExpression {
-    const elements = ctx.expression().map(expr => this.visit(expr) as es.Expression)
-    return {
-      type: 'ListExpression',
-      smlType: { type: 'list' },
-      inferredType: { type: 'list' },
-      elements,
-      loc: contextToLocation(ctx)
-    }
-  }
-  visitEmptyListExpression(ctx: EmptyListExpressionContext): es.ListExpression {
-    return {
-      type: 'ListExpression',
-      smlType: { type: 'list' },
-      inferredType: { type: 'list' },
-      elements: [],
-      loc: contextToLocation(ctx)
-    }
+    return this.visit(ctx.list()) as es.ListExpression
   }
   visitParenthesizedExpression(ctx: ParenthesizedExpressionContext): es.Expression {
     return this.visit(ctx.expression()) as es.Expression
@@ -275,6 +270,25 @@ class AstConverter implements CalcVisitor<es.Node> {
   }
   visitParenthesizedType(ctx: ParenthesizedTypeContext): es.Type {
     return this.visit(ctx._inner) as es.Type
+  }
+  visitSquareBracketList(ctx: SquareBracketListContext): es.ListExpression {
+    const elements = ctx.expression().map(expr => this.visit(expr) as es.Expression)
+    return {
+      type: 'ListExpression',
+      smlType: { type: 'list' },
+      inferredType: { type: 'list' },
+      elements,
+      loc: contextToLocation(ctx)
+    }
+  }
+  visitEmptyList(ctx: EmptyListContext): es.ListExpression {
+    return {
+      type: 'ListExpression',
+      smlType: { type: 'list' },
+      inferredType: { type: 'list' },
+      elements: [],
+      loc: contextToLocation(ctx)
+    }
   }
   visitValueDeclaration(ctx: ValueDeclarationContext): es.ValueDeclaration {
     return {
@@ -475,9 +489,9 @@ export function parse(source: string, context: Context) {
     parser.buildParseTree = true
     try {
       const tree = parser.program()
-      // console.log(tree)
+      console.log(tree)
       program = convertSource(tree)
-      // console.log(program)
+      console.log(program)
     } catch (error) {
       if (error instanceof FatalSyntaxError) {
         context.errors.push(error)

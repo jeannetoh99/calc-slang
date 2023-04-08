@@ -1,7 +1,6 @@
 import { isInteger } from 'lodash'
 
-import { Type } from '../ast'
-import { StorageType } from '../ec-evaluator/types'
+import { SmlValue, Type } from '../ast'
 import { DeclarationType, Value } from '../types'
 
 export interface ArrayLike {
@@ -20,7 +19,7 @@ const formatResult = (result: ResultType) => {
   return ['val', result.name, '=', result.value, ':', result.type].join(' ') + ';'
 }
 
-const extractType = (type: Type): string => {
+export const extractType = (type: Type): string => {
   return type.type === 'function'
     ? (type.paramType ? extractType(type.paramType) : '?') +
         ' -> ' +
@@ -30,7 +29,7 @@ const extractType = (type: Type): string => {
     : type.type
 }
 
-const extractValue = (value: StorageType): Value => {
+const extractValue = (value: SmlValue): Value => {
   const type = value.smlType.type
 
   return type === 'string'

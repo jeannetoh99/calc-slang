@@ -8,7 +8,6 @@
 import * as es from './ast'
 import { EnvTree } from './createContext'
 import { Agenda, Stash } from './ec-evaluator/interpreter'
-import { StorageType } from './ec-evaluator/types'
 
 /**
  * Defines functions that act as built-ins, but might rely on
@@ -359,5 +358,5 @@ export type TypeEnvironment = {
 
 export type DeclarationType = {
   name: string
-  value: StorageType
+  value: es.SmlValue
 }

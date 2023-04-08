@@ -41,6 +41,7 @@ literal
 expression
    : literal                                                                        # LiteralExpression
    | identifier                                                                     # IdentifierExpression
+   | <assoc=right> expression '::' expression                                       # ListConstructionExpression
    | expression ':' type                                                            # TypedExpression
    | fn=expression args=expression                                                  # FunctionApplication
    | left=expression op=('*' | '/' | 'div' | 'mod') right=expression                # InfixApplication
@@ -48,14 +49,19 @@ expression
    | left=expression op=('<>' | '<' | '>' | '<=' | '>=' | '=') right=expression     # InfixApplication
    | left=expression op=('andalso' | 'orelse') right=expression                     # InfixApplication
    | left=expression op='^' right=expression                                        # InfixApplication
+   | left=expression op='@' right=expression                                        # InfixApplication
    | 'if' pred=expression 'then' cons=expression 'else' alt=expression              # ConditionalExpression
    | lambda                                                                         # LambdaExpression
    | 'let' declarationList 'in' expressionList 'end'                                # LetExpression
    | '(' expression ')'                                                             # ParenthesizedExpression
    | '(' expressionList ')'                                                         # SequenceExpression
-   | '[' expression (',' expression)* ']'                                                           # ListExpression
-   | NIL                                                                            # EmptyListExpression
-   ;
+   | list                                                                           # ListExpression
+   ;        
+
+list 
+   : '[' expression (',' expression)* ']'                                           # SquareBracketList
+   | NIL                                                                            # EmptyList
+   ;                                                        
 
 lambda : 'fn' pattern '=>' expression;
 

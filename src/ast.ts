@@ -209,6 +209,8 @@ export interface Identifier extends BaseExpression, BasePattern {
   name: string
 }
 
+export type SmlValue = Literal | List | Closure
+
 export type Literal = BoolLiteral | StringLiteral | IntLiteral | RealLiteral | UnitLiteral
 
 export interface SimpleLiteral extends BaseExpression, BasePattern {
@@ -238,3 +240,17 @@ export interface UnitLiteral extends SimpleLiteral {
 }
 
 export type NumLiteral = IntLiteral | RealLiteral
+
+export type List = {
+  type: 'List'
+  smlType: ListType
+  value: Array<SmlValue>
+}
+
+export type Closure = {
+  type: 'Function'
+  smlType: FunctionType
+  value: 'fn'
+  env: Environment
+  srcNode: LambdaExpression
+}
