@@ -54,7 +54,16 @@ import {
 } from '../lang/CalcParser'
 import { CalcVisitor } from '../lang/CalcVisitor'
 import { Context, ErrorSeverity, ErrorType, SourceError } from '../types'
-import { boolType, functionType, identifier, intType, listType, realType, stringType, unitType } from '../utils/astCreator'
+import {
+  boolType,
+  functionType,
+  identifier,
+  intType,
+  listType,
+  realType,
+  stringType,
+  unitType
+} from '../utils/astCreator'
 
 export class FatalSyntaxError implements SourceError {
   public type = ErrorType.SYNTAX
@@ -189,7 +198,7 @@ class AstConverter implements CalcVisitor<es.Node> {
     }
   }
   visitListExpression(ctx: ListExpressionContext): es.ListExpression {
-    const elements =  ctx.expression().map(expr => this.visit(expr) as es.Expression)
+    const elements = ctx.expression().map(expr => this.visit(expr) as es.Expression)
     return {
       type: 'ListExpression',
       smlType: { type: 'list' },
@@ -355,7 +364,7 @@ class AstConverter implements CalcVisitor<es.Node> {
       loc: contextToLocation(ctx)
     }
   }
-  visitType?: ((ctx: TypeContext) => es.Type) | undefined;
+  visitType?: ((ctx: TypeContext) => es.Type) | undefined
   visitIdentifier(ctx: IdentifierContext): es.Identifier {
     return {
       type: 'Identifier',

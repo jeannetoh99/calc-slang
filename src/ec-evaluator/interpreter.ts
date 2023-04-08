@@ -530,7 +530,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     for (let i = 0; i < command.arity; i++) {
       elements.push(stash.pop())
     }
-    const list : List = {
+    const list: List = {
       type: 'list',
       smlType: listType(elements[0]?.smlType),
       value: elements.reverse()

@@ -3,32 +3,32 @@ import * as es from '../ast'
 export const getValueDeclarationName = (decl: es.ValueDeclaration) =>
   (decl.declarations[0].id as es.Identifier).name
 
-export const stringType = () : es.LiteralType => ({
+export const stringType = (): es.LiteralType => ({
   type: 'string'
 })
 
-export const intType = () : es.LiteralType => ({
+export const intType = (): es.LiteralType => ({
   type: 'int'
 })
 
-export const realType = () : es.LiteralType => ({
+export const realType = (): es.LiteralType => ({
   type: 'real'
 })
 
-export const boolType = () : es.LiteralType => ({
+export const boolType = (): es.LiteralType => ({
   type: 'bool'
 })
 
-export const unitType = () : es.LiteralType => ({
+export const unitType = (): es.LiteralType => ({
   type: 'unit'
 })
 
-export const listType = ( elementType?: es.Type ) : es.ListType => ({
+export const listType = (elementType?: es.Type): es.ListType => ({
   type: 'list',
   elementType
 })
 
-export const functionType = ( paramType?: es.Type, returnType?: es.Type ) : es.FunctionType => ({
+export const functionType = (paramType?: es.Type, returnType?: es.Type): es.FunctionType => ({
   type: 'function',
   paramType,
   returnType
@@ -51,7 +51,7 @@ export const literal = (
   type: 'Literal',
   smlType,
   value,
-  loc,
+  loc
 })
 
 export const expressionStatement = (expression: es.Expression): es.ExpressionStatement => ({

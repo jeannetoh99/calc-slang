@@ -55,8 +55,12 @@ export const checkIsList = (node: es.Node, side: string, test: es.Literal) => {
   return isUnit(test) ? undefined : new TypeError(node, side, 'unit', test.smlType.type)
 }
 
-
-export const checkIsType = (node: es.Node, side: string, test: es.Literal, type: es.LiteralType) => {
+export const checkIsType = (
+  node: es.Node,
+  side: string,
+  test: es.Literal,
+  type: es.LiteralType
+) => {
   switch (type.type) {
     case 'int':
       return checkIsInt(node, side, test)

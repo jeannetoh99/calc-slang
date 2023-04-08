@@ -1,6 +1,6 @@
 import { isInteger } from 'lodash'
-import { Type } from '../ast'
 
+import { Type } from '../ast'
 import { StorageType } from '../ec-evaluator/types'
 import { DeclarationType, Value } from '../types'
 
@@ -22,31 +22,33 @@ const formatResult = (result: ResultType) => {
 
 const extractType = (type: Type): string => {
   return type.type === 'function'
-      ? (type.paramType ? extractType(type.paramType) : '?') + ' -> ' + (type.returnType ? extractType(type.returnType) : '?')
-      : type.type === 'list'
-      ? (type.elementType ? extractType(type.elementType) : '?') + ' list'
-      : type.type
+    ? (type.paramType ? extractType(type.paramType) : '?') +
+        ' -> ' +
+        (type.returnType ? extractType(type.returnType) : '?')
+    : type.type === 'list'
+    ? (type.elementType ? extractType(type.elementType) : '?') + ' list'
+    : type.type
 }
 
 const extractValue = (value: StorageType): Value => {
   const type = value.smlType.type
 
   return type === 'string'
-      ? '"' + value.value + '"'
-      : type === 'unit'
-      ? '()'
-      : type === 'real'  && isInteger(value.value)
-      ? value.value + '.0'
-      : type === 'list' && Array.isArray(value.value)
-      ? '[' + value.value.map(extractValue) + ']'
-      : value.value;
+    ? '"' + value.value + '"'
+    : type === 'unit'
+    ? '()'
+    : type === 'real' && isInteger(value.value)
+    ? value.value + '.0'
+    : type === 'list' && Array.isArray(value.value)
+    ? '[' + value.value.map(extractValue) + ']'
+    : value.value
 }
 
 const extractDeclaration = (declaration: DeclarationType): ResultType => {
-  return { 
-    name: declaration.name, 
-    value: extractValue(declaration.value), 
-    type: extractType(declaration.value.smlType) 
+  return {
+    name: declaration.name,
+    value: extractValue(declaration.value),
+    type: extractType(declaration.value.smlType)
   }
 }
 

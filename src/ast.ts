@@ -124,7 +124,7 @@ export interface ExpressionMap {
 
 export type Type = LiteralType | ListType | FunctionType
 
-export interface BaseType extends BaseNode {}
+export type BaseType = BaseNode
 
 export type LiteralTypeType = 'bool' | 'real' | 'int' | 'string' | 'unit'
 
