@@ -3,6 +3,7 @@ import * as es from '../ast'
 import { ECEResultPromise, evaluate as ECEvaluate } from '../ec-evaluator/interpreter'
 import { CannotFindModuleError } from '../errors/localImportErrors'
 import { parse } from '../parser/parser'
+import { inferProgram } from '../type-inference/type-inference'
 import { Context, Variant } from '../types'
 import { validateAndAnnotate } from '../validator/validator'
 import { determineVariant, resolvedErrorPromise } from './utils'
@@ -41,12 +42,14 @@ export async function sourceRunner(
 
   // TODO: Fix validateAndAnnotate and modify/add type checking
   // validateAndAnnotate(program, context)
+  //inferProgram(program)
   context.unTypecheckedCode.push(code)
 
   if (context.errors.length > 0) {
     return resolvedErrorPromise
   }
 
+  console.log('Program:', program)
   return runECEvaluator(program, context, theOptions)
 }
 
