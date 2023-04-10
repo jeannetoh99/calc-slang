@@ -48,8 +48,6 @@ export async function sourceRunner(
   if (context.errors.length > 0) {
     return resolvedErrorPromise
   }
-
-  console.log('Program:', program)
   return runECEvaluator(program, context, theOptions)
 }
 
