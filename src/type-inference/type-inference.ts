@@ -1,13 +1,12 @@
 import * as es from '../ast'
-import { RealContext } from '../lang/CalcParser'
 import {
-  areSameType,
-  FunctionType,
-  ListType,
-  LiteralType,
-  Type,
-  TypeVariable
-} from '../type-inference/types'
+FunctionType,
+ListType,
+LiteralType,
+sameType,
+Type,
+TypeVariable,
+} from '../ast'
 
 class TypeEnv {
   constructor(public map: { [name: string]: Type } = {}) {}
@@ -32,12 +31,11 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
   console.log(node)
   switch (node.type) {
     case 'Program':
-    // for stmt in stmt list
-    // if declaration, extend env
-    // if expression, infer
+    // infer all declarations
+    // update pattern type in env
     case 'LambdaExpression':
-    // if pattern is identifier, extend env
     // infer expression
+    // update pattern type in env
     case 'ListExpression':
     //
     case 'ConditionalExpression':
@@ -82,23 +80,23 @@ unify(['a = 'b, 'a = int]) = { ‘b / 'a } + unify(['b = int]) = { ‘b / 'a } +
 */
 
 /**
- * Unify a list of constraints
+ * Unify a list of constraints and return a list of substitutions
  */
 function unify(constraints: Constraint[]): Substitution[] {
-  const substitutions = []
-  if (constraints.length === 0) return []
+  const substitutions: Substitution[] = []
+  if (constraints.length === 0) return substitutions
   else {
     const constraint = constraints[0]
     const t1 = constraint.from
     const t2 = constraint.to
 
     // t1 and t2 same type
-    if (areSameType(t1, t2)) {
+    if (sameType(t1, t2)) {
       return unify(constraints.slice(1))
     }
 
     // t1 is type variable
-    else if (t1 instanceof TypeVariable) {
+    else if (t1.type === 'typeVariable') {  
       // new sub found
       substitutions.push(new Substitution(t2, t1))
 
@@ -115,7 +113,7 @@ function unify(constraints: Constraint[]): Substitution[] {
     }
 
     // previous case but swap
-    else if (t2 instanceof TypeVariable) {
+    else if (t2.type === 'typeVariable') {
       const temp = constraint.from
       constraints[0].from = constraint.to
       constraints[0].to = temp
@@ -123,31 +121,62 @@ function unify(constraints: Constraint[]): Substitution[] {
     }
 
     // both are function types
-    else if (t1 instanceof FunctionType && t2 instanceof FunctionType) {
+    else if (t1.type === 'function' && t2.type === 'function') {
+        const newConstraints = []
+        if (t1.paramType !== null) {
+            if (t2.paramType === null) {
+                throw new Error('Unification failed: Function param type expected')
+            }
+          newConstraints.push(new Constraint(t1.paramType!, t2.paramType!))
+        }
+        if (t1.returnType !== null) {
+            if (t2.returnType === null) {
+                throw new Error('Unification failed: Function return type expected')
+            }
+            newConstraints.push(new Constraint(t1.returnType!, t2.returnType!))
+        }
       return unify(
         constraints
           .slice(1)
-          .concat(new Constraint(t1.from, t2.from))
-          .concat(new Constraint(t1.to, t2.to))
+          .concat(newConstraints)
       )
     }
 
     // both are list types
-    else if (t1 instanceof ListType) {
-      if (!(t2 instanceof ListType)) {
+    else if (t1.type === 'list') {
+      if (t2.type !== 'list') {
         throw new Error('Unification failed: List type expected')
       }
-      return unify(constraints.slice(1).concat(new Constraint(t1.elementType, t2.elementType)))
+      if (t1.elementType === null) {
+        if (t2.elementType !== null) {
+          throw new Error('Unification failed: Empty list expected')
+        }
+      } else if (t2.elementType === null) {
+        throw new Error('Unification failed: Non-empty list expected')
+      } else {
+      return unify(constraints.slice(1).concat(new Constraint(t1.elementType!, t2.elementType!)))
+      }
+
     } else throw new Error('Unification failed')
   }
 }
 
+/**
+ * Substitute a type variable with a certian id with a specific type
+ * or substitute a function that includes the type variable
+ */
 function substitute(variable: Type, id: Number, sub: Type): Type {
-  if (variable instanceof TypeVariable) {
+  if (variable.type === 'typeVariable') {
     if (variable.id === id) return sub
     else return variable
-  } else if (variable instanceof FunctionType) {
-    return new FunctionType(substitute(variable.from, id, sub), substitute(variable.to, id, sub))
+  } else if (variable.type === 'function') {
+    if (variable.paramType !== null) {
+      variable.paramType = substitute(variable.paramType!, id, sub)
+    }
+    if (variable.returnType !== null) {
+      variable.returnType = substitute(variable.returnType!, id, sub)
+    }
+    return {type: 'function', paramType: variable.paramType, returnType: variable.returnType}
   } else {
     return variable
   }

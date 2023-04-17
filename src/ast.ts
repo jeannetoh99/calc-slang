@@ -122,14 +122,36 @@ export interface ExpressionMap {
   ListExpression: ListExpression
 }
 
-export type Type = LiteralType | ListType | FunctionType
+export type Type = LiteralType | ListType | FunctionType | TypeVariable
 
 export type BaseType = BaseNode
 
 export type LiteralTypeType = 'bool' | 'real' | 'int' | 'string' | 'unit'
 
+export function sameType(t1: Type, t2: Type): boolean {
+  if (t1.type !== t2.type) {
+    return false
+  }
+  switch (t1.type) {
+    case 'literal':
+      return t1.litType === (t2 as LiteralType).litType
+    case 'list':
+      return t1.elementType === (t2 as ListType).elementType
+    case 'function':
+      return (
+        t1.paramType === (t2 as FunctionType).paramType &&
+        t1.returnType === (t2 as FunctionType).returnType
+      )
+    case 'typeVariable':
+      return t1.id === (t2 as TypeVariable).id
+    default:
+      throw new Error(`Unknown type: ${t1}`)
+  }
+}
+
 export interface LiteralType extends BaseType {
-  type: LiteralTypeType
+  type: 'literal'
+  litType: LiteralTypeType
 }
 
 export interface ListType extends BaseType {
@@ -141,6 +163,11 @@ export interface FunctionType extends BaseType {
   type: 'function'
   paramType?: Type
   returnType?: Type
+}
+
+export interface TypeVariable extends BaseType {
+  type: 'typeVariable'
+  id: Number
 }
 
 export type Expression = ExpressionMap[keyof ExpressionMap]
