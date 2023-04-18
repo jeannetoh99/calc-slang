@@ -1,5 +1,7 @@
 import { Environment } from './types'
 
+//////////////////////////////// NODES ////////////////////////////////
+
 interface BaseNode {
   // Every leaf interface that extends BaseNode must specify a type property.
   // The type property should be a string literal. For example, Identifier
@@ -18,7 +20,6 @@ interface NodeMap {
   Program: Program
   Statement: Statement
   DeclarationList: DeclarationList
-  ValueDeclarator: ValueDeclarator
 }
 
 export type Node = NodeMap[keyof NodeMap]
@@ -41,15 +42,23 @@ export interface Position {
   column: number
 }
 
+//////////////////////////////// PROGRAM ////////////////////////////////
+
 export interface Program extends BaseNode {
   type: 'Program'
   sourceType: 'script' | 'module'
+  smlType: Type
   body: Array<Statement>
 }
 
-export type Statement = BlockStatement | ExpressionStatement | EmptyStatement | Declaration
+//////////////////////////////// STATEMENTS ////////////////////////////////
 
-type BaseStatement = BaseNode
+export type Statement = 
+  BlockStatement | ExpressionStatement | EmptyStatement | Declaration
+
+interface BaseStatement extends BaseNode {
+  smlType: Type
+}
 
 export interface EmptyStatement extends BaseStatement {
   type: 'EmptyStatement'
@@ -65,6 +74,8 @@ export interface ExpressionStatement extends BaseStatement {
   expression: Expression
 }
 
+//////////////////////////////// DECLARATIONS ////////////////////////////////
+
 export type Declaration =
   | ValueDeclaration
   | RecValueDeclaration
@@ -78,7 +89,8 @@ interface BaseDeclaration extends BaseStatement {
 
 export interface ValueDeclaration extends BaseDeclaration {
   type: 'ValueDeclaration'
-  declarations: Array<ValueDeclarator>
+  id: Identifier
+  init: Expression
 }
 
 export interface RecValueDeclaration extends BaseDeclaration {
@@ -94,12 +106,6 @@ export interface FunctionDeclaration extends BaseDeclaration {
   body: Expression
 }
 
-export interface ValueDeclarator extends BaseNode {
-  type: 'ValueDeclarator'
-  id: Identifier
-  init?: Expression | null | undefined
-}
-
 export interface LocalDeclaration extends BaseDeclaration {
   type: 'LocalDeclaration'
   local: DeclarationList
@@ -111,6 +117,8 @@ export interface DeclarationList extends BaseDeclaration {
   body: Array<Declaration>
 }
 
+////////////////////////// EXPRESSIONS & PATTERNS //////////////////////////
+
 export interface ExpressionMap {
   CallExpression: ApplicationExpression
   ConditionalExpression: ConditionalExpression
@@ -119,50 +127,29 @@ export interface ExpressionMap {
   LetExpression: LetExpression
   Literal: Literal
   SequenceExpression: SequenceExpression
+  TupleExpression: TupleExpression
   ListExpression: ListExpression
-}
-
-export type Type = LiteralType | ListType | FunctionType
-
-export type BaseType = BaseNode
-
-export type LiteralTypeType = 'bool' | 'real' | 'int' | 'string' | 'unit'
-
-export interface LiteralType extends BaseType {
-  type: LiteralTypeType
-}
-
-export interface ListType extends BaseType {
-  type: 'list'
-  elementType?: Type
-}
-
-export interface FunctionType extends BaseType {
-  type: 'function'
-  paramType?: Type
-  returnType?: Type
 }
 
 export type Expression = ExpressionMap[keyof ExpressionMap]
 
 export interface BaseExpression extends BaseNode {
-  smlType?: Type
+  smlType: Type
   annotatedType?: Type
-  inferredType?: Type
   tail?: boolean
 }
 
 export interface PatternMap {
   Identifier: Identifier
   Literal: Literal
+  TupleExpression: TupleExpression
 }
 
 export type Pattern = PatternMap[keyof PatternMap]
 
 export interface BasePattern extends BaseNode {
-  smlType?: Type
+  smlType: Type
   annotedType?: Type
-  inferredType?: Type
 }
 
 export interface ApplicationExpression extends BaseExpression {
@@ -198,6 +185,12 @@ export interface SequenceExpression extends BaseExpression {
   expressions: Expression[]
 }
 
+export interface TupleExpression extends BaseExpression, BasePattern {
+  type: 'TupleExpression'
+  smlType: TupleType
+  elements: Expression[]
+}
+
 export interface ListExpression extends BaseExpression {
   smlType: ListType
   type: 'ListExpression'
@@ -209,11 +202,58 @@ export interface Identifier extends BaseExpression, BasePattern {
   name: string
 }
 
-export type SmlValue = Literal | List | Closure
+////////////////////////////////// SML TYPES //////////////////////////////////
 
-export type Literal = BoolLiteral | StringLiteral | IntLiteral | RealLiteral | UnitLiteral
+export type Type = 
+  LiteralType | ListType | FunctionType | TupleType | VariableType
 
-export interface SimpleLiteral extends BaseExpression, BasePattern {
+export type BaseType = BaseNode
+
+export type TypeType = LiteralTypeType | 'list' | 'function' | 'variable'
+
+export type LiteralTypeType = 'bool' | 'real' | 'int' | 'string' | 'unit'
+
+export interface LiteralType extends BaseType {
+  type: LiteralTypeType
+}
+
+export interface ListType extends BaseType {
+  type: 'list'
+  elementType: Type
+}
+
+export interface TupleType extends BaseType {
+  type: 'tuple'
+  elementTypes: Type[]
+}
+
+export interface FunctionType extends BaseType {
+  type: 'function'
+  paramType: Type
+  returnType: Type
+}
+
+// export interface FunctionApplicationType extends BaseType {
+//   type: 'function_application'
+//   caller: FunctionType,
+//   args: Type[]
+// }
+
+export interface VariableType extends BaseType {
+  type: 'variable'
+  id: number
+}
+
+///////////////////////////////// SML VALUES /////////////////////////////////
+
+export type SmlValue = Literal | List | Tuple | Closure
+
+export type Literal = 
+  BoolLiteral | StringLiteral | IntLiteral | RealLiteral | UnitLiteral
+
+export type BaseSmlValue = BaseNode;
+
+export interface SimpleLiteral extends BaseExpression, BasePattern, BaseSmlValue {
   type: 'Literal'
   smlType: LiteralType
   raw?: string | undefined
@@ -241,13 +281,19 @@ export interface UnitLiteral extends SimpleLiteral {
 
 export type NumLiteral = IntLiteral | RealLiteral
 
-export type List = {
+export interface List extends BaseSmlValue {
   type: 'List'
   smlType: ListType
   value: Array<SmlValue>
 }
 
-export type Closure = {
+export interface Tuple extends BaseSmlValue {
+  type: 'Tuple'
+  smlType: TupleType
+  value: Array<SmlValue>
+}
+
+export interface Closure extends BaseSmlValue {
   type: 'Function'
   smlType: FunctionType
   value: 'fn'

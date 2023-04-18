@@ -7,7 +7,7 @@ import {
   LambdaExpression,
   Node,
   SourceLocation,
-  ValueDeclarator
+  ValueDeclaration,
 } from './ast'
 import { Context } from './types'
 import { ancestor, findNodeAt, recursive, WalkerCallback } from './utils/walkers'
@@ -71,7 +71,7 @@ export function findDeclarationNode(program: Node, identifier: Identifier): Node
           }
         }
       },
-      ValueDeclarator(node: ValueDeclarator, _state: any, _callback: WalkerCallback<any>) {
+      ValueDeclaration(node: ValueDeclaration, _state: any, _callback: WalkerCallback<any>) {
         if ((node.id as Identifier).name === identifier.name) {
           declarations.push(node.id)
         }

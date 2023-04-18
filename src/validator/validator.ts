@@ -45,7 +45,7 @@ export function validateAndAnnotate(
   }
   const customWalker = {
     ...base,
-    ValueDeclarator(node: es.ValueDeclarator, st: never, c: FullWalkerCallback<never>) {
+    ValueDeclaration(node: es.ValueDeclaration, st: never, c: FullWalkerCallback<never>) {
       // don't visit the id
       if (node.init) {
         c(node.init, st, 'Expression')

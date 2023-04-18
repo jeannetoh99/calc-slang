@@ -14,6 +14,7 @@ export enum InstrType {
   POP = 'Pop',
   PUSH_UNDEFINED_IF_NEEDED = 'PushUndefinedIfNeeded',
   TAIL_CALL = 'TailCall',
+  TUPLE = 'Tuple',
   LIST = 'List'
 }
 
@@ -69,6 +70,11 @@ export interface ListInstr extends BaseInstr {
   srcNode: es.ListExpression
 }
 
+export interface TupleInstr extends BaseInstr {
+  arity: number
+  srcNode: es.TupleExpression
+}
+
 export type Instr =
   | AssmtInstr
   | BaseInstr
@@ -80,6 +86,7 @@ export type Instr =
   | LocalEnvInstr
   | TailCallInstr
   | ListInstr
+  | TupleInstr
 
 export type AgendaItem = es.Node | Instr
 

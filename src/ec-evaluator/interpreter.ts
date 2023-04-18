@@ -12,7 +12,7 @@ import * as es from '../ast'
 import * as errors from '../errors/errors'
 import { arity } from '../stdlib/misc'
 import { Context, Result, Value } from '../types'
-import { expressionStatement, functionType, listType } from '../utils/astCreator'
+import { expressionStatement, functionType, listType, tupleType, variableType } from '../utils/astCreator'
 import * as rttc from '../utils/rttc'
 import { applyBuiltin, builtinInfixFunctions, builtinMapping, checkBuiltin } from './builtin'
 import * as instr from './instrCreator'
@@ -30,7 +30,8 @@ import {
   InstrType,
   ListInstr,
   LocalEnvInstr,
-  TailCallInstr
+  TailCallInstr,
+  TupleInstr
 } from './types'
 import {
   checkNumberOfArguments,
@@ -248,15 +249,13 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
 
   ValueDeclaration: function (command: es.ValueDeclaration, context: Context, agenda: Agenda) {
     const env = command.declEnv ?? currentEnvironment(context)
-    for (const declaration of command.declarations) {
-      const id = declaration.id as es.Identifier
+    const id = command.id as es.Identifier
 
-      // Parser enforces initialisation during variable declaration
-      const init = declaration.init!
+    // Parser enforces initialisation during variable declaration
+    const init = command.init!
 
-      agenda.push(instr.assmtInstr(id.name, true, command, env))
-      agenda.push(init)
-    }
+    agenda.push(instr.assmtInstr(id.name, true, command, env))
+    agenda.push(init)
   },
 
   RecValueDeclaration: function (
@@ -406,7 +405,11 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
   ) {
     const blockStmt: es.BlockStatement = {
       type: 'BlockStatement',
-      body: [command.declarations, expressionStatement(command.body)]
+      smlType: command.body.smlType,
+      body: [
+        command.declarations, 
+        expressionStatement(command.body, command.body.smlType)
+      ]
     }
     agenda.push(blockStmt)
   },
@@ -417,7 +420,8 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     agenda: Agenda,
     stash: Stash
   ) {
-    const expressionStatements = command.expressions.map(expr => expressionStatement(expr))
+    const expressionStatements = 
+      command.expressions.map(expr => expressionStatement(expr, expr.smlType))
     agenda.push(...handleSequence(expressionStatements))
   },
 
@@ -428,6 +432,18 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     stash: Stash
   ) {
     agenda.push(instr.listInstr(command.elements.length, command))
+    for (let i = command.elements.length - 1; i >= 0; i--) {
+      agenda.push(command.elements[i])
+    }
+  },
+
+  TupleExpression: function (
+    command: es.TupleExpression,
+    context: Context,
+    agenda: Agenda,
+    stash: Stash
+  ) {
+    agenda.push(instr.tupleInstr(command.elements.length, command))
     for (let i = command.elements.length - 1; i >= 0; i--) {
       agenda.push(command.elements[i])
     }
@@ -513,7 +529,12 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     evaluateCallInstr(command, context, agenda, stash)
   },
 
-  [InstrType.LIST]: function (command: ListInstr, context: Context, agenda: Agenda, stash: Stash) {
+  [InstrType.LIST]: function (
+    command: ListInstr, 
+    context: Context, 
+    agenda: Agenda, 
+    stash: Stash
+  ) {
     const elements: es.SmlValue[] = []
     for (let i = 0; i < command.arity; i++) {
       elements.push(stash.pop())
@@ -524,5 +545,24 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
       value: elements.reverse()
     }
     stash.push(list)
-  }
+  },
+
+  [InstrType.TUPLE]: function (
+    command: TupleInstr, 
+    context: Context,
+    agenda: Agenda, 
+    stash: Stash
+  ) {
+    let elements: es.SmlValue[] = []
+    for (let i = 0; i < command.arity; i++) {
+      elements.push(stash.pop())
+    }
+    elements = elements.reverse()
+    const list: es.Tuple = {
+      type: 'Tuple',
+      smlType: tupleType(elements.map(elem => elem.smlType)),
+      value: elements
+    }
+    stash.push(list)
+  },
 }

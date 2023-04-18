@@ -25,6 +25,7 @@ WHITESPACE: [ \r\n\t]+ -> skip;
    : litType= ('bool' | 'int' | 'real' | 'string' | 'unit')    # LiteralType
    | elType=type 'list'                                        # ListType
    | param=type '->' return=type                               # FunctionType
+   | type ('*' type)+                                          # TupleType     
    | '(' inner=type ')'                                        # ParenthesizedType
    ;
 
@@ -55,6 +56,7 @@ expression
    | 'let' declarationList 'in' expressionList 'end'                                # LetExpression
    | '(' expression ')'                                                             # ParenthesizedExpression
    | '(' expressionList ')'                                                         # SequenceExpression
+   | '(' expression (',' expression)* ')'                                           # TupleExpression
    | list                                                                           # ListExpression
    ;        
 
@@ -71,6 +73,7 @@ pattern
    : literal                                    # LiteralPattern
    | identifier                                 # IdentifierPattern
    | pattern ':' type                           # TypedPattern
+   | '(' pattern (',' pattern)* ')'             # TuplePattern
    | '(' pattern ')'                            # ParenthesizedPattern
    ;
 

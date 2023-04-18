@@ -29,14 +29,17 @@ export const isBool = (v: es.SmlValue) => v.smlType?.type === 'bool'
 export const isUnit = (v: es.SmlValue) => v.smlType?.type === 'unit'
 export const isList = (v: es.SmlValue) => v.smlType?.type === 'list'
 export const isFunction = (v: es.SmlValue) => v.smlType?.type === 'function'
-export const isTypeEqual = (a: es.Type | undefined, b: es.Type | undefined): boolean => {
-  if (a === undefined) return b === undefined
-  if (b === undefined) return a === undefined
-  if (a.type !== b.type) return false
-  if (a.type === 'list' && b.type === 'list') {
+export const isTuple = (v: es.SmlValue) => v.smlType?.type === 'tuple'
+export const isType = (v: es.SmlValue, t: es.TypeType) => v.smlType?.type === t
+
+export const isTypeEqual = (a: es.Type, b: es.Type): boolean => {
+  if (a.type !== b.type) {
+    return false
+  } else if (a.type === 'variable' && b.type === 'variable') {
+    return a.id === b.id;
+  } else if (a.type === 'list' && b.type === 'list') {
     return isTypeEqual(a.elementType, b.elementType)
-  }
-  if (a.type === 'function' && b.type === 'function') {
+  } else if (a.type === 'function' && b.type === 'function') {
     return isTypeEqual(a.paramType, b.paramType) && isTypeEqual(a.returnType, b.returnType)
   }
   return true
@@ -92,7 +95,14 @@ export const checkIsFunction = (node: es.Node, side: string, test: es.SmlValue) 
     : new TypeError(node, side, 'function', test.smlType?.type ?? 'unknown')
 }
 
-export const checkIsType = (node: es.Node, side: string, test: es.SmlValue, type: es.Type) => {
+export const checkIsTuple = (node: es.Node, side: string, test: es.SmlValue) => {
+  return isTuple(test)
+    ? undefined
+    : new TypeError(node, side, 'tuple', test.smlType?.type ?? 'unknown')
+}
+
+export const checkIsType = (
+  node: es.Node, side: string, test: es.SmlValue, type: es.Type) => {
   switch (type.type) {
     case 'int':
       return checkIsInt(node, side, test)
@@ -108,5 +118,9 @@ export const checkIsType = (node: es.Node, side: string, test: es.SmlValue, type
       return checkIsList(node, side, test)
     case 'function':
       return checkIsFunction(node, side, test)
+    case 'tuple':
+      return checkIsTuple(node, side, test)
+    case 'variable':
+      return
   }
 }

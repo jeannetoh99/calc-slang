@@ -16,7 +16,8 @@ import {
   InstrType,
   ListInstr,
   LocalEnvInstr,
-  TailCallInstr
+  TailCallInstr,
+  TupleInstr
 } from './types'
 
 export const assmtInstr = (
@@ -92,6 +93,12 @@ export const tailCallInstr = (arity: number, srcNode: es.ApplicationExpression):
 
 export const listInstr = (arity: number, srcNode: es.ListExpression): ListInstr => ({
   instrType: InstrType.LIST,
+  arity,
+  srcNode
+})
+
+export const tupleInstr = (arity: number, srcNode: es.TupleExpression): TupleInstr => ({
+  instrType: InstrType.TUPLE,
   arity,
   srcNode
 })

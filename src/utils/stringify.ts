@@ -26,6 +26,8 @@ export const extractType = (type: Type): string => {
         (type.returnType ? extractType(type.returnType) : '?')
     : type.type === 'list'
     ? (type.elementType ? extractType(type.elementType) : '?') + ' list'
+    : type.type === 'tuple'
+    ? type.elementTypes.map(elemType => extractType(elemType)).join(' * ')
     : type.type
 }
 
@@ -40,6 +42,8 @@ const extractValue = (value: SmlValue): Value => {
     ? value.value + '.0'
     : type === 'list' && Array.isArray(value.value)
     ? '[' + value.value.map(extractValue) + ']'
+    : type === 'tuple' && Array.isArray(value.value)
+    ? '(' + value.value.map(extractValue) + ')'
     : value.value
 }
 

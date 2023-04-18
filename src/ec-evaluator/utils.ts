@@ -159,9 +159,7 @@ function declareIdentifier(environment: Environment, name: string, node: es.Node
 }
 
 function declareVariables(environment: Environment, node: es.ValueDeclaration) {
-  for (const declaration of node.declarations) {
-    declareIdentifier(environment, (declaration.id as es.Identifier).name, node)
-  }
+  declareIdentifier(environment, (node.id as es.Identifier).name, node)
 }
 
 export function declareFunctionsAndVariables(
