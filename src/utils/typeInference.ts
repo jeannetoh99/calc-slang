@@ -1,14 +1,19 @@
 import { Context } from '..'
 import * as es from '../ast'
+import { builtinFunctionTypes } from '../ec-evaluator/builtin'
 import { TypeError, TypeInferenceError } from '../errors/typeErrors'
+import { boolType, tupleType } from './astCreator'
 import { isTypeEqual } from './rttc'
 
 class TypeEnv {
   constructor(public map: { [name: string]: es.Type } = {}) {}
 
   get(name: any) {
-    if (name in this.map) return this.map[name]
-    throw new Error('undefined symbol: ' + name)
+    if (name in this.map) {
+      return this.map[name]
+    } else {
+      return undefined
+    }
   }
 
   extend(name: any, val: es.Type) {
@@ -26,8 +31,11 @@ export interface InferResult {
  *  Infer the type of a node
  */
 export function infer(node: es.TypedNode, env: TypeEnv): InferResult {
+  console.log(node)
   const res = addConstraints(node, env)
+  console.log(res)
   const subs = unify(res.constraints)
+  console.log(subs)
   node.smlType = substitute(res.type, subs)
   return {
     type: node.smlType,
@@ -39,7 +47,7 @@ export function infer(node: es.TypedNode, env: TypeEnv): InferResult {
 export function bind(pat: es.Pattern, type: es.Type, env: TypeEnv): TypeEnv {
   if (pat.type === 'TuplePattern' && type.type === 'tuple') {
     // TODO: check no duplicate identifiers in the same pat
-    for (let i=0; i<pat.elements.length; i++) {
+    for (let i = 0; i < pat.elements.length; i++) {
       env = bind(pat.elements[i], type.elementTypes[i], env)
     }
     return env
@@ -53,11 +61,11 @@ export function bind(pat: es.Pattern, type: es.Type, env: TypeEnv): TypeEnv {
 
 export function addConstraints(node: es.Node, env: TypeEnv): InferResult {
   switch (node.type) {
-    case 'Program': 
+    case 'Program':
     case 'BlockStatement': {
       let type
-      for (let stmt of node.body) {
-        let res = infer(stmt, env)
+      for (const stmt of node.body) {
+        const res = infer(stmt, env)
         type = res.type
         env = res.env
       }
@@ -68,7 +76,7 @@ export function addConstraints(node: es.Node, env: TypeEnv): InferResult {
       }
     }
     case 'ExpressionStatement': {
-      let res = infer(node.expression, env)
+      const res = infer(node.expression, env)
       return {
         type: res.type,
         constraints: [],
@@ -77,22 +85,64 @@ export function addConstraints(node: es.Node, env: TypeEnv): InferResult {
     }
     case 'ValueDeclaration':
     case 'RecValueDeclaration': {
-      let res = infer(node.init, env)
+      const res = infer(node.init, env)
       return {
         type: res.type,
         constraints: [],
         env: bind(node.pat, res.type, res.env)
       }
     }
+    case 'ConditionalExpression': {
+      const res1 = infer(node.pred, env)
+      const res2 = infer(node.cons, env)
+      const res3 = infer(node.alt, env)
+      return {
+        type: node.smlType,
+        constraints: [
+          new Constraint(res1.type, boolType(), node),
+          new Constraint(node.smlType, res2.type, node),
+          new Constraint(node.smlType, res3.type, node),
+          ...res1.constraints,
+          ...res2.constraints,
+          ...res3.constraints
+        ],
+        env
+      }
+    }
+    case 'ApplicationExpression': {
+      const resCallee = infer(node.callee, env)
+      const resArgs = node.args.map(arg => infer(arg, env))
+      const resArgType = tupleType(resArgs.map(arg => arg.type))
+
+      if (resCallee.type.type !== 'function') {
+        throw new TypeInferenceError(
+          "Function application on non-callable expression",
+          node
+        )
+      }
+
+      let constraints = [
+        new Constraint(node.smlType, resCallee.type.returnType, node),
+        new Constraint(resArgType, resCallee.type.paramType, node),
+        ...resCallee.constraints,
+        ...resArgs.flatMap(res => res.constraints)
+      ]
+
+      return {
+        type: node.smlType,
+        constraints,
+        env
+      }
+    }
     case 'ListExpression': {
-      let constraints : Constraint[] = []
+      const constraints: Constraint[] = []
       if (node.elements.length !== 0) {
         constraints.push(
           new Constraint(node.smlType.elementType, node.elements[0].smlType, node)
         )
         for (let i = 0; i < node.elements.length - 1; i++) {
           constraints.push(
-            new Constraint(node.elements[i].smlType, node.elements[i+1].smlType, node)
+            new Constraint(node.elements[i].smlType, node.elements[i + 1].smlType, node)
           )
         }
       }
@@ -103,7 +153,7 @@ export function addConstraints(node: es.Node, env: TypeEnv): InferResult {
       }
     }
     case 'TupleExpression': {
-      let constraints : Constraint[] = []
+      const constraints: Constraint[] = []
       for (let i = 0; i < node.elements.length; i++) {
         constraints.push(
           new Constraint(node.smlType.elementTypes[i], node.elements[i].smlType, node)
@@ -115,7 +165,19 @@ export function addConstraints(node: es.Node, env: TypeEnv): InferResult {
         env
       }
     }
-    case 'Identifier':
+    case 'Identifier': {
+      let constraints : Constraint[] = []
+      if (env.get(node.name) !== undefined) {
+        constraints.push(
+          new Constraint(node.smlType, env.get(node.name)!, node)
+        )
+      }
+      return {
+        type: node.smlType,
+        constraints,
+        env
+      }
+    }
     case 'Literal':
       return {
         type: node.smlType,
@@ -125,21 +187,8 @@ export function addConstraints(node: es.Node, env: TypeEnv): InferResult {
     case 'FunctionDeclaration':
     case 'LocalDeclaration':
     case 'DeclarationList':
-    case 'ApplicationExpression':
-    case 'ConditionalExpression':
-    // if e1 then e2 else e3;
-    // new type t
-    // t1, c1 = infer(e1)
-    // t2, c2 = infer(e2)
-    // t3, c3 = infer(e3)
-    // return {type: t, constraints: [t1, bool, t = t2, t = t3, c1, c2, c3]}
-    case 'LambdaExpression':
-    // if pattern is identifier, extend env
-    // infer expression
     case 'LetExpression':
-    //
     case 'SequenceExpression':
-    //
       throw new Error(`Not supported yet: ${node.type}`)
     default:
       throw new Error(`Unknown node type: ${node.type}`)
@@ -157,11 +206,23 @@ class Constraint {
 }
 
 class Substitution {
-  before: es.VariableType
-  after: es.Type
-  constructor(before: es.VariableType, after: es.Type) {
-    this.before = before
-    this.after = after
+  constructor(public subs: Map<number, es.Type>) {}
+  insert(before: es.VariableType, after: es.Type) {
+    const id = before.id
+    if (id in this.subs && !isTypeEqual(this.subs[id], after)) {
+      throw new TypeInferenceError("Clashing types found!")
+    }
+    this.subs.set(id, after)
+    return this
+  }
+  concat(other: Substitution) {
+    for (let [id, type] of other.subs.entries()) {
+      if (id in this.subs && !isTypeEqual(this.subs[id], type)) {
+        throw new TypeInferenceError("Clashing types found!")
+      }
+      this.subs.set(id, type)
+    }
+    return this
   }
 }
 
@@ -191,12 +252,12 @@ function contains(t2: es.Type, t1: es.VariableType): boolean {
 /**
  * Unify a list of constraints
  */
-function unify(C: Constraint[]): Substitution[] {
-  const substitutions = []
+function unify(C: Constraint[]): Substitution {
+  const substitution = new Substitution(new Map())
 
   if (C.length === 0) {
     // If C is the empty set, then unify(C) is the empty substitution.
-    return []
+    return substitution
   } else {
     // If C contains at least one constraint t1 = t2
     // and possibly some other constraints C'.
@@ -218,15 +279,16 @@ function unify(C: Constraint[]): Substitution[] {
     // eliminating the variable 'x from the system of equations, much like
     // Gaussian elimination in solving algebraic equations.
     else if (t1.type === 'variable' && !contains(t2, t1)) {
-      substitutions.push(new Substitution(t1, t2))
-      return substitutions.concat(unify(C.slice(1)))
+      return substitution
+        .insert(t1, t2)
+        .concat(unify(C.slice(1)))
     }
 
     // previous case but swap
     else if (t2.type === 'variable' && !contains(t1, t2)) {
-      substitutions.push(new Substitution(t2, t1))
-
-      return substitutions.concat(unify(C.slice(1)))
+      return substitution
+        .insert(t2, t1)
+        .concat(unify(C.slice(1)))
     }
 
     // both are function types
@@ -241,22 +303,43 @@ function unify(C: Constraint[]): Substitution[] {
     // both are list types
     else if (t1.type === 'list' && t2.type === 'list') {
       return unify(
-        C.slice(1)
-          .concat(
-            new Constraint(t1.elementType, t2.elementType, constraint.srcNode)
-          )
+        C.slice(1).concat(new Constraint(t1.elementType, t2.elementType, constraint.srcNode))
+      )
+    } 
+    
+    // both are tuple types
+    else if (t1.type === 'tuple' && t2.type === 'tuple') {
+      if (t1.elementTypes.length !== t2.elementTypes.length) {
+        throw new TypeInferenceError(
+          'Type inference error: attempting to match tuples with differing length', 
+          constraint.srcNode)
+      }
+
+      let constraints : Constraint[] = []
+      for (let i=0; i<t1.elementTypes.length; i++) {
+        constraints.push(
+          new Constraint(t1.elementTypes[i], t2.elementTypes[i], constraint.srcNode)
         )
-    } else {
-      throw new TypeInferenceError('Type inference error: unification failed', constraint.srcNode)
+      }
+
+      return unify(
+        C.slice(1).concat(constraints)
+      )
+    } 
+    
+    else {
+      throw new TypeInferenceError(
+        'Type inference error: unification failed', 
+        constraint.srcNode)
     }
   }
 }
 
-function substitute(t: es.Type, S: Substitution[]): es.Type {
+function substitute(t: es.Type, S: Substitution): es.Type {
   if (t.type === 'variable') {
-    for (const sub of S) {
-      if (t.id === sub.before.id) {
-        return sub.after
+    for (const [id, type] of S.subs.entries()) {
+      if (t.id === id) {
+        return type
       }
     }
     return t // no valid substitution found, return variable type first
@@ -281,7 +364,7 @@ function substitute(t: es.Type, S: Substitution[]): es.Type {
   }
 }
 
-const GlobalEnv = new TypeEnv({})
+const GlobalEnv = new TypeEnv({ ...builtinFunctionTypes })
 
 const runningEnv = new TypeEnv({ ...GlobalEnv.map })
 

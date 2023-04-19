@@ -3,6 +3,10 @@ import * as es from '../ast'
 // export const getValueDeclarationName = (decl: es.ValueDeclaration) =>
 //   (decl.id as es.Identifier).name
 
+let id: number = 0
+export const getNextVarId = (): number => id++;
+export const getCurrVarId = (): number => id;
+
 export const stringType = (): es.LiteralType => ({
   type: 'string'
 })
@@ -35,7 +39,7 @@ export const tupleType = (elementTypes: es.Type[]): es.TupleType => ({
 
 export const variableType = (id: number): es.VariableType => ({
   type: 'variable',
-  id
+  id,
 })
 
 export const functionType = (paramType: es.Type, returnType: es.Type): es.FunctionType => ({
@@ -43,12 +47,6 @@ export const functionType = (paramType: es.Type, returnType: es.Type): es.Functi
   paramType,
   returnType
 })
-
-// export const functionApplicationType = (caller: es.FunctionType, args: es.Type[]): es.FunctionApplicationType => ({
-//   type: 'function_application',
-//   caller,
-//   args
-// })
 
 export const locationDummyNode = (line: number, column: number) =>
   literal('Dummy', stringType(), { start: { line, column }, end: { line, column } })

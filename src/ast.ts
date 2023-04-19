@@ -38,7 +38,6 @@ export interface NodeArray extends BaseNode {
   nodes: Array<BaseNode>
 }
 
-
 export type Node = NodeMap[keyof NodeMap]
 
 export interface SourceLocation {
@@ -66,7 +65,7 @@ export interface Program extends TypedBaseNode {
 
 export type Statement = BlockStatement | ExpressionStatement | EmptyStatement | Declaration
 
-type BaseStatement = TypedBaseNode;
+type BaseStatement = TypedBaseNode
 
 export interface EmptyStatement extends BaseStatement {
   type: 'EmptyStatement'
@@ -128,7 +127,7 @@ export interface DeclarationList extends BaseDeclaration {
 ////////////////////////// EXPRESSIONS & PATTERNS //////////////////////////
 
 export interface ExpressionMap {
-  CallExpression: ApplicationExpression
+  ApplicationExpression: ApplicationExpression
   ConditionalExpression: ConditionalExpression
   Identifier: Identifier
   LambdaExpression: LambdaExpression
@@ -218,7 +217,15 @@ export interface Identifier extends BaseExpression, BasePattern {
 
 ////////////////////////////////// SML TYPES //////////////////////////////////
 
-export type Type = LiteralType | ListType | FunctionType | TupleType | VariableType
+export interface TypeMap {
+  LiteralType: LiteralType
+  ListType: ListType
+  FunctionType: FunctionType
+  TupleType: TupleType
+  VariableType: VariableType
+}
+
+export type Type = TypeMap[keyof TypeMap]
 
 export type BaseType = BaseNode
 

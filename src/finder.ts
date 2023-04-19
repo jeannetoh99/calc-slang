@@ -53,7 +53,7 @@ export function findDeclarationNode(program: Node, identifier: Identifier): Node
         if (node.id && node.id.name === identifier.name) {
           declarations.push(node.id)
         } else if (containsNode(node, identifier)) {
-          let param;
+          let param
           if (node.param.type === 'TuplePattern') {
             param = node.param.elements.find(n => (n as Identifier).name === identifier.name)
           } else if (node.param.type === 'Identifier') {
@@ -68,7 +68,7 @@ export function findDeclarationNode(program: Node, identifier: Identifier): Node
       },
       ArrowFunctionExpression(node: LambdaExpression, state: any, callback: any) {
         if (containsNode(node, identifier)) {
-          let param;
+          let param
           if (node.param.type === 'TuplePattern') {
             param = node.param.elements.find(n => (n as Identifier).name === identifier.name)
           } else if (node.param.type === 'Identifier') {
@@ -82,7 +82,7 @@ export function findDeclarationNode(program: Node, identifier: Identifier): Node
         }
       },
       ValueDeclaration(node: ValueDeclaration, _state: any, _callback: WalkerCallback<any>) {
-        let id;
+        let id
         if (node.pat.type === 'TuplePattern') {
           id = node.pat.elements.find(n => (n as Identifier).name === identifier.name)
         } else if (node.pat.type === 'Identifier') {

@@ -22,13 +22,11 @@ const formatResult = (result: ResultType) => {
 export const extractVariableTypes = (type: Type): VariableType[] => {
   switch (type.type) {
     case 'function':
-      return extractVariableTypes(type.paramType)
-        .concat(extractVariableTypes(type.returnType))
+      return extractVariableTypes(type.paramType).concat(extractVariableTypes(type.returnType))
     case 'list':
       return extractVariableTypes(type.elementType)
     case 'tuple':
-      return type.elementTypes
-        .flatMap(elemType => extractVariableTypes(elemType))
+      return type.elementTypes.flatMap(elemType => extractVariableTypes(elemType))
     case 'variable':
       return [type]
     default:
@@ -44,12 +42,11 @@ export const extractType = (type: Type, inner: boolean = false): string => {
     : type.type === 'list'
     ? (type.elementType ? extractType(type.elementType) : '?') + ' list'
     : type.type === 'tuple'
-    ? (inner ? '(' : '')
-      + type.elementTypes
-          .map(elemType => extractType(elemType, true)).join(' * ')
-      + (inner ? ')' : '')
-    : type.type === 'variable' 
-    ? '\'v' + type.id
+    ? (inner ? '(' : '') +
+      type.elementTypes.map(elemType => extractType(elemType, true)).join(' * ') +
+      (inner ? ')' : '')
+    : type.type === 'variable'
+    ? "'v" + type.id
     : type.type
 }
 
@@ -74,7 +71,7 @@ const extractDeclaration = (declaration: DeclarationType): ResultType => {
   let varTypesString = ''
   if (varTypes.length != 0) {
     varTypesString = '\u2200 ' + extractType(varTypes[0])
-    for (let i=1; i<varTypes.length; i++) {
+    for (let i = 1; i < varTypes.length; i++) {
       varTypesString += ',' + extractType(varTypes[i])
     }
     varTypesString += ' . '

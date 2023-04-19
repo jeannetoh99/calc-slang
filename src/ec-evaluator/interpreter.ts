@@ -12,12 +12,7 @@ import * as es from '../ast'
 import * as errors from '../errors/errors'
 import { arity } from '../stdlib/misc'
 import { Context, Result, Value } from '../types'
-import {
-  expressionStatement,
-  functionType,
-  listType,
-  tupleType,
-} from '../utils/astCreator'
+import { expressionStatement, functionType, listType, tupleType } from '../utils/astCreator'
 import * as rttc from '../utils/rttc'
 import { applyBuiltin, builtinInfixFunctions, builtinMapping } from './builtin'
 import * as instr from './instrCreator'
@@ -267,12 +262,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
   ) {
     command.pat.smlType = command.smlType
     agenda.push(
-      instr.assmtInstr(
-        command.pat,
-        true,
-        command,
-        command.declEnv ?? currentEnvironment(context)
-      )
+      instr.assmtInstr(command.pat, true, command, command.declEnv ?? currentEnvironment(context))
     )
     command.init.recursiveId = command.pat.name
     agenda.push(command.init)
@@ -293,12 +283,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
       recursiveId: command.id.name
     }
     agenda.push(
-      instr.assmtInstr(
-        command.id,
-        true,
-        command,
-        command.declEnv ?? currentEnvironment(context)
-      )
+      instr.assmtInstr(command.id, true, command, command.declEnv ?? currentEnvironment(context))
     )
     agenda.push(lambdaExpression)
   },
@@ -477,7 +462,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
         )
       }
       defineVariable(context, command.env, command.pat.name, val, false)
-    } else if (command.pat.type === 'Literal') { 
+    } else if (command.pat.type === 'Literal') {
       // TODO: check that literal is the same
       stash.pop()
     } else {
@@ -526,15 +511,10 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     popLocalEnvironment(context)
   },
 
-  [InstrType.END]: function (
-    command: Instr,
-    context: Context,
-    agenda: Agenda,
-    stash: Stash
-  ) {
+  [InstrType.END]: function (command: Instr, context: Context, agenda: Agenda, stash: Stash) {
     if (stash.size() !== 0) {
       // TODO: replace with runtime error
-      console.error("program ends with non-empty stash!")
+      console.error('program ends with non-empty stash!')
     }
   },
 
@@ -566,7 +546,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     agenda: Agenda,
     stash: Stash
   ) {
-    let elements: es.SmlValue[] = []
+    const elements: es.SmlValue[] = []
     for (let i = 0; i < command.arity; i++) {
       elements.push(stash.pop())
     }
