@@ -133,11 +133,12 @@ export function addConstraints(node: es.Node, env: TypeEnv): InferResult {
     }
     case 'ListExpression': {
       const constraints: Constraint[] = []
-      if (node.elements.length !== 0) {
-        constraints.push(new Constraint(node.smlType.elementType, node.elements[0].smlType, node))
-        for (let i = 0; i < node.elements.length - 1; i++) {
+      const inferredElements = node.elements.map(elem => infer(elem, env))
+      if (inferredElements.length !== 0) {
+        constraints.push(new Constraint(node.smlType.elementType, inferredElements[0].type, node))
+        for (let i = 0; i < inferredElements.length - 1; i++) {
           constraints.push(
-            new Constraint(node.elements[i].smlType, node.elements[i + 1].smlType, node)
+            new Constraint(inferredElements[i].type, inferredElements[i + 1].type, node)
           )
         }
       }
@@ -148,10 +149,12 @@ export function addConstraints(node: es.Node, env: TypeEnv): InferResult {
       }
     }
     case 'TupleExpression': {
-      const constraints: Constraint[] = []
+      let constraints: Constraint[] = []
       for (let i = 0; i < node.elements.length; i++) {
+        const res = infer(node.elements[i], env)
         constraints.push(
-          new Constraint(node.smlType.elementTypes[i], node.elements[i].smlType, node)
+          new Constraint(node.smlType.elementTypes[i], res.type, node),
+          ...res.constraints
         )
       }
       return {
@@ -182,9 +185,10 @@ export function addConstraints(node: es.Node, env: TypeEnv): InferResult {
     case 'DeclarationList':
     case 'LetExpression':
     case 'SequenceExpression':
-      throw new Error(`Not supported yet: ${node.type}`)
+    case 'LambdaExpression':
+      throw new TypeInferenceError(`Not supported yet: ${node.type}`)
     default:
-      throw new Error(`Unknown node type: ${node.type}`)
+      throw new TypeInferenceError(`Unknown node type: ${node.type}`)
   }
 }
 
