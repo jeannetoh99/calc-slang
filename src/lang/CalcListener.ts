@@ -16,6 +16,7 @@ import { ParenthesizedExpressionContext } from "./CalcParser";
 import { SequenceExpressionContext } from "./CalcParser";
 import { TupleExpressionContext } from "./CalcParser";
 import { ListExpressionContext } from "./CalcParser";
+import { WildcardPatternContext } from "./CalcParser";
 import { LiteralPatternContext } from "./CalcParser";
 import { IdentifierPatternContext } from "./CalcParser";
 import { TypedPatternContext } from "./CalcParser";
@@ -226,6 +227,19 @@ export interface CalcListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	exitListExpression?: (ctx: ListExpressionContext) => void;
+
+	/**
+	 * Enter a parse tree produced by the `WildcardPattern`
+	 * labeled alternative in `CalcParser.pattern`.
+	 * @param ctx the parse tree
+	 */
+	enterWildcardPattern?: (ctx: WildcardPatternContext) => void;
+	/**
+	 * Exit a parse tree produced by the `WildcardPattern`
+	 * labeled alternative in `CalcParser.pattern`.
+	 * @param ctx the parse tree
+	 */
+	exitWildcardPattern?: (ctx: WildcardPatternContext) => void;
 
 	/**
 	 * Enter a parse tree produced by the `LiteralPattern`

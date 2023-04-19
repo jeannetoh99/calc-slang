@@ -36,7 +36,7 @@ export const isTypeEqual = (a: es.Type, b: es.Type): boolean => {
   if (a.type !== b.type) {
     return false
   } else if (a.type === 'variable' && b.type === 'variable') {
-    return a.id === b.id;
+    return a.id === b.id
   } else if (a.type === 'list' && b.type === 'list') {
     return isTypeEqual(a.elementType, b.elementType)
   } else if (a.type === 'function' && b.type === 'function') {
@@ -101,8 +101,7 @@ export const checkIsTuple = (node: es.Node, side: string, test: es.SmlValue) => 
     : new TypeError(node, side, 'tuple', test.smlType?.type ?? 'unknown')
 }
 
-export const checkIsType = (
-  node: es.Node, side: string, test: es.SmlValue, type: es.Type) => {
+export const checkIsType = (node: es.Node, side: string, test: es.SmlValue, type: es.Type) => {
   switch (type.type) {
     case 'int':
       return checkIsInt(node, side, test)

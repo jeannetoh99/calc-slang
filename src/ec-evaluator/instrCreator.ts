@@ -21,13 +21,13 @@ import {
 } from './types'
 
 export const assmtInstr = (
-  symbol: string,
+  pat: es.Pattern,
   declaration: boolean,
   srcNode: es.Node,
   env: Environment
 ): AssmtInstr => ({
   instrType: InstrType.ASSIGNMENT,
-  symbol,
+  pat,
   declaration,
   srcNode,
   env
@@ -81,8 +81,8 @@ export const localEnvInstr = (): LocalEnvInstr => ({
   instrType: InstrType.LOCAL_ENVIRONMENT
 })
 
-export const pushUndefIfNeededInstr = (): Instr => ({
-  instrType: InstrType.PUSH_UNDEFINED_IF_NEEDED
+export const endInstr = (): Instr => ({
+  instrType: InstrType.END
 })
 
 export const tailCallInstr = (arity: number, srcNode: es.ApplicationExpression): TailCallInstr => ({

@@ -120,11 +120,6 @@ export interface Context<T = any> {
   variant: Variant
 
   /**
-   * Contains the evaluated code that has not yet been typechecked.
-   */
-  unTypecheckedCode: string[]
-
-  /**
    * Storage container for module specific information and state
    */
   moduleContexts: {

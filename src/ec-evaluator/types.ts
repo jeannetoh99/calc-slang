@@ -9,10 +9,10 @@ export enum InstrType {
   BUILTIN = 'Builtin',
   CALL = 'Call',
   CLOSURE = 'Closure',
+  END = 'End',
   ENVIRONMENT = 'Environment',
   LOCAL_ENVIRONMENT = 'LocalEnvironment',
   POP = 'Pop',
-  PUSH_UNDEFINED_IF_NEEDED = 'PushUndefinedIfNeeded',
   TAIL_CALL = 'TailCall',
   TUPLE = 'Tuple',
   LIST = 'List'
@@ -23,7 +23,7 @@ interface BaseInstr {
 }
 
 export interface AssmtInstr extends BaseInstr {
-  symbol: string
+  pat: es.Pattern
   declaration: boolean
   srcNode: es.Node
   env: Environment

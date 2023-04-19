@@ -55,7 +55,8 @@ import {
   TypedExpressionContext,
   TypedPatternContext,
   UnitContext,
-  ValueDeclarationContext
+  ValueDeclarationContext,
+  WildcardPatternContext
 } from '../lang/CalcParser'
 import { CalcVisitor } from '../lang/CalcVisitor'
 import { Context, ErrorSeverity, ErrorType, SourceError } from '../types'
@@ -155,7 +156,7 @@ function contextToLocation(ctx: ExpressionContext): es.SourceLocation {
 }
 
 class AstConverter implements CalcVisitor<es.Node> {
-  id: number = 0;
+  id: number = 0
 
   visitLiteralExpression(ctx: LiteralExpressionContext): es.Literal {
     return this.visit(ctx.literal()) as es.Literal
@@ -170,7 +171,7 @@ class AstConverter implements CalcVisitor<es.Node> {
       type: 'ApplicationExpression',
       smlType: variableType(this.id++),
       callee: identifier(
-        '::', 
+        '::',
         functionType(variableType(this.id++), listType(variableType(this.id++))),
         contextToLocation(ctx)
       ),
@@ -185,8 +186,8 @@ class AstConverter implements CalcVisitor<es.Node> {
     return expr
   }
   visitFunctionApplication(ctx: FunctionApplicationContext): es.ApplicationExpression {
-    let callee = this.visit(ctx._fn) as es.Expression
-    let args = [this.visit(ctx._args) as es.Expression]
+    const callee = this.visit(ctx._fn) as es.Expression
+    const args = [this.visit(ctx._args) as es.Expression]
     return {
       type: 'ApplicationExpression',
       smlType: variableType(this.id++),
@@ -197,8 +198,8 @@ class AstConverter implements CalcVisitor<es.Node> {
     }
   }
   visitInfixApplication(ctx: InfixApplicationContext): es.ApplicationExpression {
-    let callee = identifier(ctx._op.text ?? '', variableType(this.id++), contextToLocation(ctx))
-    let args = [this.visit(ctx._left) as es.Expression, this.visit(ctx._right) as es.Expression]
+    const callee = identifier(ctx._op.text ?? '', variableType(this.id++), contextToLocation(ctx))
+    const args = [this.visit(ctx._left) as es.Expression, this.visit(ctx._right) as es.Expression]
 
     return {
       type: 'ApplicationExpression',
@@ -248,6 +249,12 @@ class AstConverter implements CalcVisitor<es.Node> {
       loc: contextToLocation(ctx)
     }
   }
+  visitWildcardPattern(ctx: WildcardPatternContext): es.Wildcard {
+    return {
+      type: 'Wildcard',
+      smlType: variableType(this.id++),
+    }
+  }
   visitLiteralPattern(ctx: LiteralPatternContext): es.Literal {
     return this.visit(ctx.literal()) as es.Literal
   }
@@ -256,13 +263,13 @@ class AstConverter implements CalcVisitor<es.Node> {
   }
   visitTypedPattern(ctx: TypedPatternContext): es.Pattern {
     const pat = this.visit(ctx.pattern()) as es.Pattern
-    pat.annotedType = this.visit(ctx.type()) as es.Type
+    pat.annotatedType = this.visit(ctx.type()) as es.Type
     return pat
   }
-  visitTuplePattern(ctx: TuplePatternContext): es.Pattern {
+  visitTuplePattern(ctx: TuplePatternContext): es.TuplePattern {
     return {
-      type: 'TupleExpression',
-      elements: ctx.pattern().map(expr => this.visit(expr) as es.Pattern),
+      type: 'TuplePattern',
+      elements: ctx.pattern().map(pat => this.visit(pat) as es.Pattern),
       smlType: tupleType(ctx.pattern().map(pat => variableType(this.id++))),
       loc: contextToLocation(ctx),
     }
@@ -274,7 +281,7 @@ class AstConverter implements CalcVisitor<es.Node> {
     return {
       type: 'ValueDeclaration',
       smlType: variableType(this.id++),
-      id: identifier('it', variableType(this.id++), contextToLocation(ctx)),
+      pat: identifier('it', variableType(this.id++), contextToLocation(ctx)),
       init: this.visit(ctx.expression()) as es.Expression,
       loc: contextToLocation(ctx)
     }
@@ -325,7 +332,7 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitEmptyList(ctx: EmptyListContext): es.ListExpression {
     return {
       type: 'ListExpression',
-      smlType: listType(unitType()),
+      smlType: listType(variableType(this.id++)),
       elements: [],
       loc: contextToLocation(ctx)
     }
@@ -334,7 +341,7 @@ class AstConverter implements CalcVisitor<es.Node> {
     return {
       type: 'ValueDeclaration',
       smlType: variableType(this.id++),
-      id: this.visit(ctx.pattern()) as es.Identifier,
+      pat: this.visit(ctx.pattern()) as es.Pattern,
       init: this.visit(ctx.expression()) as es.Expression,
       loc: contextToLocation(ctx)
     }
@@ -343,8 +350,8 @@ class AstConverter implements CalcVisitor<es.Node> {
     return {
       type: 'RecValueDeclaration',
       smlType: variableType(this.id++),
-      id: this.visit(ctx.identifier()) as es.Identifier,
-      lambda: this.visit(ctx.lambda()) as es.LambdaExpression,
+      pat: this.visit(ctx.identifier()) as es.Identifier,
+      init: this.visit(ctx.lambda()) as es.LambdaExpression,
       loc: contextToLocation(ctx)
     }
   }
@@ -353,7 +360,7 @@ class AstConverter implements CalcVisitor<es.Node> {
       type: 'FunctionDeclaration',
       smlType: variableType(this.id++),
       id: this.visit(ctx.identifier()) as es.Identifier,
-      params: [this.visit(ctx.pattern()) as es.Pattern],
+      param: this.visit(ctx.pattern()) as es.Pattern,
       body: this.visit(ctx.expression()) as es.Expression,
       loc: contextToLocation(ctx)
     }
@@ -426,12 +433,12 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitExpression?: ((ctx: ExpressionContext) => es.Expression) | undefined
 
   visitLambda(ctx: LambdaContext): es.LambdaExpression {
-    const params = [this.visit(ctx.pattern()) as es.Pattern]
+    const param = this.visit(ctx.pattern()) as es.Pattern
     const body = this.visit(ctx.expression()) as es.Expression
     return {
       type: 'LambdaExpression',
       smlType: functionType(variableType(this.id++), variableType(this.id++)),
-      params,
+      param,
       body,
       loc: contextToLocation(ctx)
     }
@@ -476,7 +483,7 @@ class AstConverter implements CalcVisitor<es.Node> {
   visit(tree: ParseTree): es.Node {
     return tree.accept(this)
   }
-  visitChildren(node: RuleNode): es.Node {
+  visitChildren(node: RuleNode): es.NodeArray {
     const nodes: es.Node[] = []
     for (let i = 0; i < node.childCount; i++) {
       nodes.push(node.getChild(i).accept(this))

@@ -9,102 +9,88 @@ import {
   realType,
   stringType
 } from '../utils/astCreator'
-import {
-  checkIsBool,
-  checkIsInt,
-  checkIsList,
-  checkIsNum,
-  checkIsReal,
-  checkIsString,
-  checkIsType,
-  checkIsTypeEqual
-} from '../utils/rttc'
-import { BuiltinInstr } from './types'
-import { handleRuntimeError } from './utils'
 
-const side = (id: string) => {
-  return ' as operand for ' + id
-}
+// const side = (id: string) => {
+//   return ' as operand for ' + id
+// }
 
-export const checkBuiltin = (
-  context: Context,
-  builtin: BuiltinInstr,
-  args: es.SmlValue[],
-  node: es.Node
-) => {
-  let type: es.Type
+// export const checkBuiltin = (
+//   context: Context,
+//   builtin: BuiltinInstr,
+//   args: es.SmlValue[],
+//   node: es.Node
+// ) => {
+//   let type: es.Type
 
-  let error
-  switch (builtin.identifier) {
-    case '+':
-    case '-':
-    case '*':
-    case '<>':
-    case '<':
-    case '>':
-    case '<=':
-    case '>=':
-    case '=':
-    case '~':
-      error = checkIsNum(node, side(builtin.identifier), args[0])
-      for (const arg of args) {
-        if (error) break
-        error = checkIsType(node, side(builtin.identifier), arg, args[0].smlType)
-      }
-      break
-    case 'div':
-    case 'mod':
-    case 'real':
-      for (const arg of args) {
-        error = checkIsInt(node, side(builtin.identifier), arg)
-        if (error) break
-      }
-      break
-    case 'floor':
-    case '/':
-      for (const arg of args) {
-        error = checkIsReal(node, side(builtin.identifier), arg)
-        if (error) break
-      }
-      break
-    case 'not':
-    case 'andalso':
-    case 'orelse':
-      for (const arg of args) {
-        error = checkIsBool(node, side(builtin.identifier), arg)
-        if (error) break
-      }
-      break
-    case 'size':
-    case '^':
-      for (const arg of args) {
-        error = checkIsString(node, side(builtin.identifier), arg)
-        if (error) break
-      }
-      break
-    case '@':
-      for (const arg of args) {
-        error = checkIsList(node, side(builtin.identifier), arg)
-        if (error) break
-      }
-      if (error) break
-      error = checkIsTypeEqual(node, side(builtin.identifier), args[0].smlType, args[1].smlType)
-      break
-    case '::':
-      error = checkIsList(node, side(builtin.identifier), args[1])
-      if (error) break
-      const listType = args[args.length - 1].smlType as es.ListType
-      if (listType.elementType == undefined) break
-      error = checkIsType(node, side(builtin.identifier), args[0], listType.elementType)
-      break
-    default:
-      break
-  }
-  if (error) {
-    return handleRuntimeError(context, error)
-  }
-  return
-}
+//   let error
+//   switch (builtin.identifier) {
+//     case '+':
+//     case '-':
+//     case '*':
+//     case '<>':
+//     case '<':
+//     case '>':
+//     case '<=':
+//     case '>=':
+//     case '=':
+//     case '~':
+//       error = checkIsNum(node, side(builtin.identifier), args[0])
+//       for (const arg of args) {
+//         if (error) break
+//         error = checkIsType(node, side(builtin.identifier), arg, args[0].smlType)
+//       }
+//       break
+//     case 'div':
+//     case 'mod':
+//     case 'real':
+//       for (const arg of args) {
+//         error = checkIsInt(node, side(builtin.identifier), arg)
+//         if (error) break
+//       }
+//       break
+//     case 'floor':
+//     case '/':
+//       for (const arg of args) {
+//         error = checkIsReal(node, side(builtin.identifier), arg)
+//         if (error) break
+//       }
+//       break
+//     case 'not':
+//     case 'andalso':
+//     case 'orelse':
+//       for (const arg of args) {
+//         error = checkIsBool(node, side(builtin.identifier), arg)
+//         if (error) break
+//       }
+//       break
+//     case 'size':
+//     case '^':
+//       for (const arg of args) {
+//         error = checkIsString(node, side(builtin.identifier), arg)
+//         if (error) break
+//       }
+//       break
+//     case '@':
+//       for (const arg of args) {
+//         error = checkIsList(node, side(builtin.identifier), arg)
+//         if (error) break
+//       }
+//       if (error) break
+//       error = checkIsTypeEqual(node, side(builtin.identifier), args[0].smlType, args[1].smlType)
+//       break
+//     case '::':
+//       const listType = args[args.length - 1].smlType as es.ListType
+//       if (listType.elementType == undefined) break
+//       error = checkIsType(node, side(builtin.identifier), args[0], listType.elementType)
+//       break
+//     default:
+//       break
+//   }
+//   if (error) {
+//     return handleRuntimeError(context, error)
+//   }
+//   return
+// }
 
 export const builtinInfixFunctions = {
   '+': (x: es.NumLiteral, y: es.NumLiteral) => literal(x.value + y.value, x.smlType),
@@ -138,6 +124,10 @@ export const builtinFunctions = {
 export const builtinMapping = {
   ...builtinInfixFunctions,
   ...builtinFunctions
+}
+
+export const builtinTypeMapping = {
+
 }
 
 export const applyBuiltin = (op: string, args: any) => {

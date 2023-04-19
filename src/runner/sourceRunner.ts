@@ -3,8 +3,8 @@ import * as es from '../ast'
 import { ECEResultPromise, evaluate as ECEvaluate } from '../ec-evaluator/interpreter'
 import { CannotFindModuleError } from '../errors/localImportErrors'
 import { parse } from '../parser/parser'
-import { inferProgram } from '../utils/typeInference'
 import { Context, Variant } from '../types'
+import { inferProgram } from '../utils/typeInference'
 import { determineVariant, resolvedErrorPromise } from './utils'
 
 const DEFAULT_SOURCE_OPTIONS: IOptions = {
@@ -39,10 +39,7 @@ export async function sourceRunner(
     return resolvedErrorPromise
   }
 
-  // TODO: Fix validateAndAnnotate and modify/add type checking
-  // validateAndAnnotate(program, context)
-  inferProgram(program)
-  context.unTypecheckedCode.push(code)
+  inferProgram(program, context)
 
   if (context.errors.length > 0) {
     return resolvedErrorPromise

@@ -16,6 +16,7 @@ fragment ALPHANUMERIC_IDENTIFIER: [a-zA-Z][a-zA-Z0-9'_]*;
 IDENTIFIER: ALPHANUMERIC_IDENTIFIER | SYMBOLIC_IDENTIFIER;
 
 WHITESPACE: [ \r\n\t]+ -> skip;
+WILDCARD: '_';
 
 /*
  * Productions
@@ -70,7 +71,8 @@ lambda : 'fn' pattern '=>' expression;
 expressionList : expression (';' expression)*;
 
 pattern
-   : literal                                    # LiteralPattern
+   : WILDCARD                                   # WildcardPattern
+   | literal                                    # LiteralPattern
    | identifier                                 # IdentifierPattern
    | pattern ':' type                           # TypedPattern
    | '(' pattern (',' pattern)* ')'             # TuplePattern

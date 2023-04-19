@@ -11,23 +11,35 @@ interface BaseNode {
   range?: [number, number] | undefined
 }
 
-interface NodeMap {
-  Type: Type
+interface TypedBaseNode extends BaseNode {
+  smlType: Type
+  annotatedType?: Type
+}
+
+interface TypedNodeMap {
   Expression: Expression
   Identifier: Identifier
   Literal: Literal
-  NodeArray: NodeArray
   Program: Program
   Statement: Statement
   DeclarationList: DeclarationList
+  Pattern: Pattern
 }
 
-export type Node = NodeMap[keyof NodeMap]
+export type TypedNode = TypedNodeMap[keyof TypedNodeMap]
+
+interface NodeMap extends TypedNodeMap {
+  Type: Type
+  NodeArray: NodeArray
+}
 
 export interface NodeArray extends BaseNode {
   type: 'NodeArray'
   nodes: Array<BaseNode>
 }
+
+
+export type Node = NodeMap[keyof NodeMap]
 
 export interface SourceLocation {
   source?: string | null | undefined
@@ -44,21 +56,17 @@ export interface Position {
 
 //////////////////////////////// PROGRAM ////////////////////////////////
 
-export interface Program extends BaseNode {
+export interface Program extends TypedBaseNode {
   type: 'Program'
   sourceType: 'script' | 'module'
-  smlType: Type
   body: Array<Statement>
 }
 
 //////////////////////////////// STATEMENTS ////////////////////////////////
 
-export type Statement = 
-  BlockStatement | ExpressionStatement | EmptyStatement | Declaration
+export type Statement = BlockStatement | ExpressionStatement | EmptyStatement | Declaration
 
-interface BaseStatement extends BaseNode {
-  smlType: Type
-}
+type BaseStatement = TypedBaseNode;
 
 export interface EmptyStatement extends BaseStatement {
   type: 'EmptyStatement'
@@ -89,20 +97,20 @@ interface BaseDeclaration extends BaseStatement {
 
 export interface ValueDeclaration extends BaseDeclaration {
   type: 'ValueDeclaration'
-  id: Identifier
+  pat: Pattern
   init: Expression
 }
 
 export interface RecValueDeclaration extends BaseDeclaration {
   type: 'RecValueDeclaration'
-  id: Identifier
-  lambda: LambdaExpression
+  pat: Identifier
+  init: LambdaExpression
 }
 
 export interface FunctionDeclaration extends BaseDeclaration {
   type: 'FunctionDeclaration'
   id: Identifier
-  params: Array<Pattern>
+  param: Pattern
   body: Expression
 }
 
@@ -133,24 +141,20 @@ export interface ExpressionMap {
 
 export type Expression = ExpressionMap[keyof ExpressionMap]
 
-export interface BaseExpression extends BaseNode {
-  smlType: Type
-  annotatedType?: Type
+export interface BaseExpression extends TypedBaseNode {
   tail?: boolean
 }
 
 export interface PatternMap {
   Identifier: Identifier
   Literal: Literal
-  TupleExpression: TupleExpression
+  TuplePattern: TuplePattern
+  Wildcard: Wildcard
 }
 
 export type Pattern = PatternMap[keyof PatternMap]
 
-export interface BasePattern extends BaseNode {
-  smlType: Type
-  annotedType?: Type
-}
+type BasePattern = TypedBaseNode
 
 export interface ApplicationExpression extends BaseExpression {
   type: 'ApplicationExpression'
@@ -169,7 +173,7 @@ export interface ConditionalExpression extends BaseExpression {
 export interface LambdaExpression extends BaseExpression {
   type: 'LambdaExpression'
   smlType: FunctionType
-  params: Array<Pattern>
+  param: Pattern
   body: Expression
   recursiveId?: string
 }
@@ -185,7 +189,7 @@ export interface SequenceExpression extends BaseExpression {
   expressions: Expression[]
 }
 
-export interface TupleExpression extends BaseExpression, BasePattern {
+export interface TupleExpression extends BaseExpression {
   type: 'TupleExpression'
   smlType: TupleType
   elements: Expression[]
@@ -197,6 +201,16 @@ export interface ListExpression extends BaseExpression {
   elements: Expression[]
 }
 
+export interface TuplePattern extends BasePattern {
+  type: 'TuplePattern'
+  smlType: TupleType
+  elements: Pattern[]
+}
+
+export interface Wildcard extends BasePattern {
+  type: 'Wildcard'
+}
+
 export interface Identifier extends BaseExpression, BasePattern {
   type: 'Identifier'
   name: string
@@ -204,8 +218,7 @@ export interface Identifier extends BaseExpression, BasePattern {
 
 ////////////////////////////////// SML TYPES //////////////////////////////////
 
-export type Type = 
-  LiteralType | ListType | FunctionType | TupleType | VariableType
+export type Type = LiteralType | ListType | FunctionType | TupleType | VariableType
 
 export type BaseType = BaseNode
 
@@ -248,10 +261,9 @@ export interface VariableType extends BaseType {
 
 export type SmlValue = Literal | List | Tuple | Closure
 
-export type Literal = 
-  BoolLiteral | StringLiteral | IntLiteral | RealLiteral | UnitLiteral
+export type Literal = BoolLiteral | StringLiteral | IntLiteral | RealLiteral | UnitLiteral
 
-export type BaseSmlValue = BaseNode;
+export type BaseSmlValue = BaseNode
 
 export interface SimpleLiteral extends BaseExpression, BasePattern, BaseSmlValue {
   type: 'Literal'

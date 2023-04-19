@@ -114,9 +114,15 @@ export const createEnvironment = (
       args
     }
   }
-  closure.srcNode.params.forEach((param, index) => {
-    environment.head[(param as es.Identifier).name] = args[index]
-  })
+
+  if (closure.srcNode.param.type === 'Identifier') {
+    environment.head[closure.srcNode.param.name] = args[0]
+  } else if (closure.srcNode.param.type === 'TuplePattern') {
+    closure.srcNode.param.elements.forEach((param, index) => {
+      environment.head[(param as es.Identifier).name] = args[index]
+    })
+  }
+
   return environment
 }
 
@@ -159,7 +165,16 @@ function declareIdentifier(environment: Environment, name: string, node: es.Node
 }
 
 function declareVariables(environment: Environment, node: es.ValueDeclaration) {
-  declareIdentifier(environment, (node.id as es.Identifier).name, node)
+  if (node.pat.type === 'TuplePattern') {
+    for (let pat of node.pat.elements) {
+      if (pat.type === 'Identifier') {
+        declareIdentifier(environment, pat.name, node)
+      }
+    }
+  } else if (node.pat.type === 'Identifier') {
+    declareIdentifier(environment, node.pat.name, node)
+  }
+  
 }
 
 export function declareFunctionsAndVariables(
@@ -220,33 +235,34 @@ export const handleRuntimeError = (context: Context, error: RuntimeSourceError) 
   throw error
 }
 
-export const checkNumberOfArguments = (
-  context: Context,
-  callee: ClosureInstr | BuiltinInstr,
-  args: Value[],
-  exp: es.ApplicationExpression
-) => {
-  if (callee?.instrType === InstrType.CLOSURE) {
-    // User-defined or Pre-defined functions
-    const instr = callee as ClosureInstr
-    const params = instr.srcNode?.params
-    if (params.length !== args.length) {
-      return handleRuntimeError(
-        context,
-        new errors.InvalidNumberOfArguments(exp, params.length, args.length)
-      )
-    }
-  } else if (callee?.instrType === InstrType.BUILTIN) {
-    const instr = callee as BuiltinInstr
-    if (instr.arity !== args.length) {
-      return handleRuntimeError(
-        context,
-        new errors.InvalidNumberOfArguments(exp, instr.arity, args.length)
-      )
-    }
-  }
-  return undefined
-}
+// export const checkNumberOfArguments = (
+//   context: Context,
+//   callee: ClosureInstr | BuiltinInstr,
+//   args: Value[],
+//   exp: es.ApplicationExpression
+// ) => {
+//   if (callee?.instrType === InstrType.CLOSURE) {
+//     // User-defined or Pre-defined functions
+//     const instr = callee as ClosureInstr
+//     const param = instr.srcNode?.param
+//     const arity = param.type === 'TuplePattern' ? param.elements.length : 1
+//     if (arity !== args.length) {
+//       return handleRuntimeError(
+//         context,
+//         new errors.InvalidNumberOfArguments(exp, arity, args.length)
+//       )
+//     }
+//   } else if (callee?.instrType === InstrType.BUILTIN) {
+//     const instr = callee as BuiltinInstr
+//     if (instr.arity !== args.length) {
+//       return handleRuntimeError(
+//         context,
+//         new errors.InvalidNumberOfArguments(exp, instr.arity, args.length)
+//       )
+//     }
+//   }
+//   return undefined
+// }
 
 /**
  * This function can be used to check for a stack overflow.

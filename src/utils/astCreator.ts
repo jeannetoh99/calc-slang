@@ -1,7 +1,7 @@
 import * as es from '../ast'
 
-export const getValueDeclarationName = (decl: es.ValueDeclaration) =>
-  (decl.id as es.Identifier).name
+// export const getValueDeclarationName = (decl: es.ValueDeclaration) =>
+//   (decl.id as es.Identifier).name
 
 export const stringType = (): es.LiteralType => ({
   type: 'string'
@@ -54,8 +54,8 @@ export const locationDummyNode = (line: number, column: number) =>
   literal('Dummy', stringType(), { start: { line, column }, end: { line, column } })
 
 export const identifier = (
-  name: string, 
-  smlType: es.Type, 
+  name: string,
+  smlType: es.Type,
   loc?: es.SourceLocation | null
 ): es.Identifier => ({
   type: 'Identifier',
@@ -87,17 +87,14 @@ export const list = (
 
 export const expressionStatement = (
   expression: es.Expression,
-  smlType: es.Type,
+  smlType: es.Type
 ): es.ExpressionStatement => ({
   type: 'ExpressionStatement',
   expression,
   smlType
 })
 
-export const program = (
-  body: es.Statement[],
-  smlType: es.Type,
-): es.Program => ({
+export const program = (body: es.Statement[], smlType: es.Type): es.Program => ({
   type: 'Program',
   sourceType: 'module',
   smlType,

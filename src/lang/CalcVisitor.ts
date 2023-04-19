@@ -16,6 +16,7 @@ import { ParenthesizedExpressionContext } from "./CalcParser";
 import { SequenceExpressionContext } from "./CalcParser";
 import { TupleExpressionContext } from "./CalcParser";
 import { ListExpressionContext } from "./CalcParser";
+import { WildcardPatternContext } from "./CalcParser";
 import { LiteralPatternContext } from "./CalcParser";
 import { IdentifierPatternContext } from "./CalcParser";
 import { TypedPatternContext } from "./CalcParser";
@@ -164,6 +165,14 @@ export interface CalcVisitor<Result> extends ParseTreeVisitor<Result> {
 	 * @return the visitor result
 	 */
 	visitListExpression?: (ctx: ListExpressionContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by the `WildcardPattern`
+	 * labeled alternative in `CalcParser.pattern`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitWildcardPattern?: (ctx: WildcardPatternContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by the `LiteralPattern`
