@@ -4,8 +4,8 @@ import * as es from '../ast'
 //   (decl.id as es.Identifier).name
 
 let id: number = 0
-export const getNextVarId = (): number => id++;
-export const getCurrVarId = (): number => id;
+export const getNextVarId = (): number => id++
+export const getCurrVarId = (): number => id
 
 export const stringType = (): es.LiteralType => ({
   type: 'string'
@@ -39,7 +39,7 @@ export const tupleType = (elementTypes: es.Type[]): es.TupleType => ({
 
 export const variableType = (id: number): es.VariableType => ({
   type: 'variable',
-  id,
+  id
 })
 
 export const functionType = (paramType: es.Type, returnType: es.Type): es.FunctionType => ({

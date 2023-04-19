@@ -43,7 +43,7 @@ export const isTypeEqual = (a: es.Type, b: es.Type): boolean => {
     return isTypeEqual(a.paramType, b.paramType) && isTypeEqual(a.returnType, b.returnType)
   } else if (a.type === 'tuple' && b.type === 'tuple') {
     if (a.elementTypes.length !== b.elementTypes.length) return false
-    for (let i=0; i<a.elementTypes.length; i++) {
+    for (let i = 0; i < a.elementTypes.length; i++) {
       if (!isTypeEqual(a.elementTypes[i], b.elementTypes[i])) return false
     }
     return true

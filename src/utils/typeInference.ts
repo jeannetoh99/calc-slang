@@ -115,13 +115,10 @@ export function addConstraints(node: es.Node, env: TypeEnv): InferResult {
       const resArgType = tupleType(resArgs.map(arg => arg.type))
 
       if (resCallee.type.type !== 'function') {
-        throw new TypeInferenceError(
-          "Function application on non-callable expression",
-          node
-        )
+        throw new TypeInferenceError('Function application on non-callable expression', node)
       }
 
-      let constraints = [
+      const constraints = [
         new Constraint(node.smlType, resCallee.type.returnType, node),
         new Constraint(resArgType, resCallee.type.paramType, node),
         ...resCallee.constraints,
@@ -137,9 +134,7 @@ export function addConstraints(node: es.Node, env: TypeEnv): InferResult {
     case 'ListExpression': {
       const constraints: Constraint[] = []
       if (node.elements.length !== 0) {
-        constraints.push(
-          new Constraint(node.smlType.elementType, node.elements[0].smlType, node)
-        )
+        constraints.push(new Constraint(node.smlType.elementType, node.elements[0].smlType, node))
         for (let i = 0; i < node.elements.length - 1; i++) {
           constraints.push(
             new Constraint(node.elements[i].smlType, node.elements[i + 1].smlType, node)
@@ -166,11 +161,9 @@ export function addConstraints(node: es.Node, env: TypeEnv): InferResult {
       }
     }
     case 'Identifier': {
-      let constraints : Constraint[] = []
+      const constraints: Constraint[] = []
       if (env.get(node.name) !== undefined) {
-        constraints.push(
-          new Constraint(node.smlType, env.get(node.name)!, node)
-        )
+        constraints.push(new Constraint(node.smlType, env.get(node.name)!, node))
       }
       return {
         type: node.smlType,
@@ -210,15 +203,15 @@ class Substitution {
   insert(before: es.VariableType, after: es.Type) {
     const id = before.id
     if (id in this.subs && !isTypeEqual(this.subs[id], after)) {
-      throw new TypeInferenceError("Clashing types found!")
+      throw new TypeInferenceError('Clashing types found!')
     }
     this.subs.set(id, after)
     return this
   }
   concat(other: Substitution) {
-    for (let [id, type] of other.subs.entries()) {
+    for (const [id, type] of other.subs.entries()) {
       if (id in this.subs && !isTypeEqual(this.subs[id], type)) {
-        throw new TypeInferenceError("Clashing types found!")
+        throw new TypeInferenceError('Clashing types found!')
       }
       this.subs.set(id, type)
     }
@@ -279,16 +272,12 @@ function unify(C: Constraint[]): Substitution {
     // eliminating the variable 'x from the system of equations, much like
     // Gaussian elimination in solving algebraic equations.
     else if (t1.type === 'variable' && !contains(t2, t1)) {
-      return substitution
-        .insert(t1, t2)
-        .concat(unify(C.slice(1)))
+      return substitution.insert(t1, t2).concat(unify(C.slice(1)))
     }
 
     // previous case but swap
     else if (t2.type === 'variable' && !contains(t1, t2)) {
-      return substitution
-        .insert(t2, t1)
-        .concat(unify(C.slice(1)))
+      return substitution.insert(t2, t1).concat(unify(C.slice(1)))
     }
 
     // both are function types
@@ -305,32 +294,25 @@ function unify(C: Constraint[]): Substitution {
       return unify(
         C.slice(1).concat(new Constraint(t1.elementType, t2.elementType, constraint.srcNode))
       )
-    } 
-    
+    }
+
     // both are tuple types
     else if (t1.type === 'tuple' && t2.type === 'tuple') {
       if (t1.elementTypes.length !== t2.elementTypes.length) {
         throw new TypeInferenceError(
-          'Type inference error: attempting to match tuples with differing length', 
-          constraint.srcNode)
-      }
-
-      let constraints : Constraint[] = []
-      for (let i=0; i<t1.elementTypes.length; i++) {
-        constraints.push(
-          new Constraint(t1.elementTypes[i], t2.elementTypes[i], constraint.srcNode)
+          'Type inference error: attempting to match tuples with differing length',
+          constraint.srcNode
         )
       }
 
-      return unify(
-        C.slice(1).concat(constraints)
-      )
-    } 
-    
-    else {
-      throw new TypeInferenceError(
-        'Type inference error: unification failed', 
-        constraint.srcNode)
+      const constraints: Constraint[] = []
+      for (let i = 0; i < t1.elementTypes.length; i++) {
+        constraints.push(new Constraint(t1.elementTypes[i], t2.elementTypes[i], constraint.srcNode))
+      }
+
+      return unify(C.slice(1).concat(constraints))
+    } else {
+      throw new TypeInferenceError('Type inference error: unification failed', constraint.srcNode)
     }
   }
 }

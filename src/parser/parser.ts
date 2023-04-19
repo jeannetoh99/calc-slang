@@ -197,7 +197,11 @@ class AstConverter implements CalcVisitor<es.Node> {
     }
   }
   visitInfixApplication(ctx: InfixApplicationContext): es.ApplicationExpression {
-    const callee = identifier(ctx._op.text ?? '', variableType(getNextVarId()), contextToLocation(ctx))
+    const callee = identifier(
+      ctx._op.text ?? '',
+      variableType(getNextVarId()),
+      contextToLocation(ctx)
+    )
     const args = [this.visit(ctx._left) as es.Expression, this.visit(ctx._right) as es.Expression]
 
     return {

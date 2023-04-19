@@ -25,30 +25,24 @@ export const builtinFunctionTypes = {
   '>=': functionType(tupleType([intType(), intType()]), boolType()),
   '=': functionType(tupleType([intType(), intType()]), boolType()),
   '~': functionType(tupleType([intType()]), intType()),
-  'div': functionType(tupleType([intType(), intType()]), intType()),
-  'mod': functionType(tupleType([intType(), intType()]), intType()),
-  'real': functionType(tupleType([intType()]), realType()),
-  'floor': functionType(tupleType([realType()]), intType()),
+  div: functionType(tupleType([intType(), intType()]), intType()),
+  mod: functionType(tupleType([intType(), intType()]), intType()),
+  real: functionType(tupleType([intType()]), realType()),
+  floor: functionType(tupleType([realType()]), intType()),
   '/': functionType(tupleType([realType(), realType()]), realType()),
-  'not': functionType(tupleType([boolType()]), boolType()),
-  'andalso': functionType(tupleType([boolType(), boolType()]), boolType()),
-  'orelse': functionType(tupleType([boolType(), boolType()]), boolType()),
-  'size': functionType(tupleType([stringType()]), intType()),
+  not: functionType(tupleType([boolType()]), boolType()),
+  andalso: functionType(tupleType([boolType(), boolType()]), boolType()),
+  orelse: functionType(tupleType([boolType(), boolType()]), boolType()),
+  size: functionType(tupleType([stringType()]), intType()),
   '^': functionType(tupleType([stringType(), stringType()]), stringType()),
   '@': functionType(
-          tupleType([
-            listType(variableType(getNextVarId())), 
-            listType(variableType(getCurrVarId()))
-          ]), 
-          listType(variableType(getCurrVarId()))
-        ),
-  '::': functionType(
-    tupleType([
-      variableType(getNextVarId()), 
-      listType(variableType(getCurrVarId()))
-    ]), 
+    tupleType([listType(variableType(getNextVarId())), listType(variableType(getCurrVarId()))]),
     listType(variableType(getCurrVarId()))
   ),
+  '::': functionType(
+    tupleType([variableType(getNextVarId()), listType(variableType(getCurrVarId()))]),
+    listType(variableType(getCurrVarId()))
+  )
 }
 
 export const builtinInfixFunctions = {

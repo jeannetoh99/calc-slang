@@ -253,12 +253,6 @@ export interface FunctionType extends BaseType {
   returnType: Type
 }
 
-// export interface FunctionApplicationType extends BaseType {
-//   type: 'function_application'
-//   caller: FunctionType,
-//   args: Type[]
-// }
-
 export interface VariableType extends BaseType {
   type: 'variable'
   id: number
