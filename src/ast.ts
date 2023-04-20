@@ -221,7 +221,24 @@ export interface TypeMap {
   VariableType: VariableType
 }
 
-export type Type = TypeMap[keyof TypeMap]
+export class Type implements BaseNode {
+  type: string = this.raw.type
+  loc?: SourceLocation | null | undefined
+  range?: [number, number] | undefined
+
+  constructor(public raw: RawType) {}
+
+  getType() {
+    return this.raw
+  }
+
+  setType(t: Type) {
+    this.raw = t.getType()
+    this.type = t.getType().type
+  }
+}
+
+export type RawType = TypeMap[keyof TypeMap]
 
 export type BaseType = BaseNode
 
@@ -264,7 +281,6 @@ export type BaseSmlValue = BaseNode
 
 export interface SimpleLiteral extends BaseExpression, BasePattern, BaseSmlValue {
   type: 'Literal'
-  smlType: LiteralType
   raw?: string | undefined
 }
 
@@ -292,19 +308,19 @@ export type NumLiteral = IntLiteral | RealLiteral
 
 export interface List extends BaseSmlValue {
   type: 'List'
-  smlType: ListType
+  smlType: Type
   value: Array<SmlValue>
 }
 
 export interface Tuple extends BaseSmlValue {
   type: 'Tuple'
-  smlType: TupleType
+  smlType: Type
   value: Array<SmlValue>
 }
 
 export interface Closure extends BaseSmlValue {
   type: 'Function'
-  smlType: FunctionType
+  smlType: Type
   value: 'fn'
   env: Environment
   srcNode: LambdaExpression

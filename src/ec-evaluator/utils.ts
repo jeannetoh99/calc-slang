@@ -6,7 +6,7 @@ import * as errors from '../errors/errors'
 import { RuntimeSourceError } from '../errors/runtimeSourceError'
 import { arity } from '../stdlib/misc'
 import { DeclarationType, Environment, Frame, Value } from '../types'
-import { builtinFunctionTypes, builtinFunctions } from './builtin'
+import { builtinFunctions, builtinFunctionTypes } from './builtin'
 import * as instr from './instrCreator'
 import { Agenda } from './interpreter'
 import { AgendaItem, BuiltinInstr, ClosureInstr, InstrType } from './types'
@@ -294,6 +294,12 @@ export const checkStackOverFlow = (context: Context, agenda: Agenda) => {
 export const populateBuiltInIdentifiers = (context: Context) => {
   for (const key in builtinFunctions) {
     const builtinInstr = instr.builtinInstr(key, arity(builtinFunctions[key]), false)
-    defineVariable(context, currentEnvironment(context), key, builtinInstr, builtinFunctionTypes[key])
+    defineVariable(
+      context,
+      currentEnvironment(context),
+      key,
+      builtinInstr,
+      builtinFunctionTypes[key]
+    )
   }
 }

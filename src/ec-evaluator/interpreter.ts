@@ -12,8 +12,7 @@ import * as es from '../ast'
 import * as errors from '../errors/errors'
 import { arity } from '../stdlib/misc'
 import { Context, Result, Value } from '../types'
-import { expressionStatement, functionType, listType, tupleType } from '../utils/astCreator'
-import * as rttc from '../utils/rttc'
+import { expressionStatement } from '../utils/astCreator'
 import { applyBuiltin, builtinInfixFunctions, builtinMapping } from './builtin'
 import * as instr from './instrCreator'
 import {
@@ -51,8 +50,6 @@ import {
   pushLocalEnvironment,
   Stack
 } from './utils'
-import assert from 'assert'
-import { cp } from 'fs'
 
 /**
  * The agenda is a list of commands that still needs to be executed by the machine.
@@ -190,13 +187,14 @@ export const evaluateCallInstr = (
     agenda.push(closure.srcNode.body)
 
     const environment = createEnvironment(
-      closure, 
+      closure,
       {
         type: 'TupleExpression',
         smlType: command.srcNode.args.smlType,
         elements: args
-      }, 
-      command.srcNode)
+      },
+      command.srcNode
+    )
 
     // Replace current environment if tail call
     if (command.instrType === InstrType.TAIL_CALL) {
@@ -484,11 +482,6 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     const test: es.BoolLiteral = stash.pop()
 
     // Check if predicate is a boolean
-    const error = rttc.checkIsBool(command.srcNode, ' as condition', test)
-    if (error) {
-      handleRuntimeError(context, error)
-    }
-
     if (test.value) {
       agenda.push(command.consequent)
     } else {
@@ -538,7 +531,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     }
     const list: es.List = {
       type: 'List',
-      smlType: command.srcNode.smlType as es.ListType,
+      smlType: command.srcNode.smlType,
       value: elements.reverse()
     }
     stash.push(list)
@@ -557,7 +550,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     elements.reverse()
     const tuple: es.Tuple = {
       type: 'Tuple',
-      smlType: command.srcNode.smlType as es.TupleType,
+      smlType: command.srcNode.smlType,
       value: elements
     }
     stash.push(tuple)

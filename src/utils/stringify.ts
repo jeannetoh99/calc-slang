@@ -1,6 +1,6 @@
 import { concat, isInteger } from 'lodash'
 
-import { SmlValue, Type, VariableType } from '../ast'
+import { RawType, SmlValue, Type, VariableType } from '../ast'
 import { DeclarationType, Value } from '../types'
 
 export interface ArrayLike {
@@ -19,14 +19,16 @@ const formatResult = (result: ResultType) => {
   return ['val', result.name, '=', result.value, ':', result.type].join(' ') + ';'
 }
 
-export const extractVariableTypes = (type: Type): VariableType[] => {
+export const extractVariableTypes = (type: RawType): VariableType[] => {
   switch (type.type) {
     case 'function':
-      return extractVariableTypes(type.paramType).concat(extractVariableTypes(type.returnType))
+      return extractVariableTypes(type.paramType.getType())
+        .concat(extractVariableTypes(type.returnType.getType()))
     case 'list':
-      return extractVariableTypes(type.elementType)
+      return extractVariableTypes(type.elementType.getType())
     case 'tuple':
-      return type.elementTypes.flatMap(elemType => extractVariableTypes(elemType))
+      return type.elementTypes
+        .flatMap(elemType => extractVariableTypes(elemType.getType()))
     case 'variable':
       return [type]
     default:
@@ -34,16 +36,16 @@ export const extractVariableTypes = (type: Type): VariableType[] => {
   }
 }
 
-export const extractType = (type: Type, inner: boolean = false): string => {
+export const extractType = (type: RawType, inner: boolean = false): string => {
   return type.type === 'function'
-    ? (type.paramType ? extractType(type.paramType) : '?') +
+    ? (type.paramType ? extractType(type.paramType.getType()) : '?') +
         ' -> ' +
-        (type.returnType ? extractType(type.returnType) : '?')
+        (type.returnType ? extractType(type.returnType.getType()) : '?')
     : type.type === 'list'
-    ? (type.elementType ? extractType(type.elementType) : '?') + ' list'
+    ? (type.elementType ? extractType(type.elementType.getType()) : '?') + ' list'
     : type.type === 'tuple'
     ? (inner ? '(' : '') +
-      type.elementTypes.map(elemType => extractType(elemType, true)).join(' * ') +
+      type.elementTypes.map(elemType => extractType(elemType.getType(), true)).join(' * ') +
       (inner ? ')' : '')
     : type.type === 'variable'
     ? "'v" + type.id
@@ -67,7 +69,7 @@ const extractValue = (value: SmlValue): Value => {
 }
 
 const extractDeclaration = (declaration: DeclarationType): ResultType => {
-  const varTypes = extractVariableTypes(declaration.value.smlType)
+  const varTypes = extractVariableTypes(declaration.value.smlType.getType())
   let varTypesString = ''
   if (varTypes.length != 0) {
     varTypesString = '\u2200 ' + extractType(varTypes[0])
@@ -80,7 +82,7 @@ const extractDeclaration = (declaration: DeclarationType): ResultType => {
   return {
     name: declaration.name,
     value: extractValue(declaration.value),
-    type: varTypesString + extractType(declaration.value.smlType)
+    type: varTypesString + extractType(declaration.value.smlType.getType())
   }
 }
 

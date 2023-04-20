@@ -48,7 +48,7 @@ export interface CallInstr extends BaseInstr {
 
 export interface ClosureInstr extends BaseInstr {
   type: 'function'
-  smlType: es.FunctionType
+  smlType: es.Type
   value: 'fn'
   env: Environment
   srcNode: es.LambdaExpression

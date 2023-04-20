@@ -8,7 +8,7 @@ export class TypeError extends RuntimeSourceError {
   public severity = ErrorSeverity.ERROR
   public location: es.SourceLocation
 
-  constructor(node: es.Node, public side: string, public expected: string, public got: string) {
+  constructor(node: es.TypedNode, public side: string, public expected: string, public got: string) {
     super(node)
   }
 
@@ -32,100 +32,26 @@ export const isFunction = (v: es.SmlValue) => v.smlType?.type === 'function'
 export const isTuple = (v: es.SmlValue) => v.smlType?.type === 'tuple'
 export const isType = (v: es.SmlValue, t: es.TypeType) => v.smlType?.type === t
 
-export const isTypeEqual = (a: es.Type, b: es.Type): boolean => {
+export const isTypeEqual = (a: es.RawType, b: es.RawType): boolean => {
   if (a.type !== b.type) {
     return false
   } else if (a.type === 'variable' && b.type === 'variable') {
     return a.id === b.id
   } else if (a.type === 'list' && b.type === 'list') {
-    return isTypeEqual(a.elementType, b.elementType)
+    return isTypeEqual(a.elementType.getType(), b.elementType.getType())
   } else if (a.type === 'function' && b.type === 'function') {
-    return isTypeEqual(a.paramType, b.paramType) && isTypeEqual(a.returnType, b.returnType)
+    return isTypeEqual(a.paramType.getType(), b.paramType.getType()) 
+      && isTypeEqual(a.returnType.getType(), b.returnType.getType())
   } else if (a.type === 'tuple' && b.type === 'tuple') {
-    if (a.elementTypes.length !== b.elementTypes.length) return false
+    if (a.elementTypes.length !== b.elementTypes.length) {
+      return false
+    }
     for (let i = 0; i < a.elementTypes.length; i++) {
-      if (!isTypeEqual(a.elementTypes[i], b.elementTypes[i])) return false
+      if (!isTypeEqual(a.elementTypes[i].getType(), b.elementTypes[i].getType())) {
+        return false
+      }
     }
     return true
   }
   return true
-}
-
-export const checkIsTypeEqual = (node: es.Node, side: string, a: es.Type, b: es.Type) => {
-  return isTypeEqual(a, b) ? undefined : new TypeError(node, side, extractType(a), extractType(b))
-}
-
-export const checkIsInt = (node: es.Node, side: string, test: es.SmlValue) => {
-  return isInt(test) ? undefined : new TypeError(node, side, 'int', test.smlType?.type ?? 'unknown')
-}
-
-export const checkIsReal = (node: es.Node, side: string, test: es.SmlValue) => {
-  return isReal(test)
-    ? undefined
-    : new TypeError(node, side, 'real', test.smlType?.type ?? 'unknown')
-}
-
-export const checkIsNum = (node: es.Node, side: string, test: es.SmlValue) => {
-  return isNum(test)
-    ? undefined
-    : new TypeError(node, side, 'real or int', test.smlType?.type ?? 'unknown')
-}
-
-export const checkIsString = (node: es.Node, side: string, test: es.SmlValue) => {
-  return isString(test)
-    ? undefined
-    : new TypeError(node, side, 'string', test.smlType?.type ?? 'unknown')
-}
-
-export const checkIsBool = (node: es.Node, side: string, test: es.SmlValue) => {
-  return isBool(test)
-    ? undefined
-    : new TypeError(node, side, 'boolean', test.smlType?.type ?? 'unknown')
-}
-
-export const checkIsUnit = (node: es.Node, side: string, test: es.SmlValue) => {
-  return isUnit(test)
-    ? undefined
-    : new TypeError(node, side, 'unit', test.smlType?.type ?? 'unknown')
-}
-
-export const checkIsList = (node: es.Node, side: string, test: es.SmlValue) => {
-  return isList(test)
-    ? undefined
-    : new TypeError(node, side, 'list', test.smlType?.type ?? 'unknown')
-}
-
-export const checkIsFunction = (node: es.Node, side: string, test: es.SmlValue) => {
-  return isFunction(test)
-    ? undefined
-    : new TypeError(node, side, 'function', test.smlType?.type ?? 'unknown')
-}
-
-export const checkIsTuple = (node: es.Node, side: string, test: es.SmlValue) => {
-  return isTuple(test)
-    ? undefined
-    : new TypeError(node, side, 'tuple', test.smlType?.type ?? 'unknown')
-}
-
-export const checkIsType = (node: es.Node, side: string, test: es.SmlValue, type: es.Type) => {
-  switch (type.type) {
-    case 'int':
-      return checkIsInt(node, side, test)
-    case 'real':
-      return checkIsReal(node, side, test)
-    case 'string':
-      return checkIsString(node, side, test)
-    case 'bool':
-      return checkIsBool(node, side, test)
-    case 'unit':
-      return checkIsUnit(node, side, test)
-    case 'list':
-      return checkIsList(node, side, test)
-    case 'function':
-      return checkIsFunction(node, side, test)
-    case 'tuple':
-      return checkIsTuple(node, side, test)
-    case 'variable':
-      return
-  }
 }

@@ -11,49 +11,51 @@ export function getCurrVarId(): number {
   return id
 }
 
-export const stringType = (): es.LiteralType => ({
+export const stringType = (): es.Type => new es.Type({
   type: 'string'
 })
 
-export const intType = (): es.LiteralType => ({
+export const intType = (): es.Type => new es.Type({
   type: 'int'
 })
 
-export const realType = (): es.LiteralType => ({
+export const realType = (): es.Type => new es.Type({
   type: 'real'
 })
 
-export const boolType = (): es.LiteralType => ({
+export const boolType = (): es.Type => new es.Type({
   type: 'bool'
 })
 
-export const unitType = (): es.LiteralType => ({
+export const unitType = (): es.Type => new es.Type({
   type: 'unit'
 })
 
-export const listType = (elementType: es.Type): es.ListType => ({
+export const listType = (elementType: es.Type): es.Type => new es.Type({
   type: 'list',
   elementType
 })
 
-export const tupleType = (elementTypes: es.Type[]): es.TupleType => ({
+export const tupleType = (elementTypes: es.Type[]): es.Type => new es.Type({
   type: 'tuple',
   elementTypes
 })
 
-export const variableType = (id: number): es.VariableType => ({
+export const variableType = (id: number): es.Type => new es.Type({
   type: 'variable',
   id
 })
 
-export const functionType = (paramType: es.Type, returnType: es.Type): es.FunctionType => ({
+export const functionType = (
+  paramType: es.Type, returnType: es.Type
+): es.Type => new es.Type({
   type: 'function',
   paramType,
   returnType
 })
 
 export const locationDummyNode = (line: number, column: number) =>
-  literal('Dummy', stringType(), { start: { line, column }, end: { line, column } })
+  literal('Dummy',stringType(), { start: { line, column }, end: { line, column } })
 
 export const identifier = (
   name: string,
@@ -68,7 +70,7 @@ export const identifier = (
 
 export const literal = (
   value: any,
-  smlType: es.LiteralType,
+  smlType: es.Type,
   loc?: es.SourceLocation | null
 ): es.Literal => ({
   type: 'Literal',
@@ -79,7 +81,7 @@ export const literal = (
 
 export const list = (
   value: Array<es.SmlValue>,
-  smlType: es.ListType,
+  smlType: es.Type,
   loc?: es.SourceLocation | null
 ): es.List => ({
   type: 'List',

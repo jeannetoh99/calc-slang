@@ -24,13 +24,13 @@ export const assmtInstr = (
   pat: es.Pattern,
   declaration: boolean,
   srcNode: es.Node,
-  env: Environment,
+  env: Environment
 ): AssmtInstr => ({
   instrType: InstrType.ASSIGNMENT,
   pat,
   declaration,
   srcNode,
-  env,
+  env
 })
 
 export const popInstr = (): Instr => ({ instrType: InstrType.POP })
@@ -66,7 +66,7 @@ export const callInstr = (arity: number, srcNode: es.ApplicationExpression): Cal
 export const closureInstr = (env: Environment, srcNode: es.LambdaExpression): ClosureInstr => ({
   instrType: InstrType.CLOSURE,
   type: 'function',
-  smlType: srcNode.smlType as es.FunctionType,
+  smlType: srcNode.smlType,
   value: 'fn',
   env,
   srcNode
