@@ -14,7 +14,7 @@ class TypeEnv {
     if (name in this.map) {
       return this.map[name]
     } else {
-      throw new TypeInferenceError("Unbounded name " + name)
+      throw new TypeInferenceError('Unbounded name ' + name)
     }
   }
 
@@ -35,6 +35,7 @@ export interface InferResult {
 export function infer(node: es.TypedNode, env: TypeEnv): InferResult {
   console.log('start')
   console.log(cloneDeep(node))
+  console.log(cloneDeep(env))
   const res = addConstraints(node, env)
   console.log(res)
   const subs = unify(res.constraints)
@@ -50,7 +51,7 @@ export function infer(node: es.TypedNode, env: TypeEnv): InferResult {
 }
 
 export function bind(pat: es.Pattern, type: es.Type, env: TypeEnv): TypeEnv {
-  console.log("binding")
+  console.log('binding')
   console.log(cloneDeep(pat))
   console.log(cloneDeep(type))
   if (pat.type === 'TuplePattern' && type.type === 'tuple') {
@@ -120,13 +121,15 @@ export function addConstraints(node: es.Node, env: TypeEnv): InferResult {
       }
     }
     case 'LambdaExpression': {
-      let extendedEnv = bind(node.param, node.param.smlType, env)
+      const extendedEnv = bind(node.param, node.param.smlType, env)
       const resBody = infer(node.body, extendedEnv)
-      node.smlType = functionType(node.param.smlType, resBody.type)
 
       return {
         type: node.smlType,
-        constraints: resBody.constraints,
+        constraints: [
+          ...resBody.constraints,
+          new Constraint(node.smlType, functionType(node.param.smlType, resBody.type), node)
+        ],
         env
       }
     }
@@ -188,28 +191,24 @@ export function addConstraints(node: es.Node, env: TypeEnv): InferResult {
       }
     }
     case 'Identifier': {
-      let type = node.smlType
-      if (env.get(node.name) !== undefined) {
-        type = env.get(node.name)!
-      }
       return {
-        type,
+        type: env.get(node.name),
         constraints: [],
         env
       }
     }
+    case 'FunctionDeclaration':
+    case 'LocalDeclaration':
+    case 'DeclarationList':
+    case 'LetExpression':
+    case 'SequenceExpression':
+      // TODO 
     case 'Literal':
       return {
         type: node.smlType,
         constraints: [],
         env
       }
-    case 'FunctionDeclaration':
-    case 'LocalDeclaration':
-    case 'DeclarationList':
-    case 'LetExpression':
-    case 'SequenceExpression':
-    case 'LambdaExpression':
       throw new TypeInferenceError(`Not supported yet: ${node.type}`)
     default:
       throw new TypeInferenceError(`Unknown node type: ${node.type}`)
