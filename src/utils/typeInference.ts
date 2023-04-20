@@ -202,7 +202,7 @@ export function addConstraints(node: es.Node, env: TypeEnv): InferResult {
     case 'DeclarationList':
     case 'LetExpression':
     case 'SequenceExpression':
-      // TODO 
+    // TODO
     case 'Literal':
       return {
         type: node.smlType,

@@ -166,7 +166,7 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitListConstructionExpression(
     ctx: ListConstructionExpressionContext
   ): es.ApplicationExpression {
-    let argElements = ctx.expression().map(arg => this.visit(arg) as es.Expression)
+    const argElements = ctx.expression().map(arg => this.visit(arg) as es.Expression)
 
     return {
       type: 'ApplicationExpression',
@@ -175,7 +175,7 @@ class AstConverter implements CalcVisitor<es.Node> {
       args: {
         type: 'TupleExpression',
         smlType: tupleType(argElements.map(arg => arg.smlType)),
-        elements: argElements,
+        elements: argElements
       },
       isInfix: true,
       loc: contextToLocation(ctx)
@@ -254,7 +254,7 @@ class AstConverter implements CalcVisitor<es.Node> {
     return this.visit(ctx.expressionList()) as es.SequenceExpression
   }
   visitTupleExpression(ctx: TupleExpressionContext): es.TupleExpression {
-    let elements = ctx.expression().map(expr => this.visit(expr) as es.Expression)
+    const elements = ctx.expression().map(expr => this.visit(expr) as es.Expression)
     return {
       type: 'TupleExpression',
       elements,
