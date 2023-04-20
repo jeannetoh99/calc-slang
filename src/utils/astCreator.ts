@@ -4,8 +4,12 @@ import * as es from '../ast'
 //   (decl.id as es.Identifier).name
 
 let id: number = 0
-export const getNextVarId = (): number => id++
-export const getCurrVarId = (): number => id
+export function getNextVarId(): number {
+  return ++id
+}
+export function getCurrVarId(): number {
+  return id
+}
 
 export const stringType = (): es.LiteralType => ({
   type: 'string'

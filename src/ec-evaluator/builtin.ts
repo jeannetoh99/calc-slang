@@ -46,32 +46,31 @@ export const builtinFunctionTypes = {
 }
 
 export const builtinInfixFunctions = {
-  '+': (x: es.NumLiteral, y: es.NumLiteral) => literal(x.value + y.value, x.smlType),
-  '-': (x: es.NumLiteral, y: es.NumLiteral) => literal(x.value - y.value, x.smlType),
-  '*': (x: es.NumLiteral, y: es.NumLiteral) => literal(x.value * y.value, x.smlType),
-  '/': (x: es.RealLiteral, y: es.RealLiteral) => literal(x.value / y.value, realType()),
-  div: (x: es.IntLiteral, y: es.IntLiteral) => literal(Math.floor(x.value / y.value), intType()),
-  mod: (x: es.IntLiteral, y: es.IntLiteral) => literal(x.value % y.value, intType()),
-  '<>': (x: es.NumLiteral, y: es.NumLiteral) => literal(x.value != y.value, boolType()),
-  '<': (x: es.NumLiteral, y: es.NumLiteral) => literal(x.value < y.value, boolType()),
-  '>': (x: es.NumLiteral, y: es.NumLiteral) => literal(x.value > y.value, boolType()),
-  '=': (x: es.NumLiteral, y: es.NumLiteral) => literal(x.value === y.value, boolType()),
-  '<=': (x: es.NumLiteral, y: es.NumLiteral) => literal(x.value <= y.value, boolType()),
-  '>=': (x: es.NumLiteral, y: es.NumLiteral) => literal(x.value >= y.value, boolType()),
-  andalso: (x: es.BoolLiteral, y: es.BoolLiteral) => literal(x.value && y.value, boolType()),
-  orelse: (x: es.BoolLiteral, y: es.BoolLiteral) => literal(x.value || y.value, boolType()),
-  '^': (x: es.StringLiteral, y: es.StringLiteral) => literal(x.value + y.value, stringType()),
-  '@': (x: es.List, y: es.List) => list([...x.value, ...y.value], x.smlType),
-  '::': (x: es.SmlValue, y: es.List) =>
-    list([x, ...y.value], y.smlType.elementType ? y.smlType : listType(x.smlType))
+  '+': (x: es.NumLiteral, y: es.NumLiteral) => (t: es.LiteralType) => literal(x.value + y.value, t),
+  '-': (x: es.NumLiteral, y: es.NumLiteral) => (t: es.LiteralType) => literal(x.value - y.value, t),
+  '*': (x: es.NumLiteral, y: es.NumLiteral) => (t: es.LiteralType) => literal(x.value * y.value, t),
+  '/': (x: es.RealLiteral, y: es.RealLiteral) => (t: es.LiteralType) => literal(x.value / y.value, t),
+  div: (x: es.IntLiteral, y: es.IntLiteral) => (t: es.LiteralType) => literal(Math.floor(x.value / y.value), t),
+  mod: (x: es.IntLiteral, y: es.IntLiteral) => (t: es.LiteralType) => literal(x.value % y.value, t),
+  '<>': (x: es.NumLiteral, y: es.NumLiteral) => (t: es.LiteralType) => literal(x.value !== y.value, t),
+  '<': (x: es.NumLiteral, y: es.NumLiteral) => (t: es.LiteralType) => literal(x.value < y.value, t),
+  '>': (x: es.NumLiteral, y: es.NumLiteral) => (t: es.LiteralType) => literal(x.value > y.value, t),
+  '=': (x: es.NumLiteral, y: es.NumLiteral) => (t: es.LiteralType) => literal(x.value === y.value, t),
+  '<=': (x: es.NumLiteral, y: es.NumLiteral) => (t: es.LiteralType) => literal(x.value <= y.value, t),
+  '>=': (x: es.NumLiteral, y: es.NumLiteral) => (t: es.LiteralType) => literal(x.value >= y.value, t),
+  andalso: (x: es.BoolLiteral, y: es.BoolLiteral) => (t: es.LiteralType) => literal(x.value && y.value, t),
+  orelse: (x: es.BoolLiteral, y: es.BoolLiteral) => (t: es.LiteralType) => literal(x.value || y.value, t),
+  '^': (x: es.StringLiteral, y: es.StringLiteral) => (t: es.LiteralType) => literal(x.value + y.value, t),
+  '@': (x: es.List, y: es.List) => (t: es.ListType) => list([...x.value, ...y.value], t),
+  '::': (x: es.SmlValue, y: es.List) => (t: es.ListType) => list([x, ...y.value], t),
 }
 
 export const builtinFunctions = {
-  '~': (x: es.NumLiteral) => literal(-x.value, x.smlType),
-  not: (x: es.BoolLiteral) => literal(!x.value, boolType()),
-  floor: (x: es.RealLiteral) => literal(x.value, intType()),
-  real: (x: es.IntLiteral) => literal(x.value, realType()),
-  size: (x: es.StringLiteral) => literal(x.value.length, intType())
+  '~': (x: es.NumLiteral) => (t: es.LiteralType) => literal(-x.value, t),
+  not: (x: es.BoolLiteral) => (t: es.LiteralType) => literal(!x.value, t),
+  floor: (x: es.RealLiteral) => (t: es.LiteralType) => literal(x.value, t),
+  real: (x: es.IntLiteral) => (t: es.LiteralType) => literal(x.value, t),
+  size: (x: es.StringLiteral) => (t: es.LiteralType) => literal(x.value.length, t)
 }
 
 export const builtinMapping = {
@@ -81,6 +80,6 @@ export const builtinMapping = {
 
 export const builtinTypeMapping = {}
 
-export const applyBuiltin = (op: string, args: any) => {
-  return builtinMapping[op](...args)
+export const applyBuiltin = (op: string, args: any, t: es.Type): es.SmlValue => {
+  return builtinMapping[op](...args)(t)
 }

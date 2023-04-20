@@ -158,7 +158,7 @@ type BasePattern = TypedBaseNode
 export interface ApplicationExpression extends BaseExpression {
   type: 'ApplicationExpression'
   callee: Expression
-  args: Array<Expression>
+  args: TupleExpression
   isInfix: boolean
 }
 
@@ -171,7 +171,6 @@ export interface ConditionalExpression extends BaseExpression {
 
 export interface LambdaExpression extends BaseExpression {
   type: 'LambdaExpression'
-  smlType: FunctionType
   param: Pattern
   body: Expression
   recursiveId?: string
@@ -190,19 +189,16 @@ export interface SequenceExpression extends BaseExpression {
 
 export interface TupleExpression extends BaseExpression {
   type: 'TupleExpression'
-  smlType: TupleType
   elements: Expression[]
 }
 
 export interface ListExpression extends BaseExpression {
-  smlType: ListType
   type: 'ListExpression'
   elements: Expression[]
 }
 
 export interface TuplePattern extends BasePattern {
   type: 'TuplePattern'
-  smlType: TupleType
   elements: Pattern[]
 }
 

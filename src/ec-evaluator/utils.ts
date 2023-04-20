@@ -6,7 +6,7 @@ import * as errors from '../errors/errors'
 import { RuntimeSourceError } from '../errors/runtimeSourceError'
 import { arity } from '../stdlib/misc'
 import { DeclarationType, Environment, Frame, Value } from '../types'
-import { builtinFunctions } from './builtin'
+import { builtinFunctionTypes, builtinFunctions } from './builtin'
 import * as instr from './instrCreator'
 import { Agenda } from './interpreter'
 import { AgendaItem, BuiltinInstr, ClosureInstr, InstrType } from './types'
@@ -98,7 +98,7 @@ export const localEnvironment = (context: Context) => context.runtime.localEnvir
 
 export const createEnvironment = (
   closure: ClosureInstr,
-  args: Value[],
+  args: es.TupleExpression,
   callExpression: es.ApplicationExpression
 ): Environment => {
   const id = uniqueId()
@@ -294,6 +294,6 @@ export const checkStackOverFlow = (context: Context, agenda: Agenda) => {
 export const populateBuiltInIdentifiers = (context: Context) => {
   for (const key in builtinFunctions) {
     const builtinInstr = instr.builtinInstr(key, arity(builtinFunctions[key]), false)
-    defineVariable(context, currentEnvironment(context), key, builtinInstr)
+    defineVariable(context, currentEnvironment(context), key, builtinInstr, builtinFunctionTypes[key])
   }
 }

@@ -51,6 +51,8 @@ import {
   pushLocalEnvironment,
   Stack
 } from './utils'
+import assert from 'assert'
+import { cp } from 'fs'
 
 /**
  * The agenda is a list of commands that still needs to be executed by the machine.
@@ -187,7 +189,14 @@ export const evaluateCallInstr = (
     }
     agenda.push(closure.srcNode.body)
 
-    const environment = createEnvironment(closure, args, command.srcNode)
+    const environment = createEnvironment(
+      closure, 
+      {
+        type: 'TupleExpression',
+        smlType: command.srcNode.args.smlType,
+        elements: args
+      }, 
+      command.srcNode)
 
     // Replace current environment if tail call
     if (command.instrType === InstrType.TAIL_CALL) {
@@ -196,8 +205,7 @@ export const evaluateCallInstr = (
     pushEnvironment(context, environment)
   } else if (func?.instrType == InstrType.BUILTIN) {
     const builtin = func as BuiltinInstr
-
-    stash.push(applyBuiltin(builtin.identifier, args))
+    stash.push(applyBuiltin(builtin.identifier, args, command.srcNode.smlType))
   } else {
     // not a callable function, error
     handleRuntimeError(context, new errors.CallingNonFunctionValue(func, command.srcNode))
@@ -238,14 +246,12 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     context: Context,
     agenda: Agenda
   ) {
-    command.expression.smlType = command.smlType
     agenda.push(command.expression)
   },
 
   ValueDeclaration: function (command: es.ValueDeclaration, context: Context, agenda: Agenda) {
     const env = command.declEnv ?? currentEnvironment(context)
     const pat = command.pat as es.Pattern
-    pat.smlType = command.smlType
 
     // Parser enforces initialisation during variable declaration
     const init = command.init!
@@ -260,7 +266,6 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     agenda: Agenda,
     stash: Stash
   ) {
-    command.pat.smlType = command.smlType
     agenda.push(
       instr.assmtInstr(command.pat, true, command, command.declEnv ?? currentEnvironment(context))
     )
@@ -274,10 +279,9 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     agenda: Agenda,
     stash: Stash
   ) {
-    command.id.smlType = command.smlType
     const lambdaExpression: es.LambdaExpression = {
       type: 'LambdaExpression',
-      smlType: functionType(command.param.smlType, command.body.smlType),
+      smlType: command.smlType,
       param: command.param,
       body: command.body,
       recursiveId: command.id.name
@@ -332,12 +336,12 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     stash: Stash
   ) {
     if (command.tail) {
-      agenda.push(instr.tailCallInstr(command.args.length, command))
+      agenda.push(instr.tailCallInstr(command.args.elements.length, command))
     } else {
-      agenda.push(instr.callInstr(command.args.length, command))
+      agenda.push(instr.callInstr(command.args.elements.length, command))
     }
-    for (let i = command.args.length - 1; i >= 0; i--) {
-      agenda.push(command.args[i])
+    for (let i = command.args.elements.length - 1; i >= 0; i--) {
+      agenda.push(command.args.elements[i])
     }
     if (command.isInfix) {
       const op = (command.callee as es.Identifier).name
@@ -534,7 +538,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     }
     const list: es.List = {
       type: 'List',
-      smlType: command.srcNode.smlType,
+      smlType: command.srcNode.smlType as es.ListType,
       value: elements.reverse()
     }
     stash.push(list)
@@ -553,7 +557,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     elements.reverse()
     const tuple: es.Tuple = {
       type: 'Tuple',
-      smlType: command.srcNode.smlType,
+      smlType: command.srcNode.smlType as es.TupleType,
       value: elements
     }
     stash.push(tuple)
