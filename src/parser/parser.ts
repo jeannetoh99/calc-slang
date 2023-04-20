@@ -280,7 +280,7 @@ class AstConverter implements CalcVisitor<es.Node> {
     return pat
   }
   visitTuplePattern(ctx: TuplePatternContext): es.TuplePattern {
-    let elements = ctx.pattern().map(pat => this.visit(pat) as es.Pattern)
+    const elements = ctx.pattern().map(pat => this.visit(pat) as es.Pattern)
     return {
       type: 'TuplePattern',
       elements,
@@ -300,7 +300,7 @@ class AstConverter implements CalcVisitor<es.Node> {
       pat: {
         type: 'TuplePattern',
         smlType: tupleType([it.smlType]),
-        elements: [it],
+        elements: [it]
       },
       init: {
         type: 'TupleExpression',
@@ -370,7 +370,7 @@ class AstConverter implements CalcVisitor<es.Node> {
         elements: [pat]
       }
     }
-    let init = this.visit(ctx.expression()) as es.Expression
+    const init = this.visit(ctx.expression()) as es.Expression
     return {
       type: 'ValueDeclaration',
       smlType: variableType(getNextVarId()),
@@ -483,7 +483,7 @@ class AstConverter implements CalcVisitor<es.Node> {
       param = {
         type: 'TuplePattern',
         smlType: tupleType([param.smlType]),
-        elements: [param],
+        elements: [param]
       }
     }
     const body = this.visit(ctx.expression()) as es.Expression

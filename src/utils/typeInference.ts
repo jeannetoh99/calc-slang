@@ -188,7 +188,7 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
     case 'LetExpression':
     case 'SequenceExpression':
     case 'RecValueDeclaration':
-      // TODO 
+    // TODO
     case 'Literal':
       return {
         type: node.smlType,
@@ -256,13 +256,13 @@ function combine(s1: Substitution, s2: Substitution): Substitution {
 }
 
 function apply(S: Substitution, C: Constraint[]) {
-  for (let constraint of C) {
+  for (const constraint of C) {
     constraint.from = substitute(constraint.from, S)
     constraint.to = substitute(constraint.to, S)
   }
   return C
 }
- 
+
 /**
  * Checks if a type contains another type
  */

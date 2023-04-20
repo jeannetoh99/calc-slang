@@ -179,7 +179,7 @@ export const evaluateCallInstr = (
     args.unshift(stash.pop())
   }
 
-  console.log("CALL")
+  console.log('CALL')
   console.log(args)
 
   const func: ClosureInstr | BuiltinInstr = stash.pop()
@@ -190,7 +190,7 @@ export const evaluateCallInstr = (
       agenda.push(instr.envInstr(currentEnvironment(context)))
     }
     agenda.push(closure.srcNode.body)
-    
+
     const environment = createEnvironment(
       closure,
       {
@@ -207,7 +207,7 @@ export const evaluateCallInstr = (
     }
     pushEnvironment(context, environment)
   } else if (func?.instrType == InstrType.BUILTIN) {
-    console.log("builtin")
+    console.log('builtin')
     console.log(args)
     const builtin = func as BuiltinInstr
     stash.push(applyBuiltin(builtin.identifier, args, command.srcNode.smlType))

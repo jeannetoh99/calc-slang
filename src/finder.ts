@@ -53,7 +53,7 @@ export function findDeclarationNode(program: Node, identifier: Identifier): Node
         if (node.id && node.id.name === identifier.name) {
           declarations.push(node.id)
         } else if (containsNode(node, identifier)) {
-          let param = node.param.elements.find(n => (n as Identifier).name === identifier.name)
+          const param = node.param.elements.find(n => (n as Identifier).name === identifier.name)
           if (param) {
             declarations.push(param)
           } else {
@@ -63,7 +63,7 @@ export function findDeclarationNode(program: Node, identifier: Identifier): Node
       },
       ArrowFunctionExpression(node: LambdaExpression, state: any, callback: any) {
         if (containsNode(node, identifier)) {
-          let param = node.param.elements.find(n => (n as Identifier).name === identifier.name)
+          const param = node.param.elements.find(n => (n as Identifier).name === identifier.name)
           if (param) {
             declarations.push(param)
           } else {
