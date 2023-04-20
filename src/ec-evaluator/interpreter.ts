@@ -6,6 +6,8 @@
  */
 
 /* tslint:disable:max-classes-per-file */
+import assert from 'assert'
+import { cp } from 'fs'
 import { cloneDeep } from 'lodash'
 
 import * as es from '../ast'
@@ -51,8 +53,6 @@ import {
   pushLocalEnvironment,
   Stack
 } from './utils'
-import assert from 'assert'
-import { cp } from 'fs'
 
 /**
  * The agenda is a list of commands that still needs to be executed by the machine.

@@ -1,4 +1,5 @@
 import { cloneDeep } from 'lodash'
+
 import { Context } from '..'
 import * as es from '../ast'
 import { builtinFunctionTypes } from '../ec-evaluator/builtin'
@@ -68,7 +69,7 @@ export function addConstraints(node: es.Node, env: TypeEnv): InferResult {
   switch (node.type) {
     case 'Program':
     case 'BlockStatement': {
-      let constraints : Constraint[] = []
+      const constraints : Constraint[] = []
       let type
       for (const stmt of node.body) {
         const res = infer(stmt, env)
@@ -143,7 +144,7 @@ export function addConstraints(node: es.Node, env: TypeEnv): InferResult {
     }
     case 'ListExpression': {
       const inferredElements = node.elements.map(elem => infer(elem, env))
-      let constraints = inferredElements.flatMap(res => res.constraints)
+      const constraints = inferredElements.flatMap(res => res.constraints)
 
       if (inferredElements.length !== 0) {
         for (let i = 0; i < inferredElements.length - 1; i++) {
@@ -242,7 +243,7 @@ function combine(s1: Substitution, s2: Substitution): Substitution {
   console.log("combining")
   console.log(cloneDeep(s1))
   console.log(cloneDeep(s2))
-  let s3 = cloneDeep(s1)
+  const s3 = cloneDeep(s1)
   // apply s2 on the RHS of s1
   for (const [id, t] of s3.subs.entries()) {
     s3.subs.set(id, substitute(t, s2))
@@ -268,7 +269,7 @@ function contains(t2: es.Type, t1: es.VariableType): boolean {
   } else if (t2.type === 'list') {
     return contains(t2.elementType, t1)
   } else if (t2.type === 'tuple') {
-    for (let t of t2.elementTypes) {
+    for (const t of t2.elementTypes) {
       if (contains(t, t1)) return true
     }
     return false
