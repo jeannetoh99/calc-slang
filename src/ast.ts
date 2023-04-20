@@ -96,7 +96,7 @@ interface BaseDeclaration extends BaseStatement {
 
 export interface ValueDeclaration extends BaseDeclaration {
   type: 'ValueDeclaration'
-  pat: Pattern
+  pat: TuplePattern
   init: Expression
 }
 
@@ -109,7 +109,7 @@ export interface RecValueDeclaration extends BaseDeclaration {
 export interface FunctionDeclaration extends BaseDeclaration {
   type: 'FunctionDeclaration'
   id: Identifier
-  param: Pattern
+  param: TuplePattern
   body: Expression
 }
 
@@ -171,7 +171,7 @@ export interface ConditionalExpression extends BaseExpression {
 
 export interface LambdaExpression extends BaseExpression {
   type: 'LambdaExpression'
-  param: Pattern
+  param: TuplePattern
   body: Expression
   recursiveId?: string
 }

@@ -32,11 +32,11 @@ export interface InferResult {
 /**
  *  Infer the type of a node
  */
-export function infer(node: es.TypedNode, env: TypeEnv): InferResult {
+export function inderUnifySub(node: es.TypedNode, env: TypeEnv): InferResult {
   console.log('start')
   console.log(cloneDeep(node))
   console.log(cloneDeep(env))
-  const res = addConstraints(node, env)
+  const res = infer(node, env)
   console.log(res)
   const subs = unify(res.constraints)
   console.log(subs)
@@ -69,37 +69,30 @@ export function bind(pat: es.Pattern, type: es.Type, env: TypeEnv): TypeEnv {
   return env
 }
 
-export function addConstraints(node: es.Node, env: TypeEnv): InferResult {
+export function infer(node: es.Node, env: TypeEnv): InferResult {
   switch (node.type) {
     case 'Program':
     case 'BlockStatement': {
-      const constraints: Constraint[] = []
       let type
       for (const stmt of node.body) {
-        const res = infer(stmt, env)
+        const res = inderUnifySub(stmt, env)
         type = res.type
         env = res.env
       }
       return {
         type: type ?? node.smlType,
-        constraints,
+        constraints: [],
         env
       }
     }
     case 'ExpressionStatement': {
-      const res = infer(node.expression, env)
-      return {
-        type: res.type,
-        constraints: [],
-        env: res.env
-      }
+      return inderUnifySub(node.expression, env)
     }
-    case 'ValueDeclaration':
-    case 'RecValueDeclaration': {
-      const res = infer(node.init, env)
+    case 'ValueDeclaration': {
+      const res = inderUnifySub(node.init, env)
       return {
         type: res.type,
-        constraints: [],
+        constraints: res.constraints,
         env: bind(node.pat, res.type, res.env)
       }
     }
@@ -115,7 +108,7 @@ export function addConstraints(node: es.Node, env: TypeEnv): InferResult {
           ...res3.constraints,
           new Constraint(res1.type, boolType(), node),
           new Constraint(node.smlType, res2.type, node),
-          new Constraint(res2.type, res3.type, node)
+          new Constraint(node.smlType, res3.type, node)
         ],
         env
       }
@@ -125,11 +118,8 @@ export function addConstraints(node: es.Node, env: TypeEnv): InferResult {
       const resBody = infer(node.body, extendedEnv)
 
       return {
-        type: node.smlType,
-        constraints: [
-          ...resBody.constraints,
-          new Constraint(node.smlType, functionType(node.param.smlType, resBody.type), node)
-        ],
+        type: functionType(node.param.smlType, resBody.type),
+        constraints: resBody.constraints,
         env
       }
     }
@@ -140,11 +130,6 @@ export function addConstraints(node: es.Node, env: TypeEnv): InferResult {
 
       if (resCallee.type.type !== 'function') {
         throw new TypeInferenceError('Function application on non-callable expression', node)
-      }
-
-      if (resCallee.type.paramType.type === 'tuple' && fnType.paramType.type === 'tuple') {
-        resCallee.type.paramType.elementTypes.reverse()
-        fnType.paramType.elementTypes.reverse()
       }
 
       const constraints = [
@@ -202,14 +187,14 @@ export function addConstraints(node: es.Node, env: TypeEnv): InferResult {
     case 'DeclarationList':
     case 'LetExpression':
     case 'SequenceExpression':
-    // TODO
+    case 'RecValueDeclaration':
+      // TODO 
     case 'Literal':
       return {
         type: node.smlType,
         constraints: [],
         env
       }
-      throw new TypeInferenceError(`Not supported yet: ${node.type}`)
     default:
       throw new TypeInferenceError(`Unknown node type: ${node.type}`)
   }
@@ -270,6 +255,14 @@ function combine(s1: Substitution, s2: Substitution): Substitution {
   return s3
 }
 
+function apply(S: Substitution, C: Constraint[]) {
+  for (let constraint of C) {
+    constraint.from = substitute(constraint.from, S)
+    constraint.to = substitute(constraint.to, S)
+  }
+  return C
+}
+ 
 /**
  * Checks if a type contains another type
  */
@@ -319,12 +312,14 @@ function unify(C: Constraint[]): Substitution {
     // eliminating the variable 'x from the system of equations, much like
     // Gaussian elimination in solving algebraic equations.
     else if (t1.type === 'variable' && !contains(t2, t1)) {
-      return combine(new Substitution().insert(t1, t2), unify(C.slice(1)))
+      const S = new Substitution().insert(t1, t2)
+      return combine(S, unify(apply(S, C.slice(1))))
     }
 
     // previous case but swap
     else if (t2.type === 'variable' && !contains(t1, t2)) {
-      return combine(new Substitution().insert(t2, t1), unify(C.slice(1)))
+      const S = new Substitution().insert(t2, t1)
+      return combine(S, unify(apply(S, C.slice(1))))
     }
 
     // both are function types
@@ -400,7 +395,7 @@ const runningEnv = new TypeEnv({ ...GlobalEnv.map })
 
 export function inferProgram(node: es.Program, context: Context) {
   try {
-    infer(node, runningEnv)
+    inderUnifySub(node, runningEnv)
   } catch (error) {
     if (error instanceof TypeError) {
       context.errors.push(error)

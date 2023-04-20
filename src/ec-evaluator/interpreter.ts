@@ -15,7 +15,6 @@ import * as errors from '../errors/errors'
 import { arity } from '../stdlib/misc'
 import { Context, Result, Value } from '../types'
 import { expressionStatement, functionType, listType, tupleType } from '../utils/astCreator'
-import * as rttc from '../utils/rttc'
 import { applyBuiltin, builtinInfixFunctions, builtinMapping } from './builtin'
 import * as instr from './instrCreator'
 import {
@@ -153,7 +152,7 @@ function runECEMachine(context: Context, agenda: Agenda, stash: Stash) {
   let command = agenda.pop()
   while (command) {
     console.log(command)
-    // console.log(currentEnvironment(context))
+    console.log(currentEnvironment(context))
     if (isNode(command)) {
       context.runtime.nodes.unshift(command)
       cmdEvaluators[command.type](command, context, agenda, stash)
@@ -180,6 +179,9 @@ export const evaluateCallInstr = (
     args.unshift(stash.pop())
   }
 
+  console.log("CALL")
+  console.log(args)
+
   const func: ClosureInstr | BuiltinInstr = stash.pop()
   if (func?.instrType === InstrType.CLOSURE) {
     const closure = func as ClosureInstr
@@ -188,7 +190,7 @@ export const evaluateCallInstr = (
       agenda.push(instr.envInstr(currentEnvironment(context)))
     }
     agenda.push(closure.srcNode.body)
-
+    
     const environment = createEnvironment(
       closure,
       {
@@ -205,6 +207,8 @@ export const evaluateCallInstr = (
     }
     pushEnvironment(context, environment)
   } else if (func?.instrType == InstrType.BUILTIN) {
+    console.log("builtin")
+    console.log(args)
     const builtin = func as BuiltinInstr
     stash.push(applyBuiltin(builtin.identifier, args, command.srcNode.smlType))
   } else {
@@ -313,7 +317,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     stash: Stash
   ) {
     const env = command.declEnv ?? currentEnvironment(context)
-    declareFunctionsAndVariables(env, command)
+    declareFunctionsAndVariables(env, command) // TODO: is this needed ?
     command.body.map(decl => (decl.declEnv = env))
     agenda.push(...handleSequence(command.body))
   },
@@ -483,13 +487,6 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     stash: Stash
   ) {
     const test: es.BoolLiteral = stash.pop()
-
-    // Check if predicate is a boolean
-    const error = rttc.checkIsBool(command.srcNode, ' as condition', test)
-    if (error) {
-      handleRuntimeError(context, error)
-    }
-
     if (test.value) {
       agenda.push(command.consequent)
     } else {

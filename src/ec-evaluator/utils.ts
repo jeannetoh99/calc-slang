@@ -115,13 +115,9 @@ export const createEnvironment = (
     }
   }
 
-  if (closure.srcNode.param.type === 'Identifier') {
-    environment.head[closure.srcNode.param.name] = args[0]
-  } else if (closure.srcNode.param.type === 'TuplePattern') {
-    closure.srcNode.param.elements.forEach((param, index) => {
-      environment.head[(param as es.Identifier).name] = args[index]
-    })
-  }
+  closure.srcNode.param.elements.forEach((param, index) => {
+    environment.head[(param as es.Identifier).name] = args.elements[index]
+  })
 
   return environment
 }
@@ -165,14 +161,10 @@ function declareIdentifier(environment: Environment, name: string, node: es.Node
 }
 
 function declareVariables(environment: Environment, node: es.ValueDeclaration) {
-  if (node.pat.type === 'TuplePattern') {
-    for (const pat of node.pat.elements) {
-      if (pat.type === 'Identifier') {
-        declareIdentifier(environment, pat.name, node)
-      }
+  for (const pat of node.pat.elements) {
+    if (pat.type === 'Identifier') {
+      declareIdentifier(environment, pat.name, node)
     }
-  } else if (node.pat.type === 'Identifier') {
-    declareIdentifier(environment, node.pat.name, node)
   }
 }
 
