@@ -190,13 +190,14 @@ export const evaluateCallInstr = (
     agenda.push(closure.srcNode.body)
 
     const environment = createEnvironment(
-      closure, 
+      closure,
       {
         type: 'TupleExpression',
         smlType: command.srcNode.args.smlType,
         elements: args
-      }, 
-      command.srcNode)
+      },
+      command.srcNode
+    )
 
     // Replace current environment if tail call
     if (command.instrType === InstrType.TAIL_CALL) {

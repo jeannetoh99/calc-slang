@@ -14,7 +14,7 @@ class TypeEnv {
     if (name in this.map) {
       return this.map[name]
     } else {
-      return undefined
+      throw new TypeInferenceError("Unbounded name " + name)
     }
   }
 
@@ -29,12 +29,11 @@ export interface InferResult {
   env: TypeEnv
 }
 
-
 /**
  *  Infer the type of a node
  */
 export function infer(node: es.TypedNode, env: TypeEnv): InferResult {
-  console.log("start")
+  console.log('start')
   console.log(cloneDeep(node))
   const res = addConstraints(node, env)
   console.log(res)
@@ -42,7 +41,7 @@ export function infer(node: es.TypedNode, env: TypeEnv): InferResult {
   console.log(subs)
   node.smlType = substitute(res.type, subs)
   console.log(cloneDeep(node))
-  console.log("end")
+  console.log('end')
   return {
     type: node.smlType,
     constraints: [],
@@ -51,6 +50,9 @@ export function infer(node: es.TypedNode, env: TypeEnv): InferResult {
 }
 
 export function bind(pat: es.Pattern, type: es.Type, env: TypeEnv): TypeEnv {
+  console.log("binding")
+  console.log(cloneDeep(pat))
+  console.log(cloneDeep(type))
   if (pat.type === 'TuplePattern' && type.type === 'tuple') {
     // TODO: check no duplicate identifiers in the same pat
     for (let i = 0; i < pat.elements.length; i++) {
@@ -62,6 +64,7 @@ export function bind(pat: es.Pattern, type: es.Type, env: TypeEnv): TypeEnv {
   } else if (pat.type === 'Literal') {
     // check that literal pat type and type is the same
   }
+  console.log(cloneDeep(env))
   return env
 }
 
@@ -69,7 +72,7 @@ export function addConstraints(node: es.Node, env: TypeEnv): InferResult {
   switch (node.type) {
     case 'Program':
     case 'BlockStatement': {
-      const constraints : Constraint[] = []
+      const constraints: Constraint[] = []
       let type
       for (const stmt of node.body) {
         const res = infer(stmt, env)
@@ -111,8 +114,19 @@ export function addConstraints(node: es.Node, env: TypeEnv): InferResult {
           ...res3.constraints,
           new Constraint(res1.type, boolType(), node),
           new Constraint(node.smlType, res2.type, node),
-          new Constraint(res2.type, res3.type, node),
+          new Constraint(res2.type, res3.type, node)
         ],
+        env
+      }
+    }
+    case 'LambdaExpression': {
+      let extendedEnv = bind(node.param, node.param.smlType, env)
+      const resBody = infer(node.body, extendedEnv)
+      node.smlType = functionType(node.param.smlType, resBody.type)
+
+      return {
+        type: node.smlType,
+        constraints: resBody.constraints,
         env
       }
     }
@@ -133,7 +147,7 @@ export function addConstraints(node: es.Node, env: TypeEnv): InferResult {
       const constraints = [
         ...resCallee.constraints,
         ...resArgs.constraints,
-        new Constraint(resCallee.type, fnType, node),
+        new Constraint(resCallee.type, fnType, node)
       ]
 
       return {
@@ -168,7 +182,7 @@ export function addConstraints(node: es.Node, env: TypeEnv): InferResult {
         type: node.smlType,
         constraints: [
           ...inferredElements.flatMap(elem => elem.constraints),
-          new Constraint(node.smlType, inferredType, node),
+          new Constraint(node.smlType, inferredType, node)
         ],
         env
       }
@@ -213,10 +227,9 @@ class Constraint {
 }
 
 class Substitution {
- 
-  constructor(public  subs: Map<number, es.Type> = new Map()) {}
+  constructor(public subs: Map<number, es.Type> = new Map()) {}
 
-  insert(before: es.VariableType, after: es.Type): Substitution  {
+  insert(before: es.VariableType, after: es.Type): Substitution {
     const id = before.id
     if (this.subs.has(id) && !isTypeEqual(this.subs.get(id)!, after)) {
       throw new TypeInferenceError('Clashing types found!')
@@ -224,7 +237,7 @@ class Substitution {
     this.subs.set(id, after)
     return this
   }
-  concat(other: Substitution): Substitution  {
+  concat(other: Substitution): Substitution {
     for (const [id, type] of other.subs.entries()) {
       if (this.subs.has(id) && !isTypeEqual(this.subs.get(id)!, type)) {
         throw new TypeInferenceError('Clashing types found!')
@@ -240,7 +253,7 @@ class Substitution {
  * s3(x) = s2(s1(x)). i.e. s1 is applied before s2 is applied.
  */
 function combine(s1: Substitution, s2: Substitution): Substitution {
-  console.log("combining")
+  console.log('combining')
   console.log(cloneDeep(s1))
   console.log(cloneDeep(s2))
   const s3 = cloneDeep(s1)
@@ -282,7 +295,7 @@ function contains(t2: es.Type, t1: es.VariableType): boolean {
  * Unify a list of constraints
  */
 function unify(C: Constraint[]): Substitution {
-  console.log("unify", C)
+  console.log('unify', C)
   if (C.length === 0) {
     // If C is the empty set, then unify(C) is the empty substitution.
     return new Substitution()
@@ -317,23 +330,19 @@ function unify(C: Constraint[]): Substitution {
 
     // both are function types
     else if (t1.type === 'function' && t2.type === 'function') {
-      return unify(
-        [
-          new Constraint(t1.returnType, t2.returnType, constraint.srcNode),
-          new Constraint(t1.paramType, t2.paramType, constraint.srcNode),
-          ...C.slice(1),
-        ]
-      )
+      return unify([
+        new Constraint(t1.returnType, t2.returnType, constraint.srcNode),
+        new Constraint(t1.paramType, t2.paramType, constraint.srcNode),
+        ...C.slice(1)
+      ])
     }
 
     // both are list types
     else if (t1.type === 'list' && t2.type === 'list') {
-      return unify(
-        [
-          new Constraint(t1.elementType, t2.elementType, constraint.srcNode),
-          ...C.slice(1),
-        ]
-      )
+      return unify([
+        new Constraint(t1.elementType, t2.elementType, constraint.srcNode),
+        ...C.slice(1)
+      ])
     }
 
     // both are tuple types
@@ -347,9 +356,7 @@ function unify(C: Constraint[]): Substitution {
 
       const constraints: Constraint[] = []
       for (let i = 0; i < t1.elementTypes.length; i++) {
-        constraints.push(
-          new Constraint(t1.elementTypes[i], t2.elementTypes[i], constraint.srcNode)
-        )
+        constraints.push(new Constraint(t1.elementTypes[i], t2.elementTypes[i], constraint.srcNode))
       }
 
       return unify([...constraints, ...C.slice(1)])

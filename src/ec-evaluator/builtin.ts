@@ -49,20 +49,29 @@ export const builtinInfixFunctions = {
   '+': (x: es.NumLiteral, y: es.NumLiteral) => (t: es.LiteralType) => literal(x.value + y.value, t),
   '-': (x: es.NumLiteral, y: es.NumLiteral) => (t: es.LiteralType) => literal(x.value - y.value, t),
   '*': (x: es.NumLiteral, y: es.NumLiteral) => (t: es.LiteralType) => literal(x.value * y.value, t),
-  '/': (x: es.RealLiteral, y: es.RealLiteral) => (t: es.LiteralType) => literal(x.value / y.value, t),
-  div: (x: es.IntLiteral, y: es.IntLiteral) => (t: es.LiteralType) => literal(Math.floor(x.value / y.value), t),
+  '/': (x: es.RealLiteral, y: es.RealLiteral) => (t: es.LiteralType) =>
+    literal(x.value / y.value, t),
+  div: (x: es.IntLiteral, y: es.IntLiteral) => (t: es.LiteralType) =>
+    literal(Math.floor(x.value / y.value), t),
   mod: (x: es.IntLiteral, y: es.IntLiteral) => (t: es.LiteralType) => literal(x.value % y.value, t),
-  '<>': (x: es.NumLiteral, y: es.NumLiteral) => (t: es.LiteralType) => literal(x.value !== y.value, t),
+  '<>': (x: es.NumLiteral, y: es.NumLiteral) => (t: es.LiteralType) =>
+    literal(x.value !== y.value, t),
   '<': (x: es.NumLiteral, y: es.NumLiteral) => (t: es.LiteralType) => literal(x.value < y.value, t),
   '>': (x: es.NumLiteral, y: es.NumLiteral) => (t: es.LiteralType) => literal(x.value > y.value, t),
-  '=': (x: es.NumLiteral, y: es.NumLiteral) => (t: es.LiteralType) => literal(x.value === y.value, t),
-  '<=': (x: es.NumLiteral, y: es.NumLiteral) => (t: es.LiteralType) => literal(x.value <= y.value, t),
-  '>=': (x: es.NumLiteral, y: es.NumLiteral) => (t: es.LiteralType) => literal(x.value >= y.value, t),
-  andalso: (x: es.BoolLiteral, y: es.BoolLiteral) => (t: es.LiteralType) => literal(x.value && y.value, t),
-  orelse: (x: es.BoolLiteral, y: es.BoolLiteral) => (t: es.LiteralType) => literal(x.value || y.value, t),
-  '^': (x: es.StringLiteral, y: es.StringLiteral) => (t: es.LiteralType) => literal(x.value + y.value, t),
+  '=': (x: es.NumLiteral, y: es.NumLiteral) => (t: es.LiteralType) =>
+    literal(x.value === y.value, t),
+  '<=': (x: es.NumLiteral, y: es.NumLiteral) => (t: es.LiteralType) =>
+    literal(x.value <= y.value, t),
+  '>=': (x: es.NumLiteral, y: es.NumLiteral) => (t: es.LiteralType) =>
+    literal(x.value >= y.value, t),
+  andalso: (x: es.BoolLiteral, y: es.BoolLiteral) => (t: es.LiteralType) =>
+    literal(x.value && y.value, t),
+  orelse: (x: es.BoolLiteral, y: es.BoolLiteral) => (t: es.LiteralType) =>
+    literal(x.value || y.value, t),
+  '^': (x: es.StringLiteral, y: es.StringLiteral) => (t: es.LiteralType) =>
+    literal(x.value + y.value, t),
   '@': (x: es.List, y: es.List) => (t: es.ListType) => list([...x.value, ...y.value], t),
-  '::': (x: es.SmlValue, y: es.List) => (t: es.ListType) => list([x, ...y.value], t),
+  '::': (x: es.SmlValue, y: es.List) => (t: es.ListType) => list([x, ...y.value], t)
 }
 
 export const builtinFunctions = {

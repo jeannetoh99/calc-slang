@@ -167,11 +167,7 @@ class AstConverter implements CalcVisitor<es.Node> {
     return {
       type: 'ApplicationExpression',
       smlType: variableType(getNextVarId()),
-      callee: identifier(
-        '::',
-        variableType(getNextVarId()),
-        contextToLocation(ctx)
-      ),
+      callee: identifier('::', variableType(getNextVarId()), contextToLocation(ctx)),
       args: {
         type: 'TupleExpression',
         smlType: variableType(getNextVarId()),
@@ -216,10 +212,7 @@ class AstConverter implements CalcVisitor<es.Node> {
       args: {
         type: 'TupleExpression',
         smlType: variableType(getNextVarId()),
-        elements: [
-          this.visit(ctx._left) as es.Expression, 
-          this.visit(ctx._right) as es.Expression,
-        ]
+        elements: [this.visit(ctx._left) as es.Expression, this.visit(ctx._right) as es.Expression]
       },
       isInfix: true,
       loc: contextToLocation(ctx)
