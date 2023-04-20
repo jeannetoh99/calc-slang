@@ -13,16 +13,20 @@ import { LambdaExpressionContext } from './CalcParser'
 import { LetExpressionContext } from './CalcParser'
 import { ParenthesizedExpressionContext } from './CalcParser'
 import { SequenceExpressionContext } from './CalcParser'
+import { TupleExpressionContext } from './CalcParser'
 import { ListExpressionContext } from './CalcParser'
+import { WildcardPatternContext } from './CalcParser'
 import { LiteralPatternContext } from './CalcParser'
 import { IdentifierPatternContext } from './CalcParser'
 import { TypedPatternContext } from './CalcParser'
+import { TuplePatternContext } from './CalcParser'
 import { ParenthesizedPatternContext } from './CalcParser'
 import { ExpressionStatementContext } from './CalcParser'
 import { DeclarationStatementContext } from './CalcParser'
 import { LiteralTypeContext } from './CalcParser'
 import { ListTypeContext } from './CalcParser'
 import { FunctionTypeContext } from './CalcParser'
+import { TupleTypeContext } from './CalcParser'
 import { ParenthesizedTypeContext } from './CalcParser'
 import { SquareBracketListContext } from './CalcParser'
 import { EmptyListContext } from './CalcParser'
@@ -197,6 +201,19 @@ export interface CalcListener extends ParseTreeListener {
   exitSequenceExpression?: (ctx: SequenceExpressionContext) => void
 
   /**
+   * Enter a parse tree produced by the `TupleExpression`
+   * labeled alternative in `CalcParser.expression`.
+   * @param ctx the parse tree
+   */
+  enterTupleExpression?: (ctx: TupleExpressionContext) => void
+  /**
+   * Exit a parse tree produced by the `TupleExpression`
+   * labeled alternative in `CalcParser.expression`.
+   * @param ctx the parse tree
+   */
+  exitTupleExpression?: (ctx: TupleExpressionContext) => void
+
+  /**
    * Enter a parse tree produced by the `ListExpression`
    * labeled alternative in `CalcParser.expression`.
    * @param ctx the parse tree
@@ -208,6 +225,19 @@ export interface CalcListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   exitListExpression?: (ctx: ListExpressionContext) => void
+
+  /**
+   * Enter a parse tree produced by the `WildcardPattern`
+   * labeled alternative in `CalcParser.pattern`.
+   * @param ctx the parse tree
+   */
+  enterWildcardPattern?: (ctx: WildcardPatternContext) => void
+  /**
+   * Exit a parse tree produced by the `WildcardPattern`
+   * labeled alternative in `CalcParser.pattern`.
+   * @param ctx the parse tree
+   */
+  exitWildcardPattern?: (ctx: WildcardPatternContext) => void
 
   /**
    * Enter a parse tree produced by the `LiteralPattern`
@@ -247,6 +277,19 @@ export interface CalcListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   exitTypedPattern?: (ctx: TypedPatternContext) => void
+
+  /**
+   * Enter a parse tree produced by the `TuplePattern`
+   * labeled alternative in `CalcParser.pattern`.
+   * @param ctx the parse tree
+   */
+  enterTuplePattern?: (ctx: TuplePatternContext) => void
+  /**
+   * Exit a parse tree produced by the `TuplePattern`
+   * labeled alternative in `CalcParser.pattern`.
+   * @param ctx the parse tree
+   */
+  exitTuplePattern?: (ctx: TuplePatternContext) => void
 
   /**
    * Enter a parse tree produced by the `ParenthesizedPattern`
@@ -325,6 +368,19 @@ export interface CalcListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   exitFunctionType?: (ctx: FunctionTypeContext) => void
+
+  /**
+   * Enter a parse tree produced by the `TupleType`
+   * labeled alternative in `CalcParser.type`.
+   * @param ctx the parse tree
+   */
+  enterTupleType?: (ctx: TupleTypeContext) => void
+  /**
+   * Exit a parse tree produced by the `TupleType`
+   * labeled alternative in `CalcParser.type`.
+   * @param ctx the parse tree
+   */
+  exitTupleType?: (ctx: TupleTypeContext) => void
 
   /**
    * Enter a parse tree produced by the `ParenthesizedType`

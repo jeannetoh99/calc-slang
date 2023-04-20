@@ -48,23 +48,30 @@ import {
   SquareBracketListContext,
   StatementContext,
   StringContext,
+  TupleExpressionContext,
+  TuplePatternContext,
+  TupleTypeContext,
   TypeContext,
   TypedExpressionContext,
   TypedPatternContext,
   UnitContext,
-  ValueDeclarationContext
+  ValueDeclarationContext,
+  WildcardPatternContext
 } from '../lang/CalcParser'
 import { CalcVisitor } from '../lang/CalcVisitor'
 import { Context, ErrorSeverity, ErrorType, SourceError } from '../types'
 import {
   boolType,
   functionType,
+  getNextVarId,
   identifier,
   intType,
   listType,
   realType,
   stringType,
-  unitType
+  tupleType,
+  unitType,
+  variableType
 } from '../utils/astCreator'
 
 export class FatalSyntaxError implements SourceError {
@@ -159,10 +166,17 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitListConstructionExpression(
     ctx: ListConstructionExpressionContext
   ): es.ApplicationExpression {
+    const argElements = ctx.expression().map(arg => this.visit(arg) as es.Expression)
+
     return {
       type: 'ApplicationExpression',
-      callee: identifier('::', contextToLocation(ctx)),
-      args: ctx.expression().map(arg => this.visit(arg) as es.Expression),
+      smlType: variableType(getNextVarId()),
+      callee: identifier('::', variableType(getNextVarId()), contextToLocation(ctx)),
+      args: {
+        type: 'TupleExpression',
+        smlType: tupleType(argElements.map(arg => arg.smlType)),
+        elements: argElements
+      },
       isInfix: true,
       loc: contextToLocation(ctx)
     }
@@ -173,19 +187,37 @@ class AstConverter implements CalcVisitor<es.Node> {
     return expr
   }
   visitFunctionApplication(ctx: FunctionApplicationContext): es.ApplicationExpression {
+    const callee = this.visit(ctx._fn) as es.Expression
+    const args = [this.visit(ctx._args) as es.Expression]
     return {
       type: 'ApplicationExpression',
-      callee: this.visit(ctx._fn) as es.Expression,
-      args: [this.visit(ctx._args) as es.Expression],
+      smlType: variableType(getNextVarId()),
+      callee,
+      args: {
+        type: 'TupleExpression',
+        smlType: tupleType(args.map(arg => arg.smlType)),
+        elements: args
+      },
       isInfix: false,
       loc: contextToLocation(ctx)
     }
   }
   visitInfixApplication(ctx: InfixApplicationContext): es.ApplicationExpression {
+    const callee = identifier(
+      ctx._op.text ?? '',
+      variableType(getNextVarId()),
+      contextToLocation(ctx)
+    )
+
     return {
       type: 'ApplicationExpression',
-      callee: identifier(ctx._op.text ?? '', contextToLocation(ctx)),
-      args: [this.visit(ctx._left) as es.Expression, this.visit(ctx._right) as es.Expression],
+      smlType: variableType(getNextVarId()),
+      callee,
+      args: {
+        type: 'TupleExpression',
+        smlType: variableType(getNextVarId()),
+        elements: [this.visit(ctx._left) as es.Expression, this.visit(ctx._right) as es.Expression]
+      },
       isInfix: true,
       loc: contextToLocation(ctx)
     }
@@ -193,6 +225,7 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitConditionalExpression(ctx: ConditionalExpressionContext): es.ConditionalExpression {
     return {
       type: 'ConditionalExpression',
+      smlType: variableType(getNextVarId()),
       pred: this.visit(ctx._pred) as es.Expression,
       cons: this.visit(ctx._cons) as es.Expression,
       alt: this.visit(ctx._alt) as es.Expression,
@@ -205,6 +238,7 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitLetExpression(ctx: LetExpressionContext): es.LetExpression {
     return {
       type: 'LetExpression',
+      smlType: variableType(getNextVarId()),
       declarations: this.visit(ctx.declarationList()) as es.DeclarationList,
       body: this.visit(ctx.expressionList()) as es.SequenceExpression,
       loc: contextToLocation(ctx)
@@ -219,6 +253,21 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitSequenceExpression(ctx: SequenceExpressionContext): es.SequenceExpression {
     return this.visit(ctx.expressionList()) as es.SequenceExpression
   }
+  visitTupleExpression(ctx: TupleExpressionContext): es.TupleExpression {
+    const elements = ctx.expression().map(expr => this.visit(expr) as es.Expression)
+    return {
+      type: 'TupleExpression',
+      elements,
+      smlType: tupleType(elements.map(elem => elem.smlType)),
+      loc: contextToLocation(ctx)
+    }
+  }
+  visitWildcardPattern(ctx: WildcardPatternContext): es.Wildcard {
+    return {
+      type: 'Wildcard',
+      smlType: variableType(getNextVarId())
+    }
+  }
   visitLiteralPattern(ctx: LiteralPatternContext): es.Literal {
     return this.visit(ctx.literal()) as es.Literal
   }
@@ -227,8 +276,16 @@ class AstConverter implements CalcVisitor<es.Node> {
   }
   visitTypedPattern(ctx: TypedPatternContext): es.Pattern {
     const pat = this.visit(ctx.pattern()) as es.Pattern
-    pat.annotedType = this.visit(ctx.type()) as es.Type
+    pat.annotatedType = this.visit(ctx.type()) as es.Type
     return pat
+  }
+  visitTuplePattern(ctx: TuplePatternContext): es.TuplePattern {
+    return {
+      type: 'TuplePattern',
+      elements: ctx.pattern().map(pat => this.visit(pat) as es.Pattern),
+      smlType: variableType(getNextVarId()),
+      loc: contextToLocation(ctx)
+    }
   }
   visitParenthesizedPattern(ctx: ParenthesizedPatternContext): es.Pattern {
     return this.visit(ctx.pattern()) as es.Pattern
@@ -236,13 +293,9 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitExpressionStatement(ctx: ExpressionStatementContext): es.Statement {
     return {
       type: 'ValueDeclaration',
-      declarations: [
-        {
-          type: 'ValueDeclarator',
-          id: identifier('it', contextToLocation(ctx)),
-          init: this.visit(ctx.expression()) as es.Expression
-        }
-      ],
+      smlType: variableType(getNextVarId()),
+      pat: identifier('it', variableType(getNextVarId()), contextToLocation(ctx)),
+      init: this.visit(ctx.expression()) as es.Expression,
       loc: contextToLocation(ctx)
     }
   }
@@ -270,6 +323,13 @@ class AstConverter implements CalcVisitor<es.Node> {
       loc: contextToLocation(ctx)
     }
   }
+  visitTupleType(ctx: TupleTypeContext): es.TupleType {
+    return {
+      type: 'tuple',
+      elementTypes: ctx.type().map(typ => this.visit(typ) as es.Type),
+      loc: contextToLocation(ctx)
+    }
+  }
   visitParenthesizedType(ctx: ParenthesizedTypeContext): es.Type {
     return this.visit(ctx._inner) as es.Type
   }
@@ -277,8 +337,7 @@ class AstConverter implements CalcVisitor<es.Node> {
     const elements = ctx.expression().map(expr => this.visit(expr) as es.Expression)
     return {
       type: 'ListExpression',
-      smlType: { type: 'list' },
-      inferredType: { type: 'list' },
+      smlType: variableType(getNextVarId()),
       elements,
       loc: contextToLocation(ctx)
     }
@@ -286,8 +345,7 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitEmptyList(ctx: EmptyListContext): es.ListExpression {
     return {
       type: 'ListExpression',
-      smlType: { type: 'list' },
-      inferredType: { type: 'list' },
+      smlType: variableType(getNextVarId()),
       elements: [],
       loc: contextToLocation(ctx)
     }
@@ -295,29 +353,27 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitValueDeclaration(ctx: ValueDeclarationContext): es.ValueDeclaration {
     return {
       type: 'ValueDeclaration',
-      declarations: [
-        {
-          type: 'ValueDeclarator',
-          id: this.visit(ctx.pattern()) as es.Identifier,
-          init: this.visit(ctx.expression()) as es.Expression
-        }
-      ],
+      smlType: variableType(getNextVarId()),
+      pat: this.visit(ctx.pattern()) as es.Pattern,
+      init: this.visit(ctx.expression()) as es.Expression,
       loc: contextToLocation(ctx)
     }
   }
   visitRecursiveDeclaration(ctx: RecursiveDeclarationContext): es.RecValueDeclaration {
     return {
       type: 'RecValueDeclaration',
-      id: this.visit(ctx.identifier()) as es.Identifier,
-      lambda: this.visit(ctx.lambda()) as es.LambdaExpression,
+      smlType: variableType(getNextVarId()),
+      pat: this.visit(ctx.identifier()) as es.Identifier,
+      init: this.visit(ctx.lambda()) as es.LambdaExpression,
       loc: contextToLocation(ctx)
     }
   }
   visitFunctionDeclaration(ctx: FunctionDeclarationContext): es.FunctionDeclaration {
     return {
       type: 'FunctionDeclaration',
+      smlType: variableType(getNextVarId()),
       id: this.visit(ctx.identifier()) as es.Identifier,
-      params: [this.visit(ctx.pattern()) as es.Pattern],
+      param: this.visit(ctx.pattern()) as es.Pattern,
       body: this.visit(ctx.expression()) as es.Expression,
       loc: contextToLocation(ctx)
     }
@@ -325,6 +381,7 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitLocalDeclaration(ctx: LocalDeclarationContext): es.LocalDeclaration {
     return {
       type: 'LocalDeclaration',
+      smlType: variableType(getNextVarId()),
       local: this.visit(ctx._local) as es.DeclarationList,
       body: this.visit(ctx._body) as es.DeclarationList,
       loc: contextToLocation(ctx)
@@ -334,7 +391,6 @@ class AstConverter implements CalcVisitor<es.Node> {
     return {
       type: 'Literal',
       smlType: intType(),
-      inferredType: intType(),
       value: parseInt(ctx.text),
       raw: ctx.text,
       loc: contextToLocation(ctx)
@@ -344,7 +400,6 @@ class AstConverter implements CalcVisitor<es.Node> {
     return {
       type: 'Literal',
       smlType: boolType(),
-      inferredType: boolType(),
       value: ctx.text === 'true',
       raw: ctx.text,
       loc: contextToLocation(ctx)
@@ -354,7 +409,6 @@ class AstConverter implements CalcVisitor<es.Node> {
     return {
       type: 'Literal',
       smlType: realType(),
-      inferredType: realType(),
       value: parseFloat(ctx.text.replace('~', '-')),
       raw: ctx.text,
       loc: contextToLocation(ctx)
@@ -364,7 +418,6 @@ class AstConverter implements CalcVisitor<es.Node> {
     return {
       type: 'Literal',
       smlType: stringType(),
-      inferredType: stringType(),
       value: eval(ctx.text),
       raw: ctx.text,
       loc: contextToLocation(ctx)
@@ -374,7 +427,6 @@ class AstConverter implements CalcVisitor<es.Node> {
     return {
       type: 'Literal',
       smlType: unitType(),
-      inferredType: unitType(),
       value: undefined,
       raw: ctx.text,
       loc: contextToLocation(ctx)
@@ -384,6 +436,7 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitIdentifier(ctx: IdentifierContext): es.Identifier {
     return {
       type: 'Identifier',
+      smlType: variableType(getNextVarId()),
       name: ctx.IDENTIFIER().text,
       loc: contextToLocation(ctx)
     }
@@ -393,12 +446,12 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitExpression?: ((ctx: ExpressionContext) => es.Expression) | undefined
 
   visitLambda(ctx: LambdaContext): es.LambdaExpression {
-    const params = [this.visit(ctx.pattern()) as es.Pattern]
+    const param = this.visit(ctx.pattern()) as es.Pattern
     const body = this.visit(ctx.expression()) as es.Expression
     return {
       type: 'LambdaExpression',
-      smlType: functionType(params[0]?.smlType, body.smlType),
-      params,
+      smlType: functionType(param.smlType, body.smlType),
+      param,
       body,
       loc: contextToLocation(ctx)
     }
@@ -407,6 +460,7 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitExpressionList(ctx: ExpressionListContext): es.SequenceExpression {
     return {
       type: 'SequenceExpression',
+      smlType: variableType(getNextVarId()),
       expressions: ctx.expression().map(expr => this.visit(expr) as es.Expression),
       loc: contextToLocation(ctx)
     }
@@ -418,6 +472,7 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitDeclarationList(ctx: DeclarationListContext): es.DeclarationList {
     return {
       type: 'DeclarationList',
+      smlType: variableType(getNextVarId()),
       body: ctx.declaration().map(decl => this.visit(decl) as es.Declaration),
       loc: contextToLocation(ctx)
     }
@@ -433,6 +488,7 @@ class AstConverter implements CalcVisitor<es.Node> {
     return {
       type: 'Program',
       sourceType: 'script',
+      smlType: variableType(getNextVarId()),
       body: statements,
       loc: contextToLocation(ctx)
     }
@@ -440,7 +496,7 @@ class AstConverter implements CalcVisitor<es.Node> {
   visit(tree: ParseTree): es.Node {
     return tree.accept(this)
   }
-  visitChildren(node: RuleNode): es.Node {
+  visitChildren(node: RuleNode): es.NodeArray {
     const nodes: es.Node[] = []
     for (let i = 0; i < node.childCount; i++) {
       nodes.push(node.getChild(i).accept(this))

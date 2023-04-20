@@ -4,7 +4,7 @@ import { ECEResultPromise, evaluate as ECEvaluate } from '../ec-evaluator/interp
 import { CannotFindModuleError } from '../errors/localImportErrors'
 import { parse } from '../parser/parser'
 import { Context, Variant } from '../types'
-import { validateAndAnnotate } from '../validator/validator'
+import { inferProgram } from '../utils/typeInference'
 import { determineVariant, resolvedErrorPromise } from './utils'
 
 const DEFAULT_SOURCE_OPTIONS: IOptions = {
@@ -39,14 +39,11 @@ export async function sourceRunner(
     return resolvedErrorPromise
   }
 
-  // TODO: Fix validateAndAnnotate and modify/add type checking
-  // validateAndAnnotate(program, context)
-  context.unTypecheckedCode.push(code)
+  inferProgram(program, context)
 
   if (context.errors.length > 0) {
     return resolvedErrorPromise
   }
-
   return runECEvaluator(program, context, theOptions)
 }
 

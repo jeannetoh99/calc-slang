@@ -81,7 +81,7 @@ export class CallingNonFunctionValue extends RuntimeSourceError {
     const calleeStr = stringify(calleeVal)
     let argStr = ''
 
-    const callArgs = (this.node as es.ApplicationExpression).args
+    const callArgs = (this.node as es.ApplicationExpression).args.elements
 
     argStr = callArgs.map(generate).join(', ')
 

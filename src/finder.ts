@@ -7,7 +7,7 @@ import {
   LambdaExpression,
   Node,
   SourceLocation,
-  ValueDeclarator
+  ValueDeclaration
 } from './ast'
 import { Context } from './types'
 import { ancestor, findNodeAt, recursive, WalkerCallback } from './utils/walkers'
@@ -53,7 +53,12 @@ export function findDeclarationNode(program: Node, identifier: Identifier): Node
         if (node.id && node.id.name === identifier.name) {
           declarations.push(node.id)
         } else if (containsNode(node, identifier)) {
-          const param = node.params.find(n => (n as Identifier).name === identifier.name)
+          let param
+          if (node.param.type === 'TuplePattern') {
+            param = node.param.elements.find(n => (n as Identifier).name === identifier.name)
+          } else if (node.param.type === 'Identifier') {
+            param = node.param.name === identifier.name ? node.param : undefined
+          }
           if (param) {
             declarations.push(param)
           } else {
@@ -63,7 +68,12 @@ export function findDeclarationNode(program: Node, identifier: Identifier): Node
       },
       ArrowFunctionExpression(node: LambdaExpression, state: any, callback: any) {
         if (containsNode(node, identifier)) {
-          const param = node.params.find(n => (n as Identifier).name === identifier.name)
+          let param
+          if (node.param.type === 'TuplePattern') {
+            param = node.param.elements.find(n => (n as Identifier).name === identifier.name)
+          } else if (node.param.type === 'Identifier') {
+            param = node.param.name === identifier.name ? node.param : undefined
+          }
           if (param) {
             declarations.push(param)
           } else {
@@ -71,9 +81,15 @@ export function findDeclarationNode(program: Node, identifier: Identifier): Node
           }
         }
       },
-      ValueDeclarator(node: ValueDeclarator, _state: any, _callback: WalkerCallback<any>) {
-        if ((node.id as Identifier).name === identifier.name) {
-          declarations.push(node.id)
+      ValueDeclaration(node: ValueDeclaration, _state: any, _callback: WalkerCallback<any>) {
+        let id
+        if (node.pat.type === 'TuplePattern') {
+          id = node.pat.elements.find(n => (n as Identifier).name === identifier.name)
+        } else if (node.pat.type === 'Identifier') {
+          id = node.pat.name === identifier.name ? node.pat : undefined
+        }
+        if (id) {
+          declarations.push(id)
         }
       }
     })

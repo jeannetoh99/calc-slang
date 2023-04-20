@@ -6,15 +6,17 @@
  */
 
 /* tslint:disable:max-classes-per-file */
+import assert from 'assert'
+import { cp } from 'fs'
 import { cloneDeep } from 'lodash'
 
 import * as es from '../ast'
 import * as errors from '../errors/errors'
 import { arity } from '../stdlib/misc'
 import { Context, Result, Value } from '../types'
-import { expressionStatement, functionType, listType } from '../utils/astCreator'
+import { expressionStatement, functionType, listType, tupleType } from '../utils/astCreator'
 import * as rttc from '../utils/rttc'
-import { applyBuiltin, builtinInfixFunctions, builtinMapping, checkBuiltin } from './builtin'
+import { applyBuiltin, builtinInfixFunctions, builtinMapping } from './builtin'
 import * as instr from './instrCreator'
 import {
   AgendaItem,
@@ -30,10 +32,10 @@ import {
   InstrType,
   ListInstr,
   LocalEnvInstr,
-  TailCallInstr
+  TailCallInstr,
+  TupleInstr
 } from './types'
 import {
-  checkNumberOfArguments,
   checkStackOverFlow,
   createBlockEnvironment,
   createEnvironment,
@@ -60,7 +62,7 @@ export class Agenda extends Stack<AgendaItem> {
   public constructor(program: es.Program) {
     super()
     // Evaluation of last statement is undefined if stash is empty
-    this.push(instr.pushUndefIfNeededInstr())
+    this.push(instr.endInstr())
 
     // Load program into agenda stack
     this.push(program)
@@ -150,7 +152,7 @@ function runECEMachine(context: Context, agenda: Agenda, stash: Stash) {
   context.runtime.nodes = []
   let command = agenda.pop()
   while (command) {
-    // console.log(command)
+    console.log(command)
     // console.log(currentEnvironment(context))
     if (isNode(command)) {
       context.runtime.nodes.unshift(command)
@@ -181,16 +183,21 @@ export const evaluateCallInstr = (
   const func: ClosureInstr | BuiltinInstr = stash.pop()
   if (func?.instrType === InstrType.CLOSURE) {
     const closure = func as ClosureInstr
-    // Check for number of arguments mismatch error
-    checkNumberOfArguments(context, closure, args, command.srcNode)
-
     // Push on top of current environment and then restore if call
     if (command.instrType === InstrType.CALL) {
       agenda.push(instr.envInstr(currentEnvironment(context)))
     }
     agenda.push(closure.srcNode.body)
 
-    const environment = createEnvironment(closure, args, command.srcNode)
+    const environment = createEnvironment(
+      closure,
+      {
+        type: 'TupleExpression',
+        smlType: command.srcNode.args.smlType,
+        elements: args
+      },
+      command.srcNode
+    )
 
     // Replace current environment if tail call
     if (command.instrType === InstrType.TAIL_CALL) {
@@ -199,10 +206,7 @@ export const evaluateCallInstr = (
     pushEnvironment(context, environment)
   } else if (func?.instrType == InstrType.BUILTIN) {
     const builtin = func as BuiltinInstr
-
-    checkNumberOfArguments(context, builtin, args, command.srcNode)
-    checkBuiltin(context, builtin, args, command.srcNode)
-    stash.push(applyBuiltin(builtin.identifier, args))
+    stash.push(applyBuiltin(builtin.identifier, args, command.srcNode.smlType))
   } else {
     // not a callable function, error
     handleRuntimeError(context, new errors.CallingNonFunctionValue(func, command.srcNode))
@@ -248,15 +252,13 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
 
   ValueDeclaration: function (command: es.ValueDeclaration, context: Context, agenda: Agenda) {
     const env = command.declEnv ?? currentEnvironment(context)
-    for (const declaration of command.declarations) {
-      const id = declaration.id as es.Identifier
+    const pat = command.pat as es.Pattern
 
-      // Parser enforces initialisation during variable declaration
-      const init = declaration.init!
+    // Parser enforces initialisation during variable declaration
+    const init = command.init!
 
-      agenda.push(instr.assmtInstr(id.name, true, command, env))
-      agenda.push(init)
-    }
+    agenda.push(instr.assmtInstr(pat, true, command, env))
+    agenda.push(init)
   },
 
   RecValueDeclaration: function (
@@ -266,15 +268,10 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     stash: Stash
   ) {
     agenda.push(
-      instr.assmtInstr(
-        command.id.name,
-        true,
-        command,
-        command.declEnv ?? currentEnvironment(context)
-      )
+      instr.assmtInstr(command.pat, true, command, command.declEnv ?? currentEnvironment(context))
     )
-    command.lambda.recursiveId = command.id.name
-    agenda.push(command.lambda)
+    command.init.recursiveId = command.pat.name
+    agenda.push(command.init)
   },
 
   FunctionDeclaration: function (
@@ -285,18 +282,13 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
   ) {
     const lambdaExpression: es.LambdaExpression = {
       type: 'LambdaExpression',
-      smlType: functionType(command.params[0]?.smlType, command.body.smlType),
-      params: command.params,
+      smlType: command.smlType,
+      param: command.param,
       body: command.body,
       recursiveId: command.id.name
     }
     agenda.push(
-      instr.assmtInstr(
-        command.id.name,
-        true,
-        command,
-        command.declEnv ?? currentEnvironment(context)
-      )
+      instr.assmtInstr(command.id, true, command, command.declEnv ?? currentEnvironment(context))
     )
     agenda.push(lambdaExpression)
   },
@@ -345,12 +337,12 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     stash: Stash
   ) {
     if (command.tail) {
-      agenda.push(instr.tailCallInstr(command.args.length, command))
+      agenda.push(instr.tailCallInstr(command.args.elements.length, command))
     } else {
-      agenda.push(instr.callInstr(command.args.length, command))
+      agenda.push(instr.callInstr(command.args.elements.length, command))
     }
-    for (let i = command.args.length - 1; i >= 0; i--) {
-      agenda.push(command.args[i])
+    for (let i = command.args.elements.length - 1; i >= 0; i--) {
+      agenda.push(command.args.elements[i])
     }
     if (command.isInfix) {
       const op = (command.callee as es.Identifier).name
@@ -406,7 +398,8 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
   ) {
     const blockStmt: es.BlockStatement = {
       type: 'BlockStatement',
-      body: [command.declarations, expressionStatement(command.body)]
+      smlType: command.body.smlType,
+      body: [command.declarations, expressionStatement(command.body, command.body.smlType)]
     }
     agenda.push(blockStmt)
   },
@@ -417,7 +410,9 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     agenda: Agenda,
     stash: Stash
   ) {
-    const expressionStatements = command.expressions.map(expr => expressionStatement(expr))
+    const expressionStatements = command.expressions.map(expr =>
+      expressionStatement(expr, expr.smlType)
+    )
     agenda.push(...handleSequence(expressionStatements))
   },
 
@@ -433,6 +428,18 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     }
   },
 
+  TupleExpression: function (
+    command: es.TupleExpression,
+    context: Context,
+    agenda: Agenda,
+    stash: Stash
+  ) {
+    agenda.push(instr.tupleInstr(command.elements.length, command))
+    for (let i = command.elements.length - 1; i >= 0; i--) {
+      agenda.push(command.elements[i])
+    }
+  },
+
   /**
    * Instructions
    */
@@ -443,14 +450,30 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     agenda: Agenda,
     stash: Stash
   ) {
-    const val = stash.peek()
-    if (val?.instrType == InstrType.CLOSURE && command.symbol in builtinMapping) {
-      handleRuntimeError(
-        context,
-        new errors.ReservedKeywordVariable(command.srcNode, command.symbol, 'builtin function')
-      )
+    if (command.pat.type === 'TuplePattern') {
+      const tup = stash.pop() as es.Tuple
+      for (let i = command.pat.elements.length - 1; i >= 0; i--) {
+        const pat = command.pat.elements[i]
+        const val = tup.value[i]
+        agenda.push(instr.assmtInstr(pat, true, command.srcNode, command.env))
+        stash.push(val)
+      }
+    } else if (command.pat.type === 'Identifier') {
+      const val = stash.pop()
+      if (val?.instrType == InstrType.CLOSURE && command.pat.name in builtinMapping) {
+        handleRuntimeError(
+          context,
+          new errors.ReservedKeywordVariable(command.srcNode, command.pat.name, 'builtin function')
+        )
+      }
+      defineVariable(context, command.env, command.pat.name, val, false)
+    } else if (command.pat.type === 'Literal') {
+      // TODO: check that literal is the same
+      stash.pop()
+    } else {
+      // assignment is to wildcard pat
+      stash.pop()
     }
-    defineVariable(context, command.env, command.symbol, stash.peek(), false)
   },
 
   [InstrType.BRANCH]: function (
@@ -493,14 +516,10 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     popLocalEnvironment(context)
   },
 
-  [InstrType.PUSH_UNDEFINED_IF_NEEDED]: function (
-    command: Instr,
-    context: Context,
-    agenda: Agenda,
-    stash: Stash
-  ) {
-    if (stash.size() === 0) {
-      stash.push(undefined)
+  [InstrType.END]: function (command: Instr, context: Context, agenda: Agenda, stash: Stash) {
+    if (stash.size() !== 0) {
+      // TODO: replace with runtime error
+      console.error('program ends with non-empty stash!')
     }
   },
 
@@ -520,9 +539,28 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     }
     const list: es.List = {
       type: 'List',
-      smlType: listType(elements[0]?.smlType),
+      smlType: command.srcNode.smlType as es.ListType,
       value: elements.reverse()
     }
     stash.push(list)
+  },
+
+  [InstrType.TUPLE]: function (
+    command: TupleInstr,
+    context: Context,
+    agenda: Agenda,
+    stash: Stash
+  ) {
+    const elements: es.SmlValue[] = []
+    for (let i = 0; i < command.arity; i++) {
+      elements.push(stash.pop())
+    }
+    elements.reverse()
+    const tuple: es.Tuple = {
+      type: 'Tuple',
+      smlType: command.srcNode.smlType as es.TupleType,
+      value: elements
+    }
+    stash.push(tuple)
   }
 }

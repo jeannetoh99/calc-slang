@@ -16,17 +16,18 @@ import {
   InstrType,
   ListInstr,
   LocalEnvInstr,
-  TailCallInstr
+  TailCallInstr,
+  TupleInstr
 } from './types'
 
 export const assmtInstr = (
-  symbol: string,
+  pat: es.Pattern,
   declaration: boolean,
   srcNode: es.Node,
   env: Environment
 ): AssmtInstr => ({
   instrType: InstrType.ASSIGNMENT,
-  symbol,
+  pat,
   declaration,
   srcNode,
   env
@@ -65,7 +66,7 @@ export const callInstr = (arity: number, srcNode: es.ApplicationExpression): Cal
 export const closureInstr = (env: Environment, srcNode: es.LambdaExpression): ClosureInstr => ({
   instrType: InstrType.CLOSURE,
   type: 'function',
-  smlType: srcNode.smlType,
+  smlType: srcNode.smlType as es.FunctionType,
   value: 'fn',
   env,
   srcNode
@@ -80,8 +81,8 @@ export const localEnvInstr = (): LocalEnvInstr => ({
   instrType: InstrType.LOCAL_ENVIRONMENT
 })
 
-export const pushUndefIfNeededInstr = (): Instr => ({
-  instrType: InstrType.PUSH_UNDEFINED_IF_NEEDED
+export const endInstr = (): Instr => ({
+  instrType: InstrType.END
 })
 
 export const tailCallInstr = (arity: number, srcNode: es.ApplicationExpression): TailCallInstr => ({
@@ -92,6 +93,12 @@ export const tailCallInstr = (arity: number, srcNode: es.ApplicationExpression):
 
 export const listInstr = (arity: number, srcNode: es.ListExpression): ListInstr => ({
   instrType: InstrType.LIST,
+  arity,
+  srcNode
+})
+
+export const tupleInstr = (arity: number, srcNode: es.TupleExpression): TupleInstr => ({
+  instrType: InstrType.TUPLE,
   arity,
   srcNode
 })

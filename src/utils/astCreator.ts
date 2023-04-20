@@ -1,7 +1,15 @@
 import * as es from '../ast'
 
-export const getValueDeclarationName = (decl: es.ValueDeclaration) =>
-  (decl.declarations[0].id as es.Identifier).name
+// export const getValueDeclarationName = (decl: es.ValueDeclaration) =>
+//   (decl.id as es.Identifier).name
+
+let id: number = 0
+export function getNextVarId(): number {
+  return ++id
+}
+export function getCurrVarId(): number {
+  return id
+}
 
 export const stringType = (): es.LiteralType => ({
   type: 'string'
@@ -23,12 +31,22 @@ export const unitType = (): es.LiteralType => ({
   type: 'unit'
 })
 
-export const listType = (elementType?: es.Type): es.ListType => ({
+export const listType = (elementType: es.Type): es.ListType => ({
   type: 'list',
   elementType
 })
 
-export const functionType = (paramType?: es.Type, returnType?: es.Type): es.FunctionType => ({
+export const tupleType = (elementTypes: es.Type[]): es.TupleType => ({
+  type: 'tuple',
+  elementTypes
+})
+
+export const variableType = (id: number): es.VariableType => ({
+  type: 'variable',
+  id
+})
+
+export const functionType = (paramType: es.Type, returnType: es.Type): es.FunctionType => ({
   type: 'function',
   paramType,
   returnType
@@ -37,8 +55,13 @@ export const functionType = (paramType?: es.Type, returnType?: es.Type): es.Func
 export const locationDummyNode = (line: number, column: number) =>
   literal('Dummy', stringType(), { start: { line, column }, end: { line, column } })
 
-export const identifier = (name: string, loc?: es.SourceLocation | null): es.Identifier => ({
+export const identifier = (
+  name: string,
+  smlType: es.Type,
+  loc?: es.SourceLocation | null
+): es.Identifier => ({
   type: 'Identifier',
+  smlType,
   name,
   loc
 })
@@ -64,13 +87,18 @@ export const list = (
   value
 })
 
-export const expressionStatement = (expression: es.Expression): es.ExpressionStatement => ({
+export const expressionStatement = (
+  expression: es.Expression,
+  smlType: es.Type
+): es.ExpressionStatement => ({
   type: 'ExpressionStatement',
-  expression
+  expression,
+  smlType
 })
 
-export const program = (body: es.Statement[]): es.Program => ({
+export const program = (body: es.Statement[], smlType: es.Type): es.Program => ({
   type: 'Program',
   sourceType: 'module',
+  smlType,
   body
 })

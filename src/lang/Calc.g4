@@ -16,6 +16,7 @@ fragment ALPHANUMERIC_IDENTIFIER: [a-zA-Z][a-zA-Z0-9'_]*;
 IDENTIFIER: ALPHANUMERIC_IDENTIFIER | SYMBOLIC_IDENTIFIER;
 
 WHITESPACE: [ \r\n\t]+ -> skip;
+WILDCARD: '_';
 
 /*
  * Productions
@@ -25,6 +26,7 @@ WHITESPACE: [ \r\n\t]+ -> skip;
    : litType= ('bool' | 'int' | 'real' | 'string' | 'unit')    # LiteralType
    | elType=type 'list'                                        # ListType
    | param=type '->' return=type                               # FunctionType
+   | type ('*' type)+                                          # TupleType     
    | '(' inner=type ')'                                        # ParenthesizedType
    ;
 
@@ -55,6 +57,7 @@ expression
    | 'let' declarationList 'in' expressionList 'end'                                # LetExpression
    | '(' expression ')'                                                             # ParenthesizedExpression
    | '(' expressionList ')'                                                         # SequenceExpression
+   | '(' expression (',' expression)* ')'                                           # TupleExpression
    | list                                                                           # ListExpression
    ;        
 
@@ -68,9 +71,11 @@ lambda : 'fn' pattern '=>' expression;
 expressionList : expression (';' expression)*;
 
 pattern
-   : literal                                    # LiteralPattern
+   : WILDCARD                                   # WildcardPattern
+   | literal                                    # LiteralPattern
    | identifier                                 # IdentifierPattern
    | pattern ':' type                           # TypedPattern
+   | '(' pattern (',' pattern)* ')'             # TuplePattern
    | '(' pattern ')'                            # ParenthesizedPattern
    ;
 

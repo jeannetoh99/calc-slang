@@ -6,7 +6,7 @@ import * as errors from '../errors/errors'
 import { RuntimeSourceError } from '../errors/runtimeSourceError'
 import { arity } from '../stdlib/misc'
 import { DeclarationType, Environment, Frame, Value } from '../types'
-import { builtinFunctions } from './builtin'
+import { builtinFunctions, builtinFunctionTypes } from './builtin'
 import * as instr from './instrCreator'
 import { Agenda } from './interpreter'
 import { AgendaItem, BuiltinInstr, ClosureInstr, InstrType } from './types'
@@ -98,7 +98,7 @@ export const localEnvironment = (context: Context) => context.runtime.localEnvir
 
 export const createEnvironment = (
   closure: ClosureInstr,
-  args: Value[],
+  args: es.TupleExpression,
   callExpression: es.ApplicationExpression
 ): Environment => {
   const id = uniqueId()
@@ -114,9 +114,15 @@ export const createEnvironment = (
       args
     }
   }
-  closure.srcNode.params.forEach((param, index) => {
-    environment.head[(param as es.Identifier).name] = args[index]
-  })
+
+  if (closure.srcNode.param.type === 'Identifier') {
+    environment.head[closure.srcNode.param.name] = args[0]
+  } else if (closure.srcNode.param.type === 'TuplePattern') {
+    closure.srcNode.param.elements.forEach((param, index) => {
+      environment.head[(param as es.Identifier).name] = args[index]
+    })
+  }
+
   return environment
 }
 
@@ -159,8 +165,14 @@ function declareIdentifier(environment: Environment, name: string, node: es.Node
 }
 
 function declareVariables(environment: Environment, node: es.ValueDeclaration) {
-  for (const declaration of node.declarations) {
-    declareIdentifier(environment, (declaration.id as es.Identifier).name, node)
+  if (node.pat.type === 'TuplePattern') {
+    for (const pat of node.pat.elements) {
+      if (pat.type === 'Identifier') {
+        declareIdentifier(environment, pat.name, node)
+      }
+    }
+  } else if (node.pat.type === 'Identifier') {
+    declareIdentifier(environment, node.pat.name, node)
   }
 }
 
@@ -222,33 +234,34 @@ export const handleRuntimeError = (context: Context, error: RuntimeSourceError) 
   throw error
 }
 
-export const checkNumberOfArguments = (
-  context: Context,
-  callee: ClosureInstr | BuiltinInstr,
-  args: Value[],
-  exp: es.ApplicationExpression
-) => {
-  if (callee?.instrType === InstrType.CLOSURE) {
-    // User-defined or Pre-defined functions
-    const instr = callee as ClosureInstr
-    const params = instr.srcNode?.params
-    if (params.length !== args.length) {
-      return handleRuntimeError(
-        context,
-        new errors.InvalidNumberOfArguments(exp, params.length, args.length)
-      )
-    }
-  } else if (callee?.instrType === InstrType.BUILTIN) {
-    const instr = callee as BuiltinInstr
-    if (instr.arity !== args.length) {
-      return handleRuntimeError(
-        context,
-        new errors.InvalidNumberOfArguments(exp, instr.arity, args.length)
-      )
-    }
-  }
-  return undefined
-}
+// export const checkNumberOfArguments = (
+//   context: Context,
+//   callee: ClosureInstr | BuiltinInstr,
+//   args: Value[],
+//   exp: es.ApplicationExpression
+// ) => {
+//   if (callee?.instrType === InstrType.CLOSURE) {
+//     // User-defined or Pre-defined functions
+//     const instr = callee as ClosureInstr
+//     const param = instr.srcNode?.param
+//     const arity = param.type === 'TuplePattern' ? param.elements.length : 1
+//     if (arity !== args.length) {
+//       return handleRuntimeError(
+//         context,
+//         new errors.InvalidNumberOfArguments(exp, arity, args.length)
+//       )
+//     }
+//   } else if (callee?.instrType === InstrType.BUILTIN) {
+//     const instr = callee as BuiltinInstr
+//     if (instr.arity !== args.length) {
+//       return handleRuntimeError(
+//         context,
+//         new errors.InvalidNumberOfArguments(exp, instr.arity, args.length)
+//       )
+//     }
+//   }
+//   return undefined
+// }
 
 /**
  * This function can be used to check for a stack overflow.
@@ -281,6 +294,12 @@ export const checkStackOverFlow = (context: Context, agenda: Agenda) => {
 export const populateBuiltInIdentifiers = (context: Context) => {
   for (const key in builtinFunctions) {
     const builtinInstr = instr.builtinInstr(key, arity(builtinFunctions[key]), false)
-    defineVariable(context, currentEnvironment(context), key, builtinInstr)
+    defineVariable(
+      context,
+      currentEnvironment(context),
+      key,
+      builtinInstr,
+      builtinFunctionTypes[key]
+    )
   }
 }
