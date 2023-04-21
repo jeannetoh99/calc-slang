@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`bulit in operators: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "
+    val a = 100;    val math = fn b => b + 5;    val x = a div math 20;
+    val c = 1;    val math = fn d => d * c;    val y = math 5;
+    val l = if x > y then 1::2::nil            else if x = y then [3,4,5]            else 33::[10,22];
+    if x > 1 andalso y > 2 then l @ [0,0,0,0]        else if x < 1 orelse y < 2 then l @ [1,1,1,1]        else l @ [2,2,2,2];",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val a = 100 : int;
+val math = fn : int -> int;
+val x = 4 : int;
+val c = 1 : int;
+val math = fn : int -> int;
+val y = 5 : int;
+val l = [33,10,22] : int list;
+val it = [33,10,22,0,0,0,0] : int list;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;

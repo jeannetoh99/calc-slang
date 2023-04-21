@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`returning function: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "
+    val a = (fn x => fn y => fn z => x + y * z);
+    a 2;
+    a 1;
+    [a 1 2 3, 1];
+",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val a = fn : int -> int -> int -> int;
+val it = fn : int -> int -> int;
+val it = fn : int -> int -> int;
+val it = [7,1] : int list;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
