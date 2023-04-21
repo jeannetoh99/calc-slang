@@ -134,7 +134,6 @@ export const formatResults = (result: DecResType[]) => {
 }
 
 export const stringify = (value: Value): string => {
-  console.log(value)
   const programResult = value as ProgramResult
   const res = []
   for (let i = 0; i < programResult.values.length; i++) {

@@ -229,7 +229,6 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     const environment = createBlockEnvironment(currentEnvironment(context), 'programEnvironment')
     pushEnvironment(context, environment)
     declareFunctionsAndVariables(currentEnvironment(context), command)
-    console.log(command.smlType)
     agenda.push(...handleSequence(command.body))
   },
 
@@ -457,7 +456,6 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     const rhs = stash.pop()
     if (command.pat.type === 'Identifier') {
       defineVariable(context, command.env, command.pat.name, rhs, command.srcNode, false)
-      console.log(command.env.name)
       if (command.env.name === 'programEnvironment') {
         context.res.values.push({ pat: command.pat, value: rhs })
       }
