@@ -177,7 +177,7 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
     }
     case 'DeclarationList': {
       let type = node.smlType
-      let constraints : Constraint[] = []
+      const constraints: Constraint[] = []
       for (const decl of node.body) {
         const res = inferUnifySub(decl, env)
         constraints.push(...res.constraints)
@@ -188,9 +188,9 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
           case 'FunctionDeclaration':
             env = bind(decl.pat, res.type, env)
           case 'DeclarationList':
-            // Not possible
+          // Not possible
           case 'LocalDeclaration':
-            // TODO
+          // TODO
         }
       }
 
@@ -295,9 +295,7 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
       const constraints = inferredExpressions.flatMap(res => res.constraints)
 
       if (sz > 0) {
-        constraints.push(
-          new Constraint(node.smlType, inferredExpressions[sz-1].type, node)
-        )
+        constraints.push(new Constraint(node.smlType, inferredExpressions[sz - 1].type, node))
       }
       if (node.annotatedType) {
         constraints.push(new Constraint(node.smlType, node.annotatedType, node))
@@ -319,9 +317,7 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
             new Constraint(inferredElements[i].type, inferredElements[i + 1].type, node)
           )
         }
-        constraints.push(
-          new Constraint(node.smlType, listType(inferredElements[0].type), node)
-        )
+        constraints.push(new Constraint(node.smlType, listType(inferredElements[0].type), node))
       }
 
       if (node.annotatedType) {
