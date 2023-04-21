@@ -53,12 +53,7 @@ export function findDeclarationNode(program: Node, identifier: Identifier): Node
         if (node.id && node.id.name === identifier.name) {
           declarations.push(node.id)
         } else if (containsNode(node, identifier)) {
-          let param
-          if (node.param.type === 'TuplePattern') {
-            param = node.param.elements.find(n => (n as Identifier).name === identifier.name)
-          } else if (node.param.type === 'Identifier') {
-            param = node.param.name === identifier.name ? node.param : undefined
-          }
+          const param = node.param.elements.find(n => (n as Identifier).name === identifier.name)
           if (param) {
             declarations.push(param)
           } else {
@@ -68,12 +63,7 @@ export function findDeclarationNode(program: Node, identifier: Identifier): Node
       },
       ArrowFunctionExpression(node: LambdaExpression, state: any, callback: any) {
         if (containsNode(node, identifier)) {
-          let param
-          if (node.param.type === 'TuplePattern') {
-            param = node.param.elements.find(n => (n as Identifier).name === identifier.name)
-          } else if (node.param.type === 'Identifier') {
-            param = node.param.name === identifier.name ? node.param : undefined
-          }
+          const param = node.param.elements.find(n => (n as Identifier).name === identifier.name)
           if (param) {
             declarations.push(param)
           } else {
@@ -85,8 +75,6 @@ export function findDeclarationNode(program: Node, identifier: Identifier): Node
         let id
         if (node.pat.type === 'TuplePattern') {
           id = node.pat.elements.find(n => (n as Identifier).name === identifier.name)
-        } else if (node.pat.type === 'Identifier') {
-          id = node.pat.name === identifier.name ? node.pat : undefined
         }
         if (id) {
           declarations.push(id)

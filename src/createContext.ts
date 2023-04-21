@@ -104,7 +104,10 @@ export const createEmptyContext = <T>(
     variant,
     moduleContexts: {},
     previousCode: [],
-    globalDeclarations: []
+    res: {
+      values: [],
+      types: []
+    }
   }
 }
 

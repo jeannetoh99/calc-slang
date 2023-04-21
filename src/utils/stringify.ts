@@ -1,7 +1,7 @@
-import { concat, isInteger } from 'lodash'
+import { isInteger } from 'lodash'
 
-import { SmlValue, Type, VariableType } from '../ast'
-import { DeclarationType, Value } from '../types'
+import { List, ListType, SmlValue, Tuple, TupleType, Type, VariableType } from '../ast'
+import { ProgramResult, ResultType, Value } from '../types'
 
 export interface ArrayLike {
   replPrefix: string
@@ -9,13 +9,13 @@ export interface ArrayLike {
   replArrayContents: () => Value[]
 }
 
-export type ResultType = {
+export type DecResType = {
   name: string
   value: Value
   type: string
 }
 
-const formatResult = (result: ResultType) => {
+const formatResult = (result: DecResType) => {
   return ['val', result.name, '=', result.value, ':', result.type].join(' ') + ';'
 }
 
@@ -34,60 +34,105 @@ export const extractVariableTypes = (type: Type): VariableType[] => {
   }
 }
 
-export const extractType = (type: Type, inner: boolean = false): string => {
+export const stringifyVarTypes = (type: Type): string => {
+  const varTypes = extractVariableTypes(type)
+  let res = ''
+  if (varTypes.length != 0) {
+    res = '\u2200 ' + stringifyType(varTypes[0])
+    for (let i = 1; i < varTypes.length; i++) {
+      res += ',' + stringifyType(varTypes[i])
+    }
+    res += ' . '
+  }
+  return res
+}
+
+export const stringifyType = (type: Type, inner: boolean = false): string => {
   return type.type === 'function'
-    ? (type.paramType ? extractType(type.paramType) : '?') +
+    ? (type.paramType ? stringifyType(type.paramType) : '?') +
         ' -> ' +
-        (type.returnType ? extractType(type.returnType) : '?')
+        (type.returnType ? stringifyType(type.returnType) : '?')
     : type.type === 'list'
-    ? (type.elementType ? extractType(type.elementType) : '?') + ' list'
+    ? (type.elementType ? stringifyType(type.elementType) : '?') + ' list'
     : type.type === 'tuple'
     ? (inner ? '(' : '') +
-      type.elementTypes.map(elemType => extractType(elemType, true)).join(' * ') +
+      type.elementTypes.map(elemType => stringifyType(elemType, true)).join(' * ') +
       (inner ? ')' : '')
     : type.type === 'variable'
     ? "'v" + type.id
     : type.type
 }
 
-const extractValue = (value: SmlValue): Value => {
-  const type = value.smlType.type
-
-  return type === 'string'
-    ? '"' + value.value + '"'
-    : type === 'unit'
-    ? '()'
-    : type === 'real' && isInteger(value.value)
-    ? value.value + '.0'
-    : type === 'list' && Array.isArray(value.value)
-    ? '[' + value.value.map(extractValue) + ']'
-    : type === 'tuple' && Array.isArray(value.value)
-    ? '(' + value.value.map(extractValue) + ')'
-    : value.value
-}
-
-const extractDeclaration = (declaration: DeclarationType): ResultType => {
-  const varTypes = extractVariableTypes(declaration.value.smlType)
-  let varTypesString = ''
-  if (varTypes.length != 0) {
-    varTypesString = '\u2200 ' + extractType(varTypes[0])
-    for (let i = 1; i < varTypes.length; i++) {
-      varTypesString += ',' + extractType(varTypes[i])
+const stringifyValue = (value: SmlValue, type: Type): Value => {
+  switch (type.type) {
+    case 'string': {
+      return '"' + value.value + '"'
     }
-    varTypesString += ' . '
-  }
-
-  return {
-    name: declaration.name,
-    value: extractValue(declaration.value),
-    type: varTypesString + extractType(declaration.value.smlType)
+    case 'unit': {
+      return '()'
+    }
+    case 'real': {
+      return value.value + (isInteger(value.value) ? '.0' : '')
+    }
+    case 'list': {
+      const list = value as List
+      return '[' + list.value.map(val => stringifyValue(val, type.elementType)) + ']'
+    }
+    case 'tuple': {
+      const tuple = value as Tuple
+      const elementStrings = []
+      for (let i = 0; i < tuple.value.length; i++) {
+        elementStrings.push(stringifyValue(tuple.value[i], type.elementTypes[i]))
+      }
+      return '(' + elementStrings + ')'
+    }
+    default: {
+      return value.value
+    }
   }
 }
 
-export const formatResults = (result: ResultType[]) => {
+const extractMatch = (name: string, value: Value, type: Type): DecResType => {
+  return {
+    name,
+    value: stringifyValue(value, type),
+    type: stringifyVarTypes(type) + stringifyType(type)
+  }
+}
+
+const extractDeclaration = (res: ResultType, type: Type): DecResType[] => {
+  console.log(res, type)
+  if (res.pat.type === 'Identifier') {
+    return [extractMatch(res.pat.name, res.value, type)]
+  }
+
+  if (res.pat.type === 'TuplePattern') {
+    const matches: DecResType[] = []
+    const elemTypes = (type as TupleType).elementTypes
+    const patterns = res.pat.elements
+    const values = (res.value as Tuple).value
+    for (let i = 0; i < res.pat.elements.length; i++) {
+      const pat = patterns[i]
+      if (pat.type === 'Identifier') {
+        matches.push(extractMatch(pat.name, values[i], elemTypes[i]))
+      }
+    }
+    return matches
+  }
+
+  // If pattern is wildcard or literal
+  return []
+}
+
+export const formatResults = (result: DecResType[]) => {
   return result.map(formatResult).join('\n')
 }
 
 export const stringify = (value: Value): string => {
-  return value.map(extractDeclaration).map(formatResult).join('\n')
+  const programResult = value as ProgramResult
+  const res = []
+  for (let i = 0; i < programResult.values.length; i++) {
+    res.push(...extractDeclaration(programResult.values[i], programResult.types[i]))
+  }
+  return res.map(formatResult).join('\n')
 }

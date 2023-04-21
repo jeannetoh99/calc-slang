@@ -39,7 +39,7 @@ export async function sourceRunner(
     return resolvedErrorPromise
   }
 
-  inferProgram(program, context)
+  context.res.types = inferProgram(program, context)
 
   if (context.errors.length > 0) {
     return resolvedErrorPromise

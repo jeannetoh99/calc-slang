@@ -5,11 +5,11 @@ import * as es from '../ast'
 import * as errors from '../errors/errors'
 import { RuntimeSourceError } from '../errors/runtimeSourceError'
 import { arity } from '../stdlib/misc'
-import { DeclarationType, Environment, Frame, Value } from '../types'
-import { builtinFunctions, builtinFunctionTypes } from './builtin'
+import { Environment, Frame, Value } from '../types'
+import { builtinFunctions, builtinMapping } from './builtin'
 import * as instr from './instrCreator'
 import { Agenda } from './interpreter'
-import { AgendaItem, BuiltinInstr, ClosureInstr, InstrType } from './types'
+import { AgendaItem, ClosureInstr, InstrType } from './types'
 
 /**
  * Stack is implemented for agenda and stash registers.
@@ -115,13 +115,9 @@ export const createEnvironment = (
     }
   }
 
-  if (closure.srcNode.param.type === 'Identifier') {
-    environment.head[closure.srcNode.param.name] = args[0]
-  } else if (closure.srcNode.param.type === 'TuplePattern') {
-    closure.srcNode.param.elements.forEach((param, index) => {
-      environment.head[(param as es.Identifier).name] = args[index]
-    })
-  }
+  closure.srcNode.param.elements.forEach((param, index) => {
+    environment.head[(param as es.Identifier).name] = args.elements[index]
+  })
 
   return environment
 }
@@ -165,14 +161,10 @@ function declareIdentifier(environment: Environment, name: string, node: es.Node
 }
 
 function declareVariables(environment: Environment, node: es.ValueDeclaration) {
-  if (node.pat.type === 'TuplePattern') {
-    for (const pat of node.pat.elements) {
-      if (pat.type === 'Identifier') {
-        declareIdentifier(environment, pat.name, node)
-      }
+  for (const pat of node.pat.elements) {
+    if (pat.type === 'Identifier') {
+      declareIdentifier(environment, pat.name, node)
     }
-  } else if (node.pat.type === 'Identifier') {
-    declareIdentifier(environment, node.pat.name, node)
   }
 }
 
@@ -197,11 +189,16 @@ export function defineVariable(
   environment: Environment,
   name: string,
   value: Value,
+  srcNode?: es.Node,
   constant = false
 ) {
-  if (environment.name === 'programEnvironment') {
-    context.globalDeclarations.push({ name, value })
+  if (value?.instrType == InstrType.CLOSURE && name in builtinMapping) {
+    handleRuntimeError(
+      context,
+      new errors.ReservedKeywordVariable(srcNode!, name, 'builtin function')
+    )
   }
+
   Object.defineProperty(environment.head, name, {
     value,
     writable: !constant,
@@ -294,12 +291,6 @@ export const checkStackOverFlow = (context: Context, agenda: Agenda) => {
 export const populateBuiltInIdentifiers = (context: Context) => {
   for (const key in builtinFunctions) {
     const builtinInstr = instr.builtinInstr(key, arity(builtinFunctions[key]), false)
-    defineVariable(
-      context,
-      currentEnvironment(context),
-      key,
-      builtinInstr,
-      builtinFunctionTypes[key]
-    )
+    defineVariable(context, currentEnvironment(context), key, builtinInstr)
   }
 }

@@ -29,10 +29,10 @@ export class TypeInferenceError extends TypeError {
   }
 
   public explain() {
-    return this.errorMsg
+    return 'Type Error: ' + this.errorMsg
   }
 
   public elaborate() {
-    return 'Type inference error'
+    return 'TODO'
   }
 }

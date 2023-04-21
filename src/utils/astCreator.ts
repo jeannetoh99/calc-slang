@@ -96,6 +96,23 @@ export const expressionStatement = (
   smlType
 })
 
+export const tupleExpression = (
+  elements: es.Expression[],
+  loc?: es.SourceLocation
+): es.TupleExpression => ({
+  type: 'TupleExpression',
+  smlType: tupleType(elements.map(elem => elem.smlType)),
+  elements,
+  loc
+})
+
+export const tuplePattern = (patterns: es.Pattern[], loc?: es.SourceLocation): es.TuplePattern => ({
+  type: 'TuplePattern',
+  smlType: tupleType(patterns.map(pat => pat.smlType)),
+  elements: patterns,
+  loc
+})
+
 export const program = (body: es.Statement[], smlType: es.Type): es.Program => ({
   type: 'Program',
   sourceType: 'module',

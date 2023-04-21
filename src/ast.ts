@@ -96,8 +96,8 @@ interface BaseDeclaration extends BaseStatement {
 
 export interface ValueDeclaration extends BaseDeclaration {
   type: 'ValueDeclaration'
-  pat: Pattern
-  init: Expression
+  pat: TuplePattern
+  init: TupleExpression
 }
 
 export interface RecValueDeclaration extends BaseDeclaration {
@@ -109,7 +109,7 @@ export interface RecValueDeclaration extends BaseDeclaration {
 export interface FunctionDeclaration extends BaseDeclaration {
   type: 'FunctionDeclaration'
   id: Identifier
-  param: Pattern
+  param: TuplePattern
   body: Expression
 }
 
@@ -171,7 +171,7 @@ export interface ConditionalExpression extends BaseExpression {
 
 export interface LambdaExpression extends BaseExpression {
   type: 'LambdaExpression'
-  param: Pattern
+  param: TuplePattern
   body: Expression
   recursiveId?: string
 }
@@ -292,19 +292,19 @@ export type NumLiteral = IntLiteral | RealLiteral
 
 export interface List extends BaseSmlValue {
   type: 'List'
-  smlType: ListType
+  smlType: ListType | VariableType
   value: Array<SmlValue>
 }
 
 export interface Tuple extends BaseSmlValue {
   type: 'Tuple'
-  smlType: TupleType
+  smlType: TupleType | VariableType
   value: Array<SmlValue>
 }
 
 export interface Closure extends BaseSmlValue {
   type: 'Function'
-  smlType: FunctionType
+  smlType: FunctionType | VariableType
   value: 'fn'
   env: Environment
   srcNode: LambdaExpression
