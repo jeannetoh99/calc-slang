@@ -309,7 +309,7 @@ test('Let expression', () => {
     formatResults(expected)
   )
 })
- 
+
 ///////////////// LOCAL_DECLARATION //////////////////
 const ld = `
   local
@@ -345,7 +345,5 @@ test('Local declaration', () => {
       type: 'int'
     }
   ]
-  return expectResult(ld).toBe(
-    formatResults(expected)
-  )
+  return expectResult(ld).toBe(formatResults(expected))
 })
