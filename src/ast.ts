@@ -96,8 +96,8 @@ interface BaseDeclaration extends BaseStatement {
 
 export interface ValueDeclaration extends BaseDeclaration {
   type: 'ValueDeclaration'
-  pat: TuplePattern
-  init: TupleExpression
+  pat: Pattern
+  init: Expression
 }
 
 export interface RecValueDeclaration extends BaseDeclaration {
@@ -209,6 +209,7 @@ export interface Wildcard extends BasePattern {
 export interface Identifier extends BaseExpression, BasePattern {
   type: 'Identifier'
   name: string
+  isPat: boolean
 }
 
 ////////////////////////////////// SML TYPES //////////////////////////////////

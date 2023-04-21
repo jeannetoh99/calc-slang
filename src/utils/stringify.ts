@@ -71,8 +71,13 @@ const stringifyValue = (value: SmlValue, type: Type): Value => {
     case 'unit': {
       return '()'
     }
+    case 'int': {
+      const num = value.value as number
+      return (num < 0 ? '~' : '') + Math.abs(num)
+    }
     case 'real': {
-      return value.value + (isInteger(value.value) ? '.0' : '')
+      const num = value.value as number
+      return (num < 0 ? '~' : '') + Math.abs(num) + (isInteger(value.value) ? '.0' : '')
     }
     case 'list': {
       const list = value as List
