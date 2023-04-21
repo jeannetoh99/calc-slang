@@ -106,6 +106,19 @@ Object {
 }
 `;
 
+exports[`Let expression: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "let val x=0 in if x=0 then 0 else 100 div x end;",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val it = 0 : int;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
 exports[`List of expressions evaluates to list: expectResult 1`] = `
 Object {
   "alertResult": Array [],
@@ -183,6 +196,19 @@ Object {
   "numErrors": 0,
   "parsedErrors": "",
   "result": "val fact = fn : int -> int;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Sequence expression evaluates to last expression: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "( 1 + 2; \\"a\\"^\\"b\\" );",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val it = \\"ab\\" : string;",
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }

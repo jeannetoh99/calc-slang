@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`let expression: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "
+    val b = 1;
+    val a = 2;
+    val c = 3;
+    val n = 4;
+
+    let
+    val ab = b-a;
+    val bc = c-b;
+    val r1 = b div a;
+    val r2 = c div b;
+    fun guess n = n - a - b - c;
+    fun arith n = arith (n-1) + ab;
+    fun geom n = geom (n-1) * r1
+    in
+    if ab=bc then arith else if r1=r2 then geom else guess
+    end;
+",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val b = 1 : int;
+val a = 2 : int;
+val c = 3 : int;
+val n = 4 : int;
+val it = fn : int -> int;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;

@@ -283,3 +283,27 @@ test('Type declaration evaluates to type', () => {
   ]
   return expectResult('100: int;').toBe(formatResults(expected))
 })
+
+///////////////// SEQUENCE_EXPRESSION //////////////////
+test('Sequence expression evaluates to last expression', () => {
+  const expected: DecResType[] = [
+    {
+      name: 'it',
+      value: '"ab"',
+      type: 'string'
+    }
+  ]
+  return expectResult('( 1 + 2; "a"^"b" );').toBe(formatResults(expected))
+})
+
+///////////////// LET_EXPRESSION //////////////////
+test('Let expression', () => {
+  const expected: DecResType[] = [
+    {
+      name: 'it',
+      value: '0',
+      type: 'int'
+    }
+  ]
+  return expectResult('let val x=0 in if x=0 then 0 else 100 div x end;').toBe(formatResults(expected))
+})
