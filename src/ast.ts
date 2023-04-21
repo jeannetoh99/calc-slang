@@ -266,7 +266,7 @@ export type BaseSmlValue = BaseNode
 
 export interface SimpleLiteral extends BaseExpression, BasePattern, BaseSmlValue {
   type: 'Literal'
-  smlType: LiteralType
+  smlType: LiteralType | VariableType
   raw?: string | undefined
 }
 

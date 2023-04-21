@@ -65,6 +65,7 @@ export const stringifyType = (type: Type, inner: boolean = false): string => {
 }
 
 const stringifyValue = (value: SmlValue): Value => {
+  console.log(value)
   switch (value.type) {
     case 'Literal': {
       switch (value.smlType.type) {
@@ -83,6 +84,9 @@ const stringifyValue = (value: SmlValue): Value => {
           return (num < 0 ? '~' : '') + Math.abs(num) + (isInteger(value.value) ? '.0' : '')
         }
         case 'bool': {
+          return value.value
+        }
+        case 'variable': {
           return value.value
         }
       }

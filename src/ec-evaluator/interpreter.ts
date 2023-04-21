@@ -457,14 +457,19 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     const rhs = stash.pop()
     if (command.pat.type === 'Identifier') {
       defineVariable(context, command.env, command.pat.name, rhs, command.srcNode, false)
-      context.res.values.push({ pat: command.pat, value: rhs })
+      console.log(command.env.name)
+      if (command.env.name === 'programEnvironment') {
+        context.res.values.push({ pat: command.pat, value: rhs })
+      }
     } else if (command.pat.type === 'TuplePattern' && command.pat) {
       const tup: es.Tuple = rhs
       if (command.pat.elements.length === 1 && tup.value.length > 1) {
         const pat = command.pat.elements[0]
         if (pat.type === 'Identifier') {
           defineVariable(context, command.env, pat.name, tup, command.srcNode, false)
-          context.res.values.push({ pat, value: tup })
+          if (command.env.name === 'programEnvironment') {
+            context.res.values.push({ pat, value: tup })
+          }
         }
       } else {
         for (let i = 0; i < command.pat.elements.length; i++) {
@@ -474,7 +479,9 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
             defineVariable(context, command.env, pat.name, val, command.srcNode, false)
           }
         }
-        context.res.values.push({ pat: command.pat, value: tup })
+        if (command.env.name === 'programEnvironment') {
+          context.res.values.push({ pat: command.pat, value: tup })
+        }
       }
     }
   },
