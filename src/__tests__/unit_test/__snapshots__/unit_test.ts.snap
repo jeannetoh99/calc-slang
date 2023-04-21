@@ -54,6 +54,19 @@ Object {
 }
 `;
 
+exports[`Function declaration evaluates to function: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "fn x => x+1;",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val it = fn : int -> int;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
 exports[`If expression evaluates to then branch: expectResult 1`] = `
 Object {
   "alertResult": Array [],
@@ -133,6 +146,22 @@ Object {
 }
 `;
 
+exports[`Pattern matching evaluates evaluates pairwise values: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "val (a,b,c,d) = (2, \\"s\\", 3.4, [1,2]);",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val a = 2 : int;
+val b = \\"s\\" : string;
+val c = 3.4 : real;
+val d = [1,2] : int list;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
 exports[`Real list evaluates to list: expectResult 1`] = `
 Object {
   "alertResult": Array [],
@@ -141,6 +170,19 @@ Object {
   "numErrors": 0,
   "parsedErrors": "",
   "result": "val it = [1.5,2.5,3.5] : real list;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Recursive value declaration: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "val rec fact = fn n => if n=0 then 1 else n*fact(n-1);",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val fact = fn : int -> int;",
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }
@@ -219,6 +261,19 @@ Object {
   "numErrors": 0,
   "parsedErrors": "",
   "result": "val it = (\\"a\\",1,1.0) : string * int * real;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Type declaration evaluates to type: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "100: int;",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val it = 100 : int;",
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }

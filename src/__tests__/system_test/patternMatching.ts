@@ -7,6 +7,42 @@ const program = `
 `
 
 test('pattern matching', () => {
-  const expected: DecResType[] = []
+  const expected: DecResType[] = [
+    {
+        name: 'a',
+        value: '2',
+        type: 'int'
+    },
+    {
+        name: 'b',
+        value: '"s"',
+        type: 'string'
+    },
+    {
+        name: 'c',
+        value: '3.4',
+        type: 'real'
+    },
+    { 
+        name: 'd',
+        value: '[1,2]',
+        type: 'int list'
+    },
+    {
+        name: 'l1',
+        value: '[1,2]',
+        type: 'int list'
+    },
+    {
+        name: 'l2',
+        value: '[2,3]',
+        type: 'int list'
+    },
+    {   
+        name: 'l3',
+        value: '[1,3]',
+        type: 'int list'
+    },
+  ]
   return expectResult(program).toBe(formatResults(expected))
 })

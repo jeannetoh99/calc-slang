@@ -250,12 +250,12 @@ test('Pattern matching evaluates evaluates pairwise values', () => {
 test('Function declaration evaluates to function', () => {
   const expected: DecResType[] = [
     {
-      name: 'fn',
+      name: 'it',
       value: 'fn',
       type: 'int -> int'
     }
   ]
-  return expectResult('fun fn x => x + 1;').toBe(formatResults(expected))
+  return expectResult('fn x => x+1;').toBe(formatResults(expected))
 })
 
 ///////////////// RECURSIVE_VALUE_DECLARATION //////////////////
