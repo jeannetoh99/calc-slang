@@ -58,12 +58,14 @@ export const locationDummyNode = (line: number, column: number) =>
 export const identifier = (
   name: string,
   smlType: es.Type,
-  loc?: es.SourceLocation | null
+  loc?: es.SourceLocation | null,
+  isPat: boolean = false
 ): es.Identifier => ({
   type: 'Identifier',
   smlType,
   name,
-  loc
+  loc,
+  isPat
 })
 
 export const literal = (
@@ -98,19 +100,22 @@ export const expressionStatement = (
 
 export const tupleExpression = (
   elements: es.Expression[],
-  loc?: es.SourceLocation
+  loc?: es.SourceLocation,
 ): es.TupleExpression => ({
   type: 'TupleExpression',
   smlType: tupleType(elements.map(elem => elem.smlType)),
   elements,
-  loc
+  loc,
 })
 
-export const tuplePattern = (patterns: es.Pattern[], loc?: es.SourceLocation): es.TuplePattern => ({
+export const tuplePattern = (
+  patterns: es.Pattern[], 
+  loc?: es.SourceLocation,
+): es.TuplePattern => ({
   type: 'TuplePattern',
   smlType: tupleType(patterns.map(pat => pat.smlType)),
   elements: patterns,
-  loc
+  loc,
 })
 
 export const program = (body: es.Statement[], smlType: es.Type): es.Program => ({
