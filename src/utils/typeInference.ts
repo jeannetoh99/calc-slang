@@ -92,10 +92,22 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
     case 'BlockStatement': {
       const types = []
       for (let stmt of node.body) {
-        stmt = stmt as es.ValueDeclaration
         const res = inferUnifySub(stmt, env)
         types.push(cloneDeep(res.type))
-        env = bind(stmt.pat, res.type, env)
+        switch (stmt.type) {
+          case 'ValueDeclaration':
+          case 'RecValueDeclaration':
+          case 'FunctionDeclaration':
+            env = bind(stmt.pat, res.type, env)
+          case 'DeclarationList':
+          case 'LocalDeclaration':
+            // TODO
+          case 'EmptyStatement':
+            // No binding required
+          case 'BlockStatement':
+          case 'ExpressionStatement':
+            // Not possible
+        }
       }
       return {
         type: tupleType(types),
@@ -104,22 +116,63 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
       }
     }
     case 'ExpressionStatement': {
+      // Will not reach here since all expression statement are implictly
+      // casted to ValueDeclaration
       return infer(node.expression, env)
     }
-    case 'ValueDeclaration': {
+    case 'ValueDeclaration':
+    case 'RecValueDeclaration': {
       const initRes = infer(node.init, env)
-      // env = bind(node.pat, initRes.type, env)
       const patRes = infer(node.pat, env)
 
-      console.log(initRes, patRes)
+      const constraints = [
+        ...initRes.constraints,
+        ...patRes.constraints,
+        new Constraint(initRes.type, patRes.type, node)
+      ]
+
+      console.log("ValueDeclaration", constraints)
 
       return {
         type: initRes.type,
+        constraints,
+        env
+      }
+    }
+    case 'FunctionDeclaration': {
+      const resPat = infer(node.pat, env)
+      let extendedEnv = bind(node.param, node.param.smlType, env)
+      extendedEnv = bind(node.pat, node.smlType, extendedEnv)
+      const resBody = infer(node.body, extendedEnv)
+
+      const constraints= [
+        ...resBody.constraints,
+        ...resPat.constraints,
+        new Constraint(resBody.type, resPat.type, node)
+      ]
+
+      if (node.body.annotatedType) {
+        constraints.push(new Constraint(node.body.smlType, node.body.annotatedType, node))
+      }
+
+      console.log("FunctionDeclaration", constraints)
+     
+      return {
+        type: functionType(node.param.smlType, resBody.type),
         constraints: [
-          ...initRes.constraints,
-          ...patRes.constraints,
-          new Constraint(initRes.type, patRes.type, node)
+          ...resBody.constraints,
+          ...resPat.constraints,
+          new Constraint(resBody.type, resPat.type, node)
         ],
+        env
+      }
+    }
+    case 'LocalDeclaration':
+    case 'DeclarationList': {
+      // TODO
+      return {
+        type: node.smlType,
+        constraints: [],
         env
       }
     }
@@ -141,6 +194,8 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
         constraints.push(new Constraint(node.smlType, node.annotatedType, node))
       }
 
+      console.log("ConditionalExpression", constraints)
+
       return {
         type: node.smlType,
         constraints,
@@ -148,13 +203,18 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
       }
     }
     case 'LambdaExpression': {
-      const extendedEnv = bind(node.param, node.param.smlType, env)
+      let extendedEnv = bind(node.param, node.param.smlType, env)
+      if (node.recursiveId) {
+        extendedEnv = bind(node.recursiveId, node.smlType, extendedEnv)
+      }
       const resBody = infer(node.body, extendedEnv)
       const constraints = [...resBody.constraints]
 
       if (node.annotatedType) {
         constraints.push(new Constraint(node.smlType, node.annotatedType, node))
       }
+
+      console.log("LambdaExpression", constraints)
 
       return {
         type: functionType(node.param.smlType, resBody.type),
@@ -177,6 +237,8 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
         constraints.push(new Constraint(node.smlType, node.annotatedType, node))
       }
 
+      console.log("ApplicationExpression", constraints)
+
       return {
         type: node.smlType,
         constraints,
@@ -198,6 +260,8 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
       if (node.annotatedType) {
         constraints.push(new Constraint(node.smlType, node.annotatedType, node))
       }
+
+      console.log("ListExpression", constraints)
 
       return {
         type: listType(inferredElements[0].type),
@@ -247,6 +311,9 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
       if (node.annotatedType) {
         constraints.push(new Constraint(node.smlType, node.annotatedType, node))
       }
+
+      console.log("Wildcard", constraints)
+
       return {
         type: env.get('_'),
         constraints,
@@ -259,25 +326,25 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
         constraints.push(new Constraint(node.smlType, node.annotatedType, node))
       }
 
-      // console.log('Identifer', env.get(node.name))
+      console.log("Identifier", constraints)
+
       return {
         type: node.isPat ? node.smlType : env.get(node.name),
         constraints,
         env
       }
     }
-    case 'FunctionDeclaration':
-    case 'LocalDeclaration':
-    case 'DeclarationList':
     case 'LetExpression':
     case 'SequenceExpression':
-    case 'RecValueDeclaration':
-    // TODO
+        // TODO
     case 'Literal':
       const constraints = []
       if (node.annotatedType) {
         constraints.push(new Constraint(node.smlType, node.annotatedType, node))
       }
+
+      console.log("Literal", constraints)
+
       return {
         type: node.smlType,
         constraints,
@@ -425,6 +492,7 @@ function unify(C: Constraint[]): Substitution {
     // both are tuple types
     else if (t1.type === 'tuple' && t2.type === 'tuple') {
       if (t1.elementTypes.length !== t2.elementTypes.length) {
+        console.log(t1, t2)
         throw new TypeInferenceError(
           'Attempting to match tuples with differing length',
           constraint.srcNode

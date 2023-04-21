@@ -50,8 +50,8 @@ export function findDeclarationNode(program: Node, identifier: Identifier): Node
         }
       },
       FunctionDeclaration(node: FunctionDeclaration, state: any, callback: WalkerCallback<any>) {
-        if (node.id && node.id.name === identifier.name) {
-          declarations.push(node.id)
+        if (node.pat && node.pat.name === identifier.name) {
+          declarations.push(node.pat)
         } else if (containsNode(node, identifier)) {
           const param = node.param.elements.find(n => (n as Identifier).name === identifier.name)
           if (param) {

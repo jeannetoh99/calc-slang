@@ -106,7 +106,6 @@ const extractMatch = (name: string, value: Value, type: Type): DecResType => {
 }
 
 const extractDeclaration = (res: ResultType, type: Type): DecResType[] => {
-  console.log(res, type)
   if (res.pat.type === 'Identifier') {
     return [extractMatch(res.pat.name, res.value, type)]
   }
@@ -134,6 +133,7 @@ export const formatResults = (result: DecResType[]) => {
 }
 
 export const stringify = (value: Value): string => {
+  console.log(value)
   const programResult = value as ProgramResult
   const res = []
   for (let i = 0; i < programResult.values.length; i++) {

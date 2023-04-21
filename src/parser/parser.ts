@@ -185,14 +185,17 @@ class AstConverter implements CalcVisitor<es.Node> {
     return expr
   }
   visitFunctionApplication(ctx: FunctionApplicationContext): es.ApplicationExpression {
-    const callee = this.visit(ctx._fn) as es.Expression
-    const args = [this.visit(ctx._args) as es.Expression]
     const loc = contextToLocation(ctx)
+    const callee = this.visit(ctx._fn) as es.Expression
+    let args = this.visit(ctx._args) as es.Expression
+    if (args.type !== 'TupleExpression') {
+      args = tupleExpression([args], loc)
+    }
     return {
       type: 'ApplicationExpression',
       smlType: variableType(getNextVarId()),
       callee,
-      args: tupleExpression(args, loc),
+      args,
       isInfix: false,
       loc
     }
@@ -360,11 +363,13 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitRecursiveDeclaration(ctx: RecursiveDeclarationContext): es.RecValueDeclaration {
     const id = this.visit(ctx.identifier()) as es.Identifier
     id.isPat = true
+    const init = this.visit(ctx.lambda()) as es.LambdaExpression
+    init.recursiveId = id
     return {
       type: 'RecValueDeclaration',
       smlType: variableType(getNextVarId()),
       pat: id,
-      init: this.visit(ctx.lambda()) as es.LambdaExpression,
+      init,
       loc: contextToLocation(ctx)
     }
   }
@@ -379,7 +384,7 @@ class AstConverter implements CalcVisitor<es.Node> {
     return {
       type: 'FunctionDeclaration',
       smlType: variableType(getNextVarId()),
-      id,
+      pat: id,
       param,
       body: this.visit(ctx.expression()) as es.Expression,
       loc
