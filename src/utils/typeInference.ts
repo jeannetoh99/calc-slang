@@ -136,7 +136,6 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
         new Constraint(initRes.type, patRes.type, node)
       ]
 
-
       return {
         type: initRes.type,
         constraints,
