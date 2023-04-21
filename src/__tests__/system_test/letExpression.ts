@@ -46,7 +46,7 @@ test('let expression', () => {
       name: 'it',
       value: 'fn',
       type: 'int -> int'
-    },
+    }
   ]
   return expectResult(program).toBe(formatResults(expected))
 })

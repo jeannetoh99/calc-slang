@@ -305,5 +305,7 @@ test('Let expression', () => {
       type: 'int'
     }
   ]
-  return expectResult('let val x=0 in if x=0 then 0 else 100 div x end;').toBe(formatResults(expected))
+  return expectResult('let val x=0 in if x=0 then 0 else 100 div x end;').toBe(
+    formatResults(expected)
+  )
 })
