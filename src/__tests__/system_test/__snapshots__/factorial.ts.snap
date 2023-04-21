@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`factorial: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "
+    fun factorial n =
+            if n = 1 then n
+            else n * factorial(n-1);
+
+    factorial 10;
+",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val factorial = fn : int -> int;
+val it = 3628800 : int;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;

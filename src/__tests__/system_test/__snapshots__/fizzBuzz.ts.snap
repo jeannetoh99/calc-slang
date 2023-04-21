@@ -1,0 +1,28 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Fizz buzz: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "
+    val fizz = \\"Fizz\\";    val buzz = \\"Buzz\\";
+    val fizzBuzz = fn n =>
+            if n mod 15 = 0 then
+                fizz ^ buzz
+            else if n mod 3 = 0 then
+                fizz
+            else if n mod 5 = 0 then
+                fizz
+            else
+                \\"\\";                
+    fizzBuzz 100;",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val fizz = \\"Fizz\\" : string;
+val buzz = \\"Buzz\\" : string;
+val fizzBuzz = fn : int -> string;
+val it = \\"Fizz\\" : string;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;

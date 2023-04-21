@@ -1,0 +1,251 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Application expression evaluates to function application: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "val n = fn x => x + 1; 
+ n 1;",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val n = fn : int -> int;
+val it = 2 : int;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Boolean list evaluates to list: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "[true, false];",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val it = [true,false] : bool list;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Empty code returns undefined: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Expression statement evaluates to unit: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "();",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val it = () : unit;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`If expression evaluates to then branch: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "if true then \\"a\\" else \\"b\\";",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val it = \\"a\\" : string;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Integer list evaluates to list: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "[1, 2, 3];",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val it = [1,2,3] : int list;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Lambda expression evaluates to function: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "fn x => x + 1;",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val it = fn : int -> int;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`List of expressions evaluates to list: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "[1 + 2, 3 + 4];",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val it = [3,7] : int list;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`List of lists evaluates to list: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "[[1, 2], [3, 4]];",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val it = [[1,2],[3,4]] : int list list;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Multiline string self-evaluates to itself: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "\\"1\\\\n1\\";",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val it = \\"1
+1\\" : string;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Real list evaluates to list: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "[1.5, 2.5, 3.5];",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val it = [1.5,2.5,3.5] : real list;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Single boolean self-evaluates to itself: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "true;",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val it = true : bool;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Single integer self-evaluates to itself: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "42;",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val it = 42 : int;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Single real self-evaluates to itself: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "42.5;",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val it = 42.5 : real;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Single string self-evaluates to itself: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "\\"42\\";",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val it = \\"42\\" : string;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`String list evaluates to list: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "[\\"1\\", \\"2\\", \\"3\\"];",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val it = [\\"1\\",\\"2\\",\\"3\\"] : string list;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Tuple evaluates to tuple: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "(\\"a\\", 1, 1.0);",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val it = (\\"a\\",1,1.0) : string * int * real;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Unit evaluates to undefined: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "();",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val it = () : unit;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Value declaration evaluates to value: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "val x = 1;",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val x = 1 : int;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
