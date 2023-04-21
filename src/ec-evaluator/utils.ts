@@ -9,7 +9,7 @@ import { Environment, Frame, Value } from '../types'
 import { builtinFunctions, builtinMapping } from './builtin'
 import * as instr from './instrCreator'
 import { Agenda } from './interpreter'
-import { AgendaItem, ClosureInstr, InstrType } from './types'
+import { AgendaItem, InstrType } from './types'
 
 /**
  * Stack is implemented for agenda and stash registers.
@@ -97,7 +97,7 @@ export const currentEnvironment = (context: Context) => context.runtime.environm
 export const localEnvironment = (context: Context) => context.runtime.localEnvironments[0]
 
 export const createEnvironment = (
-  closure: ClosureInstr,
+  closure: es.Closure,
   args: es.TupleExpression,
   callExpression: es.ApplicationExpression
 ): Environment => {

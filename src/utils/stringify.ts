@@ -20,6 +20,7 @@ const formatResult = (result: DecResType) => {
 }
 
 export const extractVariableTypes = (type: Type): VariableType[] => {
+  if (type === undefined) return []
   switch (type.type) {
     case 'function':
       return extractVariableTypes(type.paramType).concat(extractVariableTypes(type.returnType))
@@ -63,36 +64,47 @@ export const stringifyType = (type: Type, inner: boolean = false): string => {
     : type.type
 }
 
-const stringifyValue = (value: SmlValue, type: Type): Value => {
-  switch (type.type) {
-    case 'string': {
-      return '"' + value.value + '"'
+const stringifyValue = (value: SmlValue): Value => {
+  console.log(value)
+  switch (value.type) {
+    case 'Literal': {
+      switch (value.smlType.type) {
+        case 'string': {
+          return '"' + value.value + '"'
+        }
+        case 'unit': {
+          return '()'
+        }
+        case 'int': {
+          const num = value.value as number
+          return (num < 0 ? '~' : '') + Math.abs(num)
+        }
+        case 'real': {
+          const num = value.value as number
+          return (num < 0 ? '~' : '') + Math.abs(num) + (isInteger(value.value) ? '.0' : '')
+        }
+        case 'bool': {
+          return value.value
+        }
+        case 'variable': {
+          return value.value
+        }
+      }
     }
-    case 'unit': {
-      return '()'
+    case 'Function': {
+      return 'fn'
     }
-    case 'int': {
-      const num = value.value as number
-      return (num < 0 ? '~' : '') + Math.abs(num)
-    }
-    case 'real': {
-      const num = value.value as number
-      return (num < 0 ? '~' : '') + Math.abs(num) + (isInteger(value.value) ? '.0' : '')
-    }
-    case 'list': {
+    case 'List': {
       const list = value as List
-      return '[' + list.value.map(val => stringifyValue(val, type.elementType)) + ']'
+      return '[' + list.value.map(val => stringifyValue(val)) + ']'
     }
-    case 'tuple': {
+    case 'Tuple': {
       const tuple = value as Tuple
       const elementStrings = []
       for (let i = 0; i < tuple.value.length; i++) {
-        elementStrings.push(stringifyValue(tuple.value[i], type.elementTypes[i]))
+        elementStrings.push(stringifyValue(tuple.value[i]))
       }
       return '(' + elementStrings + ')'
-    }
-    default: {
-      return value.value
     }
   }
 }
@@ -100,7 +112,7 @@ const stringifyValue = (value: SmlValue, type: Type): Value => {
 const extractMatch = (name: string, value: Value, type: Type): DecResType => {
   return {
     name,
-    value: stringifyValue(value, type),
+    value: stringifyValue(value),
     type: stringifyVarTypes(type) + stringifyType(type)
   }
 }

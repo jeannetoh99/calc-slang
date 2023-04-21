@@ -4,13 +4,11 @@
 
 import * as es from '../ast'
 import { Environment } from '../types'
-import { functionType } from '../utils/astCreator'
 import {
   AssmtInstr,
   BranchInstr,
   BuiltinInstr,
   CallInstr,
-  ClosureInstr,
   EnvInstr,
   Instr,
   InstrType,
@@ -60,15 +58,6 @@ export const builtinInstr = (
 export const callInstr = (arity: number, srcNode: es.ApplicationExpression): CallInstr => ({
   instrType: InstrType.CALL,
   arity,
-  srcNode
-})
-
-export const closureInstr = (env: Environment, srcNode: es.LambdaExpression): ClosureInstr => ({
-  instrType: InstrType.CLOSURE,
-  type: 'function',
-  smlType: srcNode.smlType as es.FunctionType,
-  value: 'fn',
-  env,
   srcNode
 })
 

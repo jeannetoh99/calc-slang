@@ -18,7 +18,7 @@ export enum InstrType {
   LIST = 'List'
 }
 
-interface BaseInstr {
+export interface BaseInstr {
   instrType: InstrType
 }
 
@@ -44,14 +44,6 @@ export interface BuiltinInstr extends BaseInstr {
 export interface CallInstr extends BaseInstr {
   arity: number
   srcNode: es.ApplicationExpression
-}
-
-export interface ClosureInstr extends BaseInstr {
-  type: 'function'
-  smlType: es.FunctionType
-  value: 'fn'
-  env: Environment
-  srcNode: es.LambdaExpression
 }
 
 export interface EnvInstr extends BaseInstr {
@@ -81,7 +73,6 @@ export type Instr =
   | BranchInstr
   | BuiltinInstr
   | CallInstr
-  | ClosureInstr
   | EnvInstr
   | LocalEnvInstr
   | TailCallInstr
