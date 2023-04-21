@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`fibonacci: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "
+    fun fibonacci n =
+        if n = 0 then 0
+        else if (n = 1 orelse n = 2) then 1
+        else fibonacci(n-1) + fibonacci(n-2);
+
+    fibonacci 8;
+",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val fibonacci = fn : int -> int;
+val it = 21 : int;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;

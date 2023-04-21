@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`pattern matching: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "
+    val (a,b,c,d) = (2, \\"s\\", 3.4, [1,2]);
+    val (l1, l2, l3) = ([1]@[2], 2::3::nil, [if true then 1 else 2, floor(3.45)]);
+",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val a = 2 : int;
+val b = \\"s\\" : string;
+val c = 3.4 : real;
+val d = [1,2] : int list;
+val l1 = [1,2] : int list;
+val l2 = [2,3] : int list;
+val l3 = [1,3] : int list;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;

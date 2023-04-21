@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`hello world: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "
+    val sayHi = \\"hello \\" ^ \\"world\\";
+    sayHi ^ \\" jeanne\\";
+    size sayHi;
+",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val sayHi = \\"hello world\\" : string;
+val it = \\"hello world jeanne\\" : string;
+val it = 11 : int;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;

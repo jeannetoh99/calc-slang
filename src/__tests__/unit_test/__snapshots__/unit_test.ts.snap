@@ -1,5 +1,20 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Application expression evaluates to function application: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "val n = fn x => x + 1; 
+ n 1;",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val n = fn : int -> int;
+val it = 2 : int;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
 exports[`Boolean list evaluates to list: expectResult 1`] = `
 Object {
   "alertResult": Array [],
@@ -26,14 +41,40 @@ Object {
 }
 `;
 
-exports[`Empty list evaluates to empty list: expectResult 1`] = `
+exports[`Expression statement evaluates to unit: expectResult 1`] = `
 Object {
   "alertResult": Array [],
-  "code": "[];",
+  "code": "();",
   "displayResult": Array [],
   "numErrors": 0,
   "parsedErrors": "",
-  "result": "val it = [] : ? list;",
+  "result": "val it = () : unit;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Function declaration evaluates to function: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "fn x => x+1;",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val it = fn : int -> int;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`If expression evaluates to then branch: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "if true then \\"a\\" else \\"b\\";",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val it = \\"a\\" : string;",
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }
@@ -52,14 +93,27 @@ Object {
 }
 `;
 
-exports[`List nil evaluates to empty list: expectResult 1`] = `
+exports[`Lambda expression evaluates to function: expectResult 1`] = `
 Object {
   "alertResult": Array [],
-  "code": "nil;",
+  "code": "fn x => x + 1;",
   "displayResult": Array [],
   "numErrors": 0,
   "parsedErrors": "",
-  "result": "val it = [] : ? list;",
+  "result": "val it = fn : int -> int;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Let expression: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "let val x=0 in if x=0 then 0 else 100 div x end;",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val it = 0 : int;",
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }
@@ -91,6 +145,32 @@ Object {
 }
 `;
 
+exports[`Local declaration: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "
+  local
+    val x = 1;
+    val y = 2
+  in
+    val z = x + y;
+    val z1 = z + 1;
+    val y = (\\"a\\", y, z);
+    val y = 1
+  end;
+",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val z = 3 : int;
+val z1 = 4 : int;
+val y = (\\"a\\",2,3) : string * int * int;
+val y = 1 : int;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
 exports[`Multiline string self-evaluates to itself: expectResult 1`] = `
 Object {
   "alertResult": Array [],
@@ -105,6 +185,22 @@ Object {
 }
 `;
 
+exports[`Pattern matching evaluates evaluates pairwise values: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "val (a,b,c,d) = (2, \\"s\\", 3.4, [1,2]);",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val a = 2 : int;
+val b = \\"s\\" : string;
+val c = 3.4 : real;
+val d = [1,2] : int list;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
 exports[`Real list evaluates to list: expectResult 1`] = `
 Object {
   "alertResult": Array [],
@@ -113,6 +209,32 @@ Object {
   "numErrors": 0,
   "parsedErrors": "",
   "result": "val it = [1.5,2.5,3.5] : real list;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Recursive value declaration: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "val rec fact = fn n => if n=0 then 1 else n*fact(n-1);",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val fact = fn : int -> int;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Sequence expression evaluates to last expression: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "( 1 + 2; \\"a\\"^\\"b\\" );",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val it = \\"ab\\" : string;",
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }
@@ -183,6 +305,32 @@ Object {
 }
 `;
 
+exports[`Tuple evaluates to tuple: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "(\\"a\\", 1, 1.0);",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val it = (\\"a\\",1,1.0) : string * int * real;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Type declaration evaluates to type: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "100: int;",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val it = 100 : int;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
 exports[`Unit evaluates to undefined: expectResult 1`] = `
 Object {
   "alertResult": Array [],
@@ -191,6 +339,19 @@ Object {
   "numErrors": 0,
   "parsedErrors": "",
   "result": "val it = () : unit;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
+exports[`Value declaration evaluates to value: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "val x = 1;",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val x = 1 : int;",
   "resultStatus": "finished",
   "visualiseListResult": Array [],
 }
