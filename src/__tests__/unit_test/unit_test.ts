@@ -207,7 +207,7 @@ test('Expression statement evaluates to unit', () => {
   return expectResult('();').toBe(formatResults(expected))
 })
 
-///////////////// TUPLE //////////////////
+///////////////// TUPLE_EXPRESSION //////////////////
 test('Tuple evaluates to tuple', () => {
   const expected: DecResType[] = [
     {
@@ -306,6 +306,46 @@ test('Let expression', () => {
     }
   ]
   return expectResult('let val x=0 in if x=0 then 0 else 100 div x end;').toBe(
+    formatResults(expected)
+  )
+})
+ 
+///////////////// LOCAL_DECLARATION //////////////////
+const ld = `
+  local
+    val x = 1;
+    val y = 2
+  in
+    val z = x + y;
+    val z1 = z + 1;
+    val y = ("a", y, z);
+    val y = 1
+  end;
+`
+test('Local declaration', () => {
+  const expected: DecResType[] = [
+    {
+      name: 'z',
+      value: '3',
+      type: 'int'
+    },
+    {
+      name: 'z1',
+      value: '4',
+      type: 'int'
+    },
+    {
+      name: 'y',
+      value: '("a",2,3)',
+      type: 'string * int * int'
+    },
+    {
+      name: 'y',
+      value: '1',
+      type: 'int'
+    }
+  ]
+  return expectResult(ld).toBe(
     formatResults(expected)
   )
 })

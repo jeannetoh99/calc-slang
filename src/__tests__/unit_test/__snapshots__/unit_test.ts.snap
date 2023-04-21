@@ -145,6 +145,32 @@ Object {
 }
 `;
 
+exports[`Local declaration: expectResult 1`] = `
+Object {
+  "alertResult": Array [],
+  "code": "
+  local
+    val x = 1;
+    val y = 2
+  in
+    val z = x + y;
+    val z1 = z + 1;
+    val y = (\\"a\\", y, z);
+    val y = 1
+  end;
+",
+  "displayResult": Array [],
+  "numErrors": 0,
+  "parsedErrors": "",
+  "result": "val z = 3 : int;
+val z1 = 4 : int;
+val y = (\\"a\\",2,3) : string * int * int;
+val y = 1 : int;",
+  "resultStatus": "finished",
+  "visualiseListResult": Array [],
+}
+`;
+
 exports[`Multiline string self-evaluates to itself: expectResult 1`] = `
 Object {
   "alertResult": Array [],
