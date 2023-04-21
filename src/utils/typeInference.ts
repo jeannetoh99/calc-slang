@@ -264,7 +264,9 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
       console.log('ListExpression', constraints)
 
       return {
-        type: listType(inferredElements[0].type),
+        type: inferredElements.length > 0 
+          ? listType(inferredElements[0].type)
+          : node.smlType,
         constraints,
         env
       }

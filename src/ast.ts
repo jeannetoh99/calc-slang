@@ -1,3 +1,4 @@
+import { BaseInstr } from './ec-evaluator/types'
 import { Environment } from './types'
 
 //////////////////////////////// NODES ////////////////////////////////
@@ -303,7 +304,7 @@ export interface Tuple extends BaseSmlValue {
   value: Array<SmlValue>
 }
 
-export interface Closure extends BaseSmlValue {
+export interface Closure extends BaseSmlValue, BaseInstr {
   type: 'Function'
   smlType: FunctionType | VariableType
   value: 'fn'

@@ -1,4 +1,6 @@
 import * as es from '../ast'
+import { InstrType } from '../ec-evaluator/types'
+import { Environment } from '../types'
 
 // export const getValueDeclarationName = (decl: es.ValueDeclaration) =>
 //   (decl.id as es.Identifier).name
@@ -87,6 +89,18 @@ export const list = (
   type: 'List',
   smlType,
   value
+})
+
+export const closure = (
+  env: Environment, 
+  srcNode: es.LambdaExpression
+): es.Closure => ({
+  instrType: InstrType.CLOSURE,
+  type: 'Function',
+  smlType: srcNode.smlType as es.FunctionType,
+  value: 'fn',
+  env,
+  srcNode
 })
 
 export const expressionStatement = (

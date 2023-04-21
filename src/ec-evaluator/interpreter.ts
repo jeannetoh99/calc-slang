@@ -12,7 +12,7 @@ import * as es from '../ast'
 import * as errors from '../errors/errors'
 import { arity } from '../stdlib/misc'
 import { Context, Result, Value } from '../types'
-import { expressionStatement, functionType, listType, tupleType } from '../utils/astCreator'
+import { closure, expressionStatement, functionType, listType, tupleType } from '../utils/astCreator'
 import { applyBuiltin, builtinInfixFunctions, builtinMapping } from './builtin'
 import * as instr from './instrCreator'
 import {
@@ -21,7 +21,6 @@ import {
   BranchInstr,
   BuiltinInstr,
   CallInstr,
-  ClosureInstr,
   CmdEvaluator,
   ECError,
   EnvInstr,
@@ -177,9 +176,9 @@ export const evaluateCallInstr = (
     args.unshift(stash.pop())
   }
 
-  const func: ClosureInstr | BuiltinInstr = stash.pop()
+  const func: es.Closure | BuiltinInstr = stash.pop()
   if (func?.instrType === InstrType.CLOSURE) {
-    const closure = func as ClosureInstr
+    const closure = func as es.Closure
     // Push on top of current environment and then restore if call
     if (command.instrType === InstrType.CALL) {
       agenda.push(instr.envInstr(currentEnvironment(context)))
@@ -387,12 +386,12 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
         context,
         env,
         command.recursiveId.name,
-        instr.closureInstr(env, command),
+        closure(env, command),
         command
       )
     }
 
-    stash.push(instr.closureInstr(env, command))
+    stash.push(closure(env, command))
   },
 
   LetExpression: function (
