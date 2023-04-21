@@ -103,8 +103,8 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
             break
           }
           case 'LocalDeclaration': {
-            let declTypes = (res.type as es.TupleType).elementTypes
-            for (let declType of declTypes) {
+            const declTypes = (res.type as es.TupleType).elementTypes
+            for (const declType of declTypes) {
               types.push(cloneDeep(declType))
             }
             env = res.env
@@ -198,7 +198,7 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
       }
     }
     case 'DeclarationList': {
-      let types : es.Type[] = []
+      const types: es.Type[] = []
       const constraints: Constraint[] = []
       const pats: es.Pattern[] = []
       for (const decl of node.body) {
@@ -214,9 +214,9 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
             break
           }
           case 'LocalDeclaration': {
-            let declTypes = (res.type as es.TupleType).elementTypes
-            for (let decl of declTypes) types.push(decl)
-            for (let pat of res.pats!) pats.push(pat)
+            const declTypes = (res.type as es.TupleType).elementTypes
+            for (const decl of declTypes) types.push(decl)
+            for (const pat of res.pats!) pats.push(pat)
             env = res.env
             break
           }
