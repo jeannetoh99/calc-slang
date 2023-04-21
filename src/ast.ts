@@ -108,7 +108,7 @@ export interface RecValueDeclaration extends BaseDeclaration {
 
 export interface FunctionDeclaration extends BaseDeclaration {
   type: 'FunctionDeclaration'
-  id: Identifier
+  pat: Identifier
   param: TuplePattern
   body: Expression
 }
@@ -173,7 +173,7 @@ export interface LambdaExpression extends BaseExpression {
   type: 'LambdaExpression'
   param: TuplePattern
   body: Expression
-  recursiveId?: string
+  recursiveId?: Identifier
 }
 
 export interface LetExpression extends BaseExpression {

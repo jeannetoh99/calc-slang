@@ -182,7 +182,7 @@ export function declareFunctionsAndVariables(
         declareVariables(environment, statement)
         break
       case 'FunctionDeclaration':
-        declareIdentifier(environment, (statement.id as es.Identifier).name, statement)
+        declareIdentifier(environment, (statement.pat as es.Identifier).name, statement)
         break
     }
   }
