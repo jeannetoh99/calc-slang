@@ -5,11 +5,11 @@ import * as es from '../ast'
 import * as errors from '../errors/errors'
 import { RuntimeSourceError } from '../errors/runtimeSourceError'
 import { arity } from '../stdlib/misc'
-import { DeclarationType, Environment, Frame, Value } from '../types'
-import { builtinFunctions, builtinFunctionTypes } from './builtin'
+import { Environment, Frame, Value } from '../types'
+import { builtinFunctions, builtinMapping } from './builtin'
 import * as instr from './instrCreator'
 import { Agenda } from './interpreter'
-import { AgendaItem, BuiltinInstr, ClosureInstr, InstrType } from './types'
+import { AgendaItem, ClosureInstr, InstrType } from './types'
 
 /**
  * Stack is implemented for agenda and stash registers.
@@ -189,12 +189,16 @@ export function defineVariable(
   environment: Environment,
   name: string,
   value: Value,
-  smlType: es.Type,
+  srcNode?: es.Node,
   constant = false
 ) {
-  if (environment.name === 'programEnvironment') {
-    context.globalDeclarations.push({ name, value, smlType })
+  if (value?.instrType == InstrType.CLOSURE && name in builtinMapping) {
+    handleRuntimeError(
+      context,
+      new errors.ReservedKeywordVariable(srcNode!, name, 'builtin function')
+    )
   }
+
   Object.defineProperty(environment.head, name, {
     value,
     writable: !constant,
@@ -292,7 +296,6 @@ export const populateBuiltInIdentifiers = (context: Context) => {
       currentEnvironment(context),
       key,
       builtinInstr,
-      builtinFunctionTypes[key]
     )
   }
 }

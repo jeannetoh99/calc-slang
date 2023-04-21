@@ -6,8 +6,6 @@
  */
 
 /* tslint:disable:max-classes-per-file */
-import assert from 'assert'
-import { cp } from 'fs'
 import { cloneDeep } from 'lodash'
 
 import * as es from '../ast'
@@ -163,7 +161,7 @@ function runECEMachine(context: Context, agenda: Agenda, stash: Stash) {
     }
     command = agenda.pop()
   }
-  return context.globalDeclarations
+  return context.res
 }
 
 export const evaluateCallInstr = (
@@ -226,6 +224,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     const environment = createBlockEnvironment(currentEnvironment(context), 'programEnvironment')
     pushEnvironment(context, environment)
     declareFunctionsAndVariables(currentEnvironment(context), command)
+    console.log(command.smlType)
     agenda.push(...handleSequence(command.body))
   },
 
@@ -251,13 +250,13 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
 
   ValueDeclaration: function (command: es.ValueDeclaration, context: Context, agenda: Agenda) {
     const env = command.declEnv ?? currentEnvironment(context)
-    const pat = command.pat as es.Pattern
+    const pat = command.pat
 
     // Parser enforces initialisation during variable declaration
     const init = command.init!
     init.smlType = command.smlType
 
-    agenda.push(instr.assmtInstr(pat, true, command, env, command.smlType))
+    agenda.push(instr.assmtInstr(pat, true, command, env))
     agenda.push(init)
   },
 
@@ -273,7 +272,6 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
         true,
         command,
         command.declEnv ?? currentEnvironment(context),
-        command.smlType
       )
     )
     command.init.recursiveId = command.pat.name
@@ -300,7 +298,6 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
         true,
         command,
         command.declEnv ?? currentEnvironment(context),
-        command.smlType
       )
     )
     agenda.push(lambdaExpression)
@@ -402,7 +399,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
         env,
         command.recursiveId,
         instr.closureInstr(env, command),
-        command.smlType
+        command
       )
     }
 
@@ -469,30 +466,28 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     agenda: Agenda,
     stash: Stash
   ) {
-    if (command.pat.type === 'TuplePattern') {
-      const tup = stash.pop() as es.Tuple
-      const elemTypes = (command.smlType as es.TupleType).elementTypes
-      for (let i = command.pat.elements.length - 1; i >= 0; i--) {
-        const pat = command.pat.elements[i]
-        const val = tup.value[i]
-        agenda.push(instr.assmtInstr(pat, true, command.srcNode, command.env, elemTypes[i]))
-        stash.push(val)
+    let rhs = stash.pop()
+    if (command.pat.type === 'Identifier') {
+      defineVariable(context, command.env, command.pat.name, rhs, command.srcNode, false)
+      context.res.values.push({pat: command.pat, value: rhs})
+    } else if (command.pat.type === 'TuplePattern' && command.pat) {
+      const tup : es.Tuple = rhs
+      if (command.pat.elements.length === 1 && tup.value.length > 1) {
+        let pat = command.pat.elements[0]
+        if (pat.type === 'Identifier') {
+          defineVariable(context, command.env, pat.name, tup, command.srcNode, false)
+          context.res.values.push({pat, value: tup})
+        }
+      } else {
+        for (let i=0; i<command.pat.elements.length; i++) {
+          let pat = command.pat.elements[i]
+          let val = tup.value[i]
+          if (pat.type === 'Identifier') {
+            defineVariable(context, command.env, pat.name, val, command.srcNode, false)
+          }
+        }
+        context.res.values.push({pat: command.pat, value: tup})
       }
-    } else if (command.pat.type === 'Identifier') {
-      const val = stash.pop()
-      if (val?.instrType == InstrType.CLOSURE && command.pat.name in builtinMapping) {
-        handleRuntimeError(
-          context,
-          new errors.ReservedKeywordVariable(command.srcNode, command.pat.name, 'builtin function')
-        )
-      }
-      defineVariable(context, command.env, command.pat.name, val, command.smlType, false)
-    } else if (command.pat.type === 'Literal') {
-      // TODO: check that literal is the same
-      stash.pop()
-    } else {
-      // assignment is to wildcard pat
-      stash.pop()
     }
   },
 

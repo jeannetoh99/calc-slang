@@ -1,15 +1,15 @@
-import { formatResults, ResultType } from '../utils/stringify'
+import { formatResults, DecResType } from '../utils/stringify'
 import { expectResult } from '../utils/testing'
 
 ///////////////////// LITERALS /////////////////////
 
 test('Empty code returns undefined', () => {
-  const expected: ResultType[] = []
+  const expected: DecResType[] = []
   return expectResult('').toBe(formatResults(expected))
 })
 
 test('Single integer self-evaluates to itself', () => {
-  const expected: ResultType[] = [
+  const expected: DecResType[] = [
     {
       name: 'it',
       value: 42,
@@ -20,7 +20,7 @@ test('Single integer self-evaluates to itself', () => {
 })
 
 test('Single boolean self-evaluates to itself', () => {
-  const expected: ResultType[] = [
+  const expected: DecResType[] = [
     {
       name: 'it',
       value: true,
@@ -31,7 +31,7 @@ test('Single boolean self-evaluates to itself', () => {
 })
 
 test('Single real self-evaluates to itself', () => {
-  const expected: ResultType[] = [
+  const expected: DecResType[] = [
     {
       name: 'it',
       value: 42.5,
@@ -42,7 +42,7 @@ test('Single real self-evaluates to itself', () => {
 })
 
 test('Single string self-evaluates to itself', () => {
-  const expected: ResultType[] = [
+  const expected: DecResType[] = [
     {
       name: 'it',
       value: '"42"',
@@ -53,7 +53,7 @@ test('Single string self-evaluates to itself', () => {
 })
 
 test('Multiline string self-evaluates to itself', () => {
-  const expected: ResultType[] = [
+  const expected: DecResType[] = [
     {
       name: 'it',
       value: '"1\n1"',
@@ -64,7 +64,7 @@ test('Multiline string self-evaluates to itself', () => {
 })
 
 test('Unit evaluates to undefined', () => {
-  const expected: ResultType[] = [
+  const expected: DecResType[] = [
     {
       name: 'it',
       value: '()',
@@ -77,7 +77,7 @@ test('Unit evaluates to undefined', () => {
 ///////////////// LIST_EXPRESSION //////////////////
 
 test('Empty list evaluates to empty list', () => {
-  const expected: ResultType[] = [
+  const expected: DecResType[] = [
     {
       name: 'it',
       value: '[]',
@@ -88,7 +88,7 @@ test('Empty list evaluates to empty list', () => {
 })
 
 test('List nil evaluates to empty list', () => {
-  const expected: ResultType[] = [
+  const expected: DecResType[] = [
     {
       name: 'it',
       value: '[]',
@@ -99,7 +99,7 @@ test('List nil evaluates to empty list', () => {
 })
 
 test('Integer list evaluates to list', () => {
-  const expected: ResultType[] = [
+  const expected: DecResType[] = [
     {
       name: 'it',
       value: '[1,2,3]',
@@ -110,7 +110,7 @@ test('Integer list evaluates to list', () => {
 })
 
 test('Boolean list evaluates to list', () => {
-  const expected: ResultType[] = [
+  const expected: DecResType[] = [
     {
       name: 'it',
       value: '[true,false]',
@@ -121,7 +121,7 @@ test('Boolean list evaluates to list', () => {
 })
 
 test('Real list evaluates to list', () => {
-  const expected: ResultType[] = [
+  const expected: DecResType[] = [
     {
       name: 'it',
       value: '[1.5,2.5,3.5]',
@@ -132,7 +132,7 @@ test('Real list evaluates to list', () => {
 })
 
 test('String list evaluates to list', () => {
-  const expected: ResultType[] = [
+  const expected: DecResType[] = [
     {
       name: 'it',
       value: '["1","2","3"]',
@@ -143,7 +143,7 @@ test('String list evaluates to list', () => {
 })
 
 test('List of lists evaluates to list', () => {
-  const expected: ResultType[] = [
+  const expected: DecResType[] = [
     {
       name: 'it',
       value: '[[1,2],[3,4]]',
@@ -154,7 +154,7 @@ test('List of lists evaluates to list', () => {
 })
 
 test(`List of expressions evaluates to list`, () => {
-  const expected: ResultType[] = [
+  const expected: DecResType[] = [
     {
       name: 'it',
       value: '[3,7]',

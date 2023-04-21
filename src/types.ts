@@ -77,6 +77,11 @@ export interface ConstWrapper {
   getValue: () => Value
 }
 
+export type ProgramResult = {
+  values: ResultType[]
+  types: es.Type[]
+}
+
 export interface Context<T = any> {
   /** The external symbols that exist in the Context. */
   externalSymbols: string[]
@@ -132,9 +137,9 @@ export interface Context<T = any> {
   previousCode: string[]
 
   /**
-   *
+   * Program result
    */
-  globalDeclarations: DeclarationType[]
+  res: ProgramResult
 }
 
 export type ModuleContext = {
@@ -351,8 +356,7 @@ export type TypeEnvironment = {
   typeAliasMap: Map<string, Type>
 }[]
 
-export type DeclarationType = {
-  name: string
+export type ResultType = {
+  pat: es.Pattern
   value: es.SmlValue
-  smlType: es.Type
 }

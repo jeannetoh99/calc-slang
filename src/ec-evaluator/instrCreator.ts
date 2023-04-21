@@ -25,14 +25,12 @@ export const assmtInstr = (
   declaration: boolean,
   srcNode: es.Node,
   env: Environment,
-  smlType: es.Type
 ): AssmtInstr => ({
   instrType: InstrType.ASSIGNMENT,
   pat,
   declaration,
   srcNode,
   env,
-  smlType
 })
 
 export const popInstr = (): Instr => ({ instrType: InstrType.POP })

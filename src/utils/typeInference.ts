@@ -4,7 +4,7 @@ import { Context } from '..'
 import * as es from '../ast'
 import { builtinFunctionTypes } from '../ec-evaluator/builtin'
 import { TypeError, TypeInferenceError } from '../errors/typeErrors'
-import { boolType, functionType, listType, tupleType } from './astCreator'
+import { boolType, functionType, listType, tupleType, variableType } from './astCreator'
 
 export const isType = (v: es.SmlValue, t: es.TypeType) => v.smlType?.type === t
 
@@ -53,16 +53,9 @@ export interface InferResult {
  *  Infer the type of a node
  */
 export function inferUnifySub(node: es.TypedNode, env: TypeEnv): InferResult {
-  console.log('start')
-  console.log(cloneDeep(node))
-  console.log(cloneDeep(env))
   const res = infer(node, env)
-  console.log(res)
   const subs = unify(res.constraints)
-  console.log(subs)
   node.smlType = substitute(res.type, subs)
-  console.log(cloneDeep(node))
-  console.log('end')
   return {
     type: node.smlType,
     constraints: [],
@@ -71,21 +64,16 @@ export function inferUnifySub(node: es.TypedNode, env: TypeEnv): InferResult {
 }
 
 export function bind(pat: es.Pattern, type: es.Type, env: TypeEnv): TypeEnv {
-  console.log('binding')
-  console.log(cloneDeep(pat))
-  console.log(cloneDeep(type))
   if (pat.type === 'TuplePattern' && type.type === 'tuple') {
     // TODO: check no duplicate identifiers in the same pat
     for (let i = 0; i < pat.elements.length; i++) {
       env = bind(pat.elements[i], type.elementTypes[i], env)
     }
-    return env
   } else if (pat.type === 'Identifier') {
-    return env.extend(pat.name, type)
+    env = env.extend(pat.name, type)
   } else if (pat.type === 'Literal') {
     // check that literal pat type and type is the same
   }
-  console.log(cloneDeep(env))
   return env
 }
 
@@ -93,26 +81,35 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
   switch (node.type) {
     case 'Program':
     case 'BlockStatement': {
-      let type
+      let types = []
       for (const stmt of node.body) {
-        const res = inferUnifySub(stmt, env)
-        type = res.type
+        let res = inferUnifySub(stmt, env)
+        types.push(cloneDeep(res.type))
         env = res.env
       }
       return {
-        type: type ?? node.smlType,
+        type: tupleType(types),
         constraints: [],
         env
       }
     }
     case 'ExpressionStatement': {
-      return inferUnifySub(node.expression, env)
+      return infer(node.expression, env)
     }
     case 'ValueDeclaration': {
       const res = inferUnifySub(node.init, env)
+      const pat = node.pat.elements.length === 1
+                    ? node.pat.elements[0]
+                    : node.pat
+
+      const constraints = [
+        ...res.constraints,
+        new Constraint(pat.smlType, res.type, node)
+      ]
+      
       return {
         type: res.type,
-        constraints: res.constraints,
+        constraints,
         env: bind(node.pat, res.type, res.env)
       }
     }
@@ -120,16 +117,19 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
       const res1 = infer(node.pred, env)
       const res2 = infer(node.cons, env)
       const res3 = infer(node.alt, env)
+
+      const constraints = [
+        ...res1.constraints,
+        ...res2.constraints,
+        ...res3.constraints,
+        new Constraint(res1.type, boolType(), node),
+        new Constraint(node.smlType, res2.type, node),
+        new Constraint(node.smlType, res3.type, node)
+      ]
+
       return {
         type: node.smlType,
-        constraints: [
-          ...res1.constraints,
-          ...res2.constraints,
-          ...res3.constraints,
-          new Constraint(res1.type, boolType(), node),
-          new Constraint(node.smlType, res2.type, node),
-          new Constraint(node.smlType, res3.type, node)
-        ],
+        constraints,
         env
       }
     }
@@ -172,6 +172,7 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
         }
         constraints.push(new Constraint(node.smlType, listType(inferredElements[0].type), node))
       }
+
       return {
         type: node.smlType,
         constraints,
@@ -181,13 +182,14 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
     case 'TupleExpression': {
       const inferredElements = node.elements.map(elem => infer(elem, env))
       const inferredType = tupleType(inferredElements.map(elem => elem.type))
+      const constraints = [
+        ...inferredElements.flatMap(elem => elem.constraints),
+        new Constraint(node.smlType, inferredType, node)
+      ]
 
       return {
         type: node.smlType,
-        constraints: [
-          ...inferredElements.flatMap(elem => elem.constraints),
-          new Constraint(node.smlType, inferredType, node)
-        ],
+        constraints,
         env
       }
     }
@@ -253,9 +255,6 @@ class Substitution {
  * s3(x) = s2(s1(x)). i.e. s1 is applied before s2 is applied.
  */
 function combine(s1: Substitution, s2: Substitution): Substitution {
-  console.log('combining')
-  console.log(cloneDeep(s1))
-  console.log(cloneDeep(s2))
   const s3 = cloneDeep(s1)
   // apply s2 on the RHS of s1
   for (const [id, t] of s3.subs.entries()) {
@@ -267,7 +266,6 @@ function combine(s1: Substitution, s2: Substitution): Substitution {
       s3.subs.set(id, t)
     }
   }
-  console.log(cloneDeep(s3))
   return s3
 }
 
@@ -303,7 +301,6 @@ function contains(t2: es.Type, t1: es.VariableType): boolean {
  * Unify a list of constraints
  */
 function unify(C: Constraint[]): Substitution {
-  console.log('unify', C)
   if (C.length === 0) {
     // If C is the empty set, then unify(C) is the empty substitution.
     return new Substitution()
@@ -409,14 +406,16 @@ const GlobalEnv = new TypeEnv({ ...builtinFunctionTypes })
 
 const runningEnv = new TypeEnv({ ...GlobalEnv.map })
 
-export function inferProgram(node: es.Program, context: Context) {
+export function inferProgram(node: es.Program, context: Context) : es.Type[] {
   try {
-    inferUnifySub(node, runningEnv)
+    let res = inferUnifySub(node, runningEnv)
+    return (res.type as es.TupleType).elementTypes
   } catch (error) {
     if (error instanceof TypeError) {
       context.errors.push(error)
     } else {
       throw error
     }
+    return []
   }
 }

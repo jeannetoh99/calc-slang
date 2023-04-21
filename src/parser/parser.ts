@@ -277,14 +277,17 @@ class AstConverter implements CalcVisitor<es.Node> {
     return this.visit(ctx.pattern()) as es.Pattern
   }
   visitExpressionStatement(ctx: ExpressionStatementContext): es.Statement {
-    const it = identifier('it', variableType(getNextVarId()), contextToLocation(ctx))
-    const init = this.visit(ctx.expression()) as es.Expression
     const loc = contextToLocation(ctx)
+    const it = identifier('it', variableType(getNextVarId()), contextToLocation(ctx))
+    let init = this.visit(ctx.expression()) as es.Expression
+    if (init.type !== 'TupleExpression') {
+      init = tupleExpression([init], loc)
+    }
     return {
       type: 'ValueDeclaration',
       smlType: tupleType([init.smlType]),
       pat: tuplePattern([it], loc),
-      init: tupleExpression([init], loc),
+      init,
       loc
     }
   }
@@ -301,7 +304,7 @@ class AstConverter implements CalcVisitor<es.Node> {
     return {
       type: 'list',
       elementType: this.visit(ctx._elType) as es.Type,
-      loc: contextToLocation(ctx)
+      loc: contextToLocation(ctx),
     }
   }
   visitFunctionType(ctx: FunctionTypeContext): es.FunctionType {
@@ -345,12 +348,15 @@ class AstConverter implements CalcVisitor<es.Node> {
     if (pat.type !== 'TuplePattern') {
       pat = tuplePattern([pat], loc)
     }
-    const init = this.visit(ctx.expression()) as es.Expression
+    let init = this.visit(ctx.expression()) as es.Expression
+    if (init.type !== 'TupleExpression') {
+      init = tupleExpression([init], loc)
+    }
     return {
       type: 'ValueDeclaration',
       smlType: tupleType([init.smlType]),
       pat,
-      init: tupleExpression([init], loc),
+      init,
       loc
     }
   }

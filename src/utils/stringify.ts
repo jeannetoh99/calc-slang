@@ -1,7 +1,7 @@
-import { concat, isInteger } from 'lodash'
+import { isInteger } from 'lodash'
 
 import { List, ListType, SmlValue, Tuple, TupleType, Type, VariableType } from '../ast'
-import { DeclarationType, Value } from '../types'
+import { ProgramResult, ResultType, Value } from '../types'
 
 export interface ArrayLike {
   replPrefix: string
@@ -9,13 +9,13 @@ export interface ArrayLike {
   replArrayContents: () => Value[]
 }
 
-export type ResultType = {
+export type DecResType = {
   name: string
   value: Value
   type: string
 }
 
-const formatResult = (result: ResultType) => {
+const formatResult = (result: DecResType) => {
   return ['val', result.name, '=', result.value, ':', result.type].join(' ') + ';'
 }
 
@@ -63,10 +63,8 @@ export const stringifyType = (type: Type, inner: boolean = false): string => {
     : type.type
 }
 
-const stringifyValue = (value: SmlValue): Value => {
-  const type = value.smlType.type
-
-  switch (type) {
+const stringifyValue = (value: SmlValue, type: Type): Value => {
+  switch (type.type) {
     case 'string': {
       return '"' + value.value + '"'
     }
@@ -78,17 +76,19 @@ const stringifyValue = (value: SmlValue): Value => {
     }
     case 'list': {
       const list = value as List
-      const listType = list.smlType as ListType
-      list.value.forEach(elem => (elem.smlType = listType.elementType))
-      return '[' + list.value.map(stringifyValue) + ']'
+      return '[' 
+        + list.value.map(val => stringifyValue(val, type.elementType)) 
+        + ']'
     }
     case 'tuple': {
       const tuple = value as Tuple
-      const tupleType = tuple.smlType as TupleType
+      const elementStrings = []
       for (let i = 0; i < tuple.value.length; i++) {
-        tuple.value[i].smlType = tupleType.elementTypes[i]
+        elementStrings.push(
+          stringifyValue(tuple.value[i], type.elementTypes[i])
+        )
       }
-      return '(' + tuple.value.map(stringifyValue) + ')'
+      return '(' + elementStrings + ')'
     }
     default: {
       return value.value
@@ -96,21 +96,47 @@ const stringifyValue = (value: SmlValue): Value => {
   }
 }
 
-const extractDeclaration = (declaration: DeclarationType): ResultType => {
-  declaration.value.smlType = declaration.smlType
-
+const extractMatch = (name: string, value: Value, type: Type): DecResType => {
   return {
-    name: declaration.name,
-    value: stringifyValue(declaration.value),
-    type: stringifyVarTypes(declaration.smlType) + stringifyType(declaration.smlType)
+    name,
+    value: stringifyValue(value, type),
+    type: stringifyVarTypes(type) + stringifyType(type)
   }
 }
 
-export const formatResults = (result: ResultType[]) => {
+const extractDeclaration = (res: ResultType, type: Type): DecResType[] => {
+  console.log(res, type)
+  if (res.pat.type === 'Identifier') {
+    return [extractMatch(res.pat.name, res.value, type)]
+  }
+
+  if (res.pat.type === 'TuplePattern') {
+    let matches : DecResType[] = []
+    const elemTypes = (type as TupleType).elementTypes
+    const patterns = res.pat.elements
+    const values = (res.value as Tuple).value
+    for (let i=0; i<res.pat.elements.length; i++) {
+      const pat = patterns[i]
+      if (pat.type === 'Identifier') {
+        matches.push(extractMatch(pat.name, values[i], elemTypes[i]))
+      }
+    }
+    return matches
+  }
+
+  // If pattern is wildcard or literal
+  return []
+}
+
+export const formatResults = (result: DecResType[]) => {
   return result.map(formatResult).join('\n')
 }
 
 export const stringify = (value: Value): string => {
-  console.log(value)
-  return value.map(extractDeclaration).map(formatResult).join('\n')
+  let programResult = value as ProgramResult
+  let res = []
+  for (let i=0; i < programResult.values.length; i++) {
+    res.push(...extractDeclaration(programResult.values[i], programResult.types[i]))
+  }
+  return res.map(formatResult).join('\n')
 }
