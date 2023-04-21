@@ -291,11 +291,6 @@ export const checkStackOverFlow = (context: Context, agenda: Agenda) => {
 export const populateBuiltInIdentifiers = (context: Context) => {
   for (const key in builtinFunctions) {
     const builtinInstr = instr.builtinInstr(key, arity(builtinFunctions[key]), false)
-    defineVariable(
-      context,
-      currentEnvironment(context),
-      key,
-      builtinInstr,
-    )
+    defineVariable(context, currentEnvironment(context), key, builtinInstr)
   }
 }

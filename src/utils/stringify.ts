@@ -76,17 +76,13 @@ const stringifyValue = (value: SmlValue, type: Type): Value => {
     }
     case 'list': {
       const list = value as List
-      return '[' 
-        + list.value.map(val => stringifyValue(val, type.elementType)) 
-        + ']'
+      return '[' + list.value.map(val => stringifyValue(val, type.elementType)) + ']'
     }
     case 'tuple': {
       const tuple = value as Tuple
       const elementStrings = []
       for (let i = 0; i < tuple.value.length; i++) {
-        elementStrings.push(
-          stringifyValue(tuple.value[i], type.elementTypes[i])
-        )
+        elementStrings.push(stringifyValue(tuple.value[i], type.elementTypes[i]))
       }
       return '(' + elementStrings + ')'
     }
@@ -111,11 +107,11 @@ const extractDeclaration = (res: ResultType, type: Type): DecResType[] => {
   }
 
   if (res.pat.type === 'TuplePattern') {
-    let matches : DecResType[] = []
+    const matches: DecResType[] = []
     const elemTypes = (type as TupleType).elementTypes
     const patterns = res.pat.elements
     const values = (res.value as Tuple).value
-    for (let i=0; i<res.pat.elements.length; i++) {
+    for (let i = 0; i < res.pat.elements.length; i++) {
       const pat = patterns[i]
       if (pat.type === 'Identifier') {
         matches.push(extractMatch(pat.name, values[i], elemTypes[i]))
@@ -133,9 +129,9 @@ export const formatResults = (result: DecResType[]) => {
 }
 
 export const stringify = (value: Value): string => {
-  let programResult = value as ProgramResult
-  let res = []
-  for (let i=0; i < programResult.values.length; i++) {
+  const programResult = value as ProgramResult
+  const res = []
+  for (let i = 0; i < programResult.values.length; i++) {
     res.push(...extractDeclaration(programResult.values[i], programResult.types[i]))
   }
   return res.map(formatResult).join('\n')

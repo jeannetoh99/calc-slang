@@ -106,7 +106,7 @@ export const createEmptyContext = <T>(
     previousCode: [],
     res: {
       values: [],
-      types: [],
+      types: []
     }
   }
 }

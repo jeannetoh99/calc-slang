@@ -1,4 +1,4 @@
-import { formatResults, DecResType } from '../utils/stringify'
+import { DecResType, formatResults } from '../utils/stringify'
 import { expectResult } from '../utils/testing'
 
 ///////////////////// LITERALS /////////////////////

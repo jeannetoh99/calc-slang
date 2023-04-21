@@ -81,9 +81,9 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
   switch (node.type) {
     case 'Program':
     case 'BlockStatement': {
-      let types = []
+      const types = []
       for (const stmt of node.body) {
-        let res = inferUnifySub(stmt, env)
+        const res = inferUnifySub(stmt, env)
         types.push(cloneDeep(res.type))
         env = res.env
       }
@@ -98,15 +98,10 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
     }
     case 'ValueDeclaration': {
       const res = inferUnifySub(node.init, env)
-      const pat = node.pat.elements.length === 1
-                    ? node.pat.elements[0]
-                    : node.pat
+      const pat = node.pat.elements.length === 1 ? node.pat.elements[0] : node.pat
 
-      const constraints = [
-        ...res.constraints,
-        new Constraint(pat.smlType, res.type, node)
-      ]
-      
+      const constraints = [...res.constraints, new Constraint(pat.smlType, res.type, node)]
+
       return {
         type: res.type,
         constraints,
@@ -406,9 +401,9 @@ const GlobalEnv = new TypeEnv({ ...builtinFunctionTypes })
 
 const runningEnv = new TypeEnv({ ...GlobalEnv.map })
 
-export function inferProgram(node: es.Program, context: Context) : es.Type[] {
+export function inferProgram(node: es.Program, context: Context): es.Type[] {
   try {
-    let res = inferUnifySub(node, runningEnv)
+    const res = inferUnifySub(node, runningEnv)
     return (res.type as es.TupleType).elementTypes
   } catch (error) {
     if (error instanceof TypeError) {

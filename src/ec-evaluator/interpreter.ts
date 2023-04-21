@@ -267,12 +267,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     stash: Stash
   ) {
     agenda.push(
-      instr.assmtInstr(
-        command.pat,
-        true,
-        command,
-        command.declEnv ?? currentEnvironment(context),
-      )
+      instr.assmtInstr(command.pat, true, command, command.declEnv ?? currentEnvironment(context))
     )
     command.init.recursiveId = command.pat.name
     command.init.smlType = command.smlType
@@ -293,12 +288,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
       recursiveId: command.id.name
     }
     agenda.push(
-      instr.assmtInstr(
-        command.id,
-        true,
-        command,
-        command.declEnv ?? currentEnvironment(context),
-      )
+      instr.assmtInstr(command.id, true, command, command.declEnv ?? currentEnvironment(context))
     )
     agenda.push(lambdaExpression)
   },
@@ -394,13 +384,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     const env = cloneDeep(currentEnvironment(context))
     env.name += '_clone'
     if (command.recursiveId) {
-      defineVariable(
-        context,
-        env,
-        command.recursiveId,
-        instr.closureInstr(env, command),
-        command
-      )
+      defineVariable(context, env, command.recursiveId, instr.closureInstr(env, command), command)
     }
 
     stash.push(instr.closureInstr(env, command))
@@ -466,27 +450,27 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     agenda: Agenda,
     stash: Stash
   ) {
-    let rhs = stash.pop()
+    const rhs = stash.pop()
     if (command.pat.type === 'Identifier') {
       defineVariable(context, command.env, command.pat.name, rhs, command.srcNode, false)
-      context.res.values.push({pat: command.pat, value: rhs})
+      context.res.values.push({ pat: command.pat, value: rhs })
     } else if (command.pat.type === 'TuplePattern' && command.pat) {
-      const tup : es.Tuple = rhs
+      const tup: es.Tuple = rhs
       if (command.pat.elements.length === 1 && tup.value.length > 1) {
-        let pat = command.pat.elements[0]
+        const pat = command.pat.elements[0]
         if (pat.type === 'Identifier') {
           defineVariable(context, command.env, pat.name, tup, command.srcNode, false)
-          context.res.values.push({pat, value: tup})
+          context.res.values.push({ pat, value: tup })
         }
       } else {
-        for (let i=0; i<command.pat.elements.length; i++) {
-          let pat = command.pat.elements[i]
-          let val = tup.value[i]
+        for (let i = 0; i < command.pat.elements.length; i++) {
+          const pat = command.pat.elements[i]
+          const val = tup.value[i]
           if (pat.type === 'Identifier') {
             defineVariable(context, command.env, pat.name, val, command.srcNode, false)
           }
         }
-        context.res.values.push({pat: command.pat, value: tup})
+        context.res.values.push({ pat: command.pat, value: tup })
       }
     }
   },

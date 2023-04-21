@@ -304,7 +304,7 @@ class AstConverter implements CalcVisitor<es.Node> {
     return {
       type: 'list',
       elementType: this.visit(ctx._elType) as es.Type,
-      loc: contextToLocation(ctx),
+      loc: contextToLocation(ctx)
     }
   }
   visitFunctionType(ctx: FunctionTypeContext): es.FunctionType {
