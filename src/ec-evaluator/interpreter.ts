@@ -12,7 +12,13 @@ import * as es from '../ast'
 import * as errors from '../errors/errors'
 import { arity } from '../stdlib/misc'
 import { Context, Result, Value } from '../types'
-import { expressionStatement, functionType, listType, tupleType } from '../utils/astCreator'
+import {
+  closure,
+  expressionStatement,
+  functionType,
+  listType,
+  tupleType
+} from '../utils/astCreator'
 import { applyBuiltin, builtinInfixFunctions, builtinMapping } from './builtin'
 import * as instr from './instrCreator'
 import {
@@ -21,7 +27,6 @@ import {
   BranchInstr,
   BuiltinInstr,
   CallInstr,
-  ClosureInstr,
   CmdEvaluator,
   ECError,
   EnvInstr,
@@ -177,9 +182,9 @@ export const evaluateCallInstr = (
     args.unshift(stash.pop())
   }
 
-  const func: ClosureInstr | BuiltinInstr = stash.pop()
+  const func: es.Closure | BuiltinInstr = stash.pop()
   if (func?.instrType === InstrType.CLOSURE) {
-    const closure = func as ClosureInstr
+    const closure = func as es.Closure
     // Push on top of current environment and then restore if call
     if (command.instrType === InstrType.CALL) {
       agenda.push(instr.envInstr(currentEnvironment(context)))
@@ -383,16 +388,10 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     const env = cloneDeep(currentEnvironment(context))
     env.name += '_clone'
     if (command.recursiveId) {
-      defineVariable(
-        context,
-        env,
-        command.recursiveId.name,
-        instr.closureInstr(env, command),
-        command
-      )
+      defineVariable(context, env, command.recursiveId.name, closure(env, command), command)
     }
 
-    stash.push(instr.closureInstr(env, command))
+    stash.push(closure(env, command))
   },
 
   LetExpression: function (
@@ -458,14 +457,19 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     const rhs = stash.pop()
     if (command.pat.type === 'Identifier') {
       defineVariable(context, command.env, command.pat.name, rhs, command.srcNode, false)
-      context.res.values.push({ pat: command.pat, value: rhs })
+      console.log(command.env.name)
+      if (command.env.name === 'programEnvironment') {
+        context.res.values.push({ pat: command.pat, value: rhs })
+      }
     } else if (command.pat.type === 'TuplePattern' && command.pat) {
       const tup: es.Tuple = rhs
       if (command.pat.elements.length === 1 && tup.value.length > 1) {
         const pat = command.pat.elements[0]
         if (pat.type === 'Identifier') {
           defineVariable(context, command.env, pat.name, tup, command.srcNode, false)
-          context.res.values.push({ pat, value: tup })
+          if (command.env.name === 'programEnvironment') {
+            context.res.values.push({ pat, value: tup })
+          }
         }
       } else {
         for (let i = 0; i < command.pat.elements.length; i++) {
@@ -475,7 +479,9 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
             defineVariable(context, command.env, pat.name, val, command.srcNode, false)
           }
         }
-        context.res.values.push({ pat: command.pat, value: tup })
+        if (command.env.name === 'programEnvironment') {
+          context.res.values.push({ pat: command.pat, value: tup })
+        }
       }
     }
   },
