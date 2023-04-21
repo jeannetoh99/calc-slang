@@ -4,7 +4,7 @@ import { Context } from '..'
 import * as es from '../ast'
 import { builtinFunctionTypes } from '../ec-evaluator/builtin'
 import { TypeError, TypeInferenceError } from '../errors/typeErrors'
-import { boolType, functionType, listType, tupleType, variableType } from './astCreator'
+import { boolType, functionType, listType, tupleType } from './astCreator'
 
 export const isType = (v: es.SmlValue, t: es.TypeType) => v.smlType?.type === t
 
@@ -147,10 +147,6 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
       const resCallee = infer(node.callee, env)
       const resArgs = infer(node.args, env)
       const fnType = functionType(resArgs.type, node.smlType)
-
-      if (resCallee.type.type !== 'function') {
-        throw new TypeInferenceError('Function application on non-callable expression', node)
-      }
 
       const constraints = [
         ...resCallee.constraints,
@@ -363,7 +359,7 @@ function unify(C: Constraint[]): Substitution {
     else if (t1.type === 'tuple' && t2.type === 'tuple') {
       if (t1.elementTypes.length !== t2.elementTypes.length) {
         throw new TypeInferenceError(
-          'Type inference error: attempting to match tuples with differing length',
+          'Attempting to match tuples with differing length',
           constraint.srcNode
         )
       }
@@ -375,7 +371,7 @@ function unify(C: Constraint[]): Substitution {
 
       return unify([...constraints, ...C.slice(1)])
     } else {
-      throw new TypeInferenceError('Type inference error: unification failed', constraint.srcNode)
+      throw new TypeInferenceError('Unification failed', constraint.srcNode)
     }
   }
 }

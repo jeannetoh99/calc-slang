@@ -269,11 +269,12 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
   ) {
     agenda.push(
       instr.assmtInstr(
-        command.pat, 
-        true, 
-        command, 
+        command.pat,
+        true,
+        command,
         command.declEnv ?? currentEnvironment(context),
-        command.smlType)
+        command.smlType
+      )
     )
     command.init.recursiveId = command.pat.name
     command.init.smlType = command.smlType
@@ -295,11 +296,12 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     }
     agenda.push(
       instr.assmtInstr(
-        command.id, 
-        true, 
-        command, 
+        command.id,
+        true,
+        command,
         command.declEnv ?? currentEnvironment(context),
-        command.smlType)
+        command.smlType
+      )
     )
     agenda.push(lambdaExpression)
   },
@@ -396,11 +398,12 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     env.name += '_clone'
     if (command.recursiveId) {
       defineVariable(
-        context, 
-        env, 
-        command.recursiveId, 
+        context,
+        env,
+        command.recursiveId,
         instr.closureInstr(env, command),
-        command.smlType)
+        command.smlType
+      )
     }
 
     stash.push(instr.closureInstr(env, command))
@@ -472,9 +475,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
       for (let i = command.pat.elements.length - 1; i >= 0; i--) {
         const pat = command.pat.elements[i]
         const val = tup.value[i]
-        agenda.push(
-          instr.assmtInstr(pat, true, command.srcNode, command.env, elemTypes[i])
-        )
+        agenda.push(instr.assmtInstr(pat, true, command.srcNode, command.env, elemTypes[i]))
         stash.push(val)
       }
     } else if (command.pat.type === 'Identifier') {
@@ -485,7 +486,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
           new errors.ReservedKeywordVariable(command.srcNode, command.pat.name, 'builtin function')
         )
       }
-      defineVariable(context, command.env, command.pat.name, val,  command.smlType, false)
+      defineVariable(context, command.env, command.pat.name, val, command.smlType, false)
     } else if (command.pat.type === 'Literal') {
       // TODO: check that literal is the same
       stash.pop()

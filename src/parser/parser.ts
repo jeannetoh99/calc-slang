@@ -70,6 +70,7 @@ import {
   stringType,
   tupleExpression,
   tuplePattern,
+  tupleType,
   unitType,
   variableType
 } from '../utils/astCreator'
@@ -208,10 +209,10 @@ class AstConverter implements CalcVisitor<es.Node> {
       type: 'ApplicationExpression',
       smlType: variableType(getNextVarId()),
       callee,
-      args: tupleExpression([
-        this.visit(ctx._left) as es.Expression, 
-        this.visit(ctx._right) as es.Expression
-      ], loc),
+      args: tupleExpression(
+        [this.visit(ctx._left) as es.Expression, this.visit(ctx._right) as es.Expression],
+        loc
+      ),
       isInfix: true,
       loc: loc
     }
@@ -281,7 +282,7 @@ class AstConverter implements CalcVisitor<es.Node> {
     const loc = contextToLocation(ctx)
     return {
       type: 'ValueDeclaration',
-      smlType: variableType(getNextVarId()),
+      smlType: tupleType([init.smlType]),
       pat: tuplePattern([it], loc),
       init: tupleExpression([init], loc),
       loc
@@ -347,7 +348,7 @@ class AstConverter implements CalcVisitor<es.Node> {
     const init = this.visit(ctx.expression()) as es.Expression
     return {
       type: 'ValueDeclaration',
-      smlType: variableType(getNextVarId()),
+      smlType: tupleType([init.smlType]),
       pat,
       init: tupleExpression([init], loc),
       loc
@@ -374,7 +375,7 @@ class AstConverter implements CalcVisitor<es.Node> {
       id: this.visit(ctx.identifier()) as es.Identifier,
       param,
       body: this.visit(ctx.expression()) as es.Expression,
-      loc,
+      loc
     }
   }
   visitLocalDeclaration(ctx: LocalDeclarationContext): es.LocalDeclaration {

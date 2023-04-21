@@ -33,7 +33,7 @@ export const extractVariableTypes = (type: Type): VariableType[] => {
       return []
   }
 }
-  
+
 export const stringifyVarTypes = (type: Type): string => {
   const varTypes = extractVariableTypes(type)
   let res = ''
@@ -79,13 +79,13 @@ const stringifyValue = (value: SmlValue): Value => {
     case 'list': {
       const list = value as List
       const listType = list.smlType as ListType
-      list.value.forEach(elem => elem.smlType = listType.elementType)
+      list.value.forEach(elem => (elem.smlType = listType.elementType))
       return '[' + list.value.map(stringifyValue) + ']'
     }
     case 'tuple': {
-      let tuple = value as Tuple
+      const tuple = value as Tuple
       const tupleType = tuple.smlType as TupleType
-      for (let i=0; i<tuple.value.length; i++) {
+      for (let i = 0; i < tuple.value.length; i++) {
         tuple.value[i].smlType = tupleType.elementTypes[i]
       }
       return '(' + tuple.value.map(stringifyValue) + ')'

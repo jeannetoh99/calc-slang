@@ -106,10 +106,7 @@ export const tupleExpression = (
   loc
 })
 
-export const tuplePattern = (
-  patterns: es.Pattern[],
-  loc?: es.SourceLocation
-): es.TuplePattern => ({
+export const tuplePattern = (patterns: es.Pattern[], loc?: es.SourceLocation): es.TuplePattern => ({
   type: 'TuplePattern',
   smlType: tupleType(patterns.map(pat => pat.smlType)),
   elements: patterns,
