@@ -91,7 +91,7 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
     case 'Program':
     case 'BlockStatement': {
       const types = []
-      for (let stmt of node.body) {
+      for (const stmt of node.body) {
         const res = inferUnifySub(stmt, env)
         types.push(cloneDeep(res.type))
         switch (stmt.type) {
@@ -101,12 +101,12 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
             env = bind(stmt.pat, res.type, env)
           case 'DeclarationList':
           case 'LocalDeclaration':
-            // TODO
+          // TODO
           case 'EmptyStatement':
-            // No binding required
+          // No binding required
           case 'BlockStatement':
           case 'ExpressionStatement':
-            // Not possible
+          // Not possible
         }
       }
       return {
@@ -131,7 +131,7 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
         new Constraint(initRes.type, patRes.type, node)
       ]
 
-      console.log("ValueDeclaration", constraints)
+      console.log('ValueDeclaration', constraints)
 
       return {
         type: initRes.type,
@@ -145,7 +145,7 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
       extendedEnv = bind(node.pat, node.smlType, extendedEnv)
       const resBody = infer(node.body, extendedEnv)
 
-      const constraints= [
+      const constraints = [
         ...resBody.constraints,
         ...resPat.constraints,
         new Constraint(resBody.type, resPat.type, node)
@@ -155,8 +155,8 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
         constraints.push(new Constraint(node.body.smlType, node.body.annotatedType, node))
       }
 
-      console.log("FunctionDeclaration", constraints)
-     
+      console.log('FunctionDeclaration', constraints)
+
       return {
         type: functionType(node.param.smlType, resBody.type),
         constraints: [
@@ -194,7 +194,7 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
         constraints.push(new Constraint(node.smlType, node.annotatedType, node))
       }
 
-      console.log("ConditionalExpression", constraints)
+      console.log('ConditionalExpression', constraints)
 
       return {
         type: node.smlType,
@@ -214,7 +214,7 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
         constraints.push(new Constraint(node.smlType, node.annotatedType, node))
       }
 
-      console.log("LambdaExpression", constraints)
+      console.log('LambdaExpression', constraints)
 
       return {
         type: functionType(node.param.smlType, resBody.type),
@@ -237,7 +237,7 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
         constraints.push(new Constraint(node.smlType, node.annotatedType, node))
       }
 
-      console.log("ApplicationExpression", constraints)
+      console.log('ApplicationExpression', constraints)
 
       return {
         type: node.smlType,
@@ -261,7 +261,7 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
         constraints.push(new Constraint(node.smlType, node.annotatedType, node))
       }
 
-      console.log("ListExpression", constraints)
+      console.log('ListExpression', constraints)
 
       return {
         type: listType(inferredElements[0].type),
@@ -312,7 +312,7 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
         constraints.push(new Constraint(node.smlType, node.annotatedType, node))
       }
 
-      console.log("Wildcard", constraints)
+      console.log('Wildcard', constraints)
 
       return {
         type: env.get('_'),
@@ -326,7 +326,7 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
         constraints.push(new Constraint(node.smlType, node.annotatedType, node))
       }
 
-      console.log("Identifier", constraints)
+      console.log('Identifier', constraints)
 
       return {
         type: node.isPat ? node.smlType : env.get(node.name),
@@ -336,14 +336,14 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
     }
     case 'LetExpression':
     case 'SequenceExpression':
-        // TODO
+    // TODO
     case 'Literal':
       const constraints = []
       if (node.annotatedType) {
         constraints.push(new Constraint(node.smlType, node.annotatedType, node))
       }
 
-      console.log("Literal", constraints)
+      console.log('Literal', constraints)
 
       return {
         type: node.smlType,

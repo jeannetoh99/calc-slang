@@ -383,7 +383,13 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     const env = cloneDeep(currentEnvironment(context))
     env.name += '_clone'
     if (command.recursiveId) {
-      defineVariable(context, env, command.recursiveId.name, instr.closureInstr(env, command), command)
+      defineVariable(
+        context,
+        env,
+        command.recursiveId.name,
+        instr.closureInstr(env, command),
+        command
+      )
     }
 
     stash.push(instr.closureInstr(env, command))
