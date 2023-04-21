@@ -189,10 +189,11 @@ export function defineVariable(
   environment: Environment,
   name: string,
   value: Value,
+  smlType: es.Type,
   constant = false
 ) {
   if (environment.name === 'programEnvironment') {
-    context.globalDeclarations.push({ name, value })
+    context.globalDeclarations.push({ name, value, smlType })
   }
   Object.defineProperty(environment.head, name, {
     value,

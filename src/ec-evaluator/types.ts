@@ -27,6 +27,7 @@ export interface AssmtInstr extends BaseInstr {
   declaration: boolean
   srcNode: es.Node
   env: Environment
+  smlType: es.Type
 }
 
 export interface BranchInstr extends BaseInstr {

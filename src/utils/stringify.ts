@@ -1,6 +1,6 @@
 import { concat, isInteger } from 'lodash'
 
-import { SmlValue, Type, VariableType } from '../ast'
+import { List, ListType, SmlValue, Tuple, TupleType, Type, VariableType } from '../ast'
 import { DeclarationType, Value } from '../types'
 
 export interface ArrayLike {
@@ -33,54 +33,76 @@ export const extractVariableTypes = (type: Type): VariableType[] => {
       return []
   }
 }
+  
+export const stringifyVarTypes = (type: Type): string => {
+  const varTypes = extractVariableTypes(type)
+  let res = ''
+  if (varTypes.length != 0) {
+    res = '\u2200 ' + stringifyType(varTypes[0])
+    for (let i = 1; i < varTypes.length; i++) {
+      res += ',' + stringifyType(varTypes[i])
+    }
+    res += ' . '
+  }
+  return res
+}
 
-export const extractType = (type: Type, inner: boolean = false): string => {
+export const stringifyType = (type: Type, inner: boolean = false): string => {
   return type.type === 'function'
-    ? (type.paramType ? extractType(type.paramType) : '?') +
+    ? (type.paramType ? stringifyType(type.paramType) : '?') +
         ' -> ' +
-        (type.returnType ? extractType(type.returnType) : '?')
+        (type.returnType ? stringifyType(type.returnType) : '?')
     : type.type === 'list'
-    ? (type.elementType ? extractType(type.elementType) : '?') + ' list'
+    ? (type.elementType ? stringifyType(type.elementType) : '?') + ' list'
     : type.type === 'tuple'
     ? (inner ? '(' : '') +
-      type.elementTypes.map(elemType => extractType(elemType, true)).join(' * ') +
+      type.elementTypes.map(elemType => stringifyType(elemType, true)).join(' * ') +
       (inner ? ')' : '')
     : type.type === 'variable'
     ? "'v" + type.id
     : type.type
 }
 
-const extractValue = (value: SmlValue): Value => {
+const stringifyValue = (value: SmlValue): Value => {
   const type = value.smlType.type
 
-  return type === 'string'
-    ? '"' + value.value + '"'
-    : type === 'unit'
-    ? '()'
-    : type === 'real' && isInteger(value.value)
-    ? value.value + '.0'
-    : type === 'list' && Array.isArray(value.value)
-    ? '[' + value.value.map(extractValue) + ']'
-    : type === 'tuple' && Array.isArray(value.value)
-    ? '(' + value.value.map(extractValue) + ')'
-    : value.value
+  switch (type) {
+    case 'string': {
+      return '"' + value.value + '"'
+    }
+    case 'unit': {
+      return '()'
+    }
+    case 'real': {
+      return value.value + (isInteger(value.value) ? '.0' : '')
+    }
+    case 'list': {
+      const list = value as List
+      const listType = list.smlType as ListType
+      list.value.forEach(elem => elem.smlType = listType.elementType)
+      return '[' + list.value.map(stringifyValue) + ']'
+    }
+    case 'tuple': {
+      let tuple = value as Tuple
+      const tupleType = tuple.smlType as TupleType
+      for (let i=0; i<tuple.value.length; i++) {
+        tuple.value[i].smlType = tupleType.elementTypes[i]
+      }
+      return '(' + tuple.value.map(stringifyValue) + ')'
+    }
+    default: {
+      return value.value
+    }
+  }
 }
 
 const extractDeclaration = (declaration: DeclarationType): ResultType => {
-  const varTypes = extractVariableTypes(declaration.value.smlType)
-  let varTypesString = ''
-  if (varTypes.length != 0) {
-    varTypesString = '\u2200 ' + extractType(varTypes[0])
-    for (let i = 1; i < varTypes.length; i++) {
-      varTypesString += ',' + extractType(varTypes[i])
-    }
-    varTypesString += ' . '
-  }
+  declaration.value.smlType = declaration.smlType
 
   return {
     name: declaration.name,
-    value: extractValue(declaration.value),
-    type: varTypesString + extractType(declaration.value.smlType)
+    value: stringifyValue(declaration.value),
+    type: stringifyVarTypes(declaration.smlType) + stringifyType(declaration.smlType)
   }
 }
 
@@ -89,5 +111,6 @@ export const formatResults = (result: ResultType[]) => {
 }
 
 export const stringify = (value: Value): string => {
+  console.log(value)
   return value.map(extractDeclaration).map(formatResult).join('\n')
 }

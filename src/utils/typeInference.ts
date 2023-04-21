@@ -5,7 +5,27 @@ import * as es from '../ast'
 import { builtinFunctionTypes } from '../ec-evaluator/builtin'
 import { TypeError, TypeInferenceError } from '../errors/typeErrors'
 import { boolType, functionType, listType, tupleType, variableType } from './astCreator'
-import { isTypeEqual } from './rttc'
+
+export const isType = (v: es.SmlValue, t: es.TypeType) => v.smlType?.type === t
+
+export const isTypeEqual = (a: es.Type, b: es.Type): boolean => {
+  if (a.type !== b.type) {
+    return false
+  } else if (a.type === 'variable' && b.type === 'variable') {
+    return a.id === b.id
+  } else if (a.type === 'list' && b.type === 'list') {
+    return isTypeEqual(a.elementType, b.elementType)
+  } else if (a.type === 'function' && b.type === 'function') {
+    return isTypeEqual(a.paramType, b.paramType) && isTypeEqual(a.returnType, b.returnType)
+  } else if (a.type === 'tuple' && b.type === 'tuple') {
+    if (a.elementTypes.length !== b.elementTypes.length) return false
+    for (let i = 0; i < a.elementTypes.length; i++) {
+      if (!isTypeEqual(a.elementTypes[i], b.elementTypes[i])) return false
+    }
+    return true
+  }
+  return true
+}
 
 class TypeEnv {
   constructor(public map: { [name: string]: es.Type } = {}) {}
@@ -32,7 +52,7 @@ export interface InferResult {
 /**
  *  Infer the type of a node
  */
-export function inderUnifySub(node: es.TypedNode, env: TypeEnv): InferResult {
+export function inferUnifySub(node: es.TypedNode, env: TypeEnv): InferResult {
   console.log('start')
   console.log(cloneDeep(node))
   console.log(cloneDeep(env))
@@ -75,7 +95,7 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
     case 'BlockStatement': {
       let type
       for (const stmt of node.body) {
-        const res = inderUnifySub(stmt, env)
+        const res = inferUnifySub(stmt, env)
         type = res.type
         env = res.env
       }
@@ -86,10 +106,10 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
       }
     }
     case 'ExpressionStatement': {
-      return inderUnifySub(node.expression, env)
+      return inferUnifySub(node.expression, env)
     }
     case 'ValueDeclaration': {
-      const res = inderUnifySub(node.init, env)
+      const res = inferUnifySub(node.init, env)
       return {
         type: res.type,
         constraints: res.constraints,
@@ -395,7 +415,7 @@ const runningEnv = new TypeEnv({ ...GlobalEnv.map })
 
 export function inferProgram(node: es.Program, context: Context) {
   try {
-    inderUnifySub(node, runningEnv)
+    inferUnifySub(node, runningEnv)
   } catch (error) {
     if (error instanceof TypeError) {
       context.errors.push(error)

@@ -354,4 +354,5 @@ export type TypeEnvironment = {
 export type DeclarationType = {
   name: string
   value: es.SmlValue
+  smlType: es.Type
 }

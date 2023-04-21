@@ -151,8 +151,8 @@ function runECEMachine(context: Context, agenda: Agenda, stash: Stash) {
   context.runtime.nodes = []
   let command = agenda.pop()
   while (command) {
-    console.log(command)
-    console.log(currentEnvironment(context))
+    // console.log(command)
+    // console.log(currentEnvironment(context))
     if (isNode(command)) {
       context.runtime.nodes.unshift(command)
       cmdEvaluators[command.type](command, context, agenda, stash)
@@ -179,9 +179,6 @@ export const evaluateCallInstr = (
     args.unshift(stash.pop())
   }
 
-  console.log('CALL')
-  console.log(args)
-
   const func: ClosureInstr | BuiltinInstr = stash.pop()
   if (func?.instrType === InstrType.CLOSURE) {
     const closure = func as ClosureInstr
@@ -207,8 +204,6 @@ export const evaluateCallInstr = (
     }
     pushEnvironment(context, environment)
   } else if (func?.instrType == InstrType.BUILTIN) {
-    console.log('builtin')
-    console.log(args)
     const builtin = func as BuiltinInstr
     stash.push(applyBuiltin(builtin.identifier, args, command.srcNode.smlType))
   } else {
@@ -260,8 +255,9 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
 
     // Parser enforces initialisation during variable declaration
     const init = command.init!
+    init.smlType = command.smlType
 
-    agenda.push(instr.assmtInstr(pat, true, command, env))
+    agenda.push(instr.assmtInstr(pat, true, command, env, command.smlType))
     agenda.push(init)
   },
 
@@ -272,9 +268,15 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     stash: Stash
   ) {
     agenda.push(
-      instr.assmtInstr(command.pat, true, command, command.declEnv ?? currentEnvironment(context))
+      instr.assmtInstr(
+        command.pat, 
+        true, 
+        command, 
+        command.declEnv ?? currentEnvironment(context),
+        command.smlType)
     )
     command.init.recursiveId = command.pat.name
+    command.init.smlType = command.smlType
     agenda.push(command.init)
   },
 
@@ -292,7 +294,12 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
       recursiveId: command.id.name
     }
     agenda.push(
-      instr.assmtInstr(command.id, true, command, command.declEnv ?? currentEnvironment(context))
+      instr.assmtInstr(
+        command.id, 
+        true, 
+        command, 
+        command.declEnv ?? currentEnvironment(context),
+        command.smlType)
     )
     agenda.push(lambdaExpression)
   },
@@ -388,7 +395,12 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     const env = cloneDeep(currentEnvironment(context))
     env.name += '_clone'
     if (command.recursiveId) {
-      defineVariable(context, env, command.recursiveId, instr.closureInstr(env, command))
+      defineVariable(
+        context, 
+        env, 
+        command.recursiveId, 
+        instr.closureInstr(env, command),
+        command.smlType)
     }
 
     stash.push(instr.closureInstr(env, command))
@@ -456,10 +468,13 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
   ) {
     if (command.pat.type === 'TuplePattern') {
       const tup = stash.pop() as es.Tuple
+      const elemTypes = (command.smlType as es.TupleType).elementTypes
       for (let i = command.pat.elements.length - 1; i >= 0; i--) {
         const pat = command.pat.elements[i]
         const val = tup.value[i]
-        agenda.push(instr.assmtInstr(pat, true, command.srcNode, command.env))
+        agenda.push(
+          instr.assmtInstr(pat, true, command.srcNode, command.env, elemTypes[i])
+        )
         stash.push(val)
       }
     } else if (command.pat.type === 'Identifier') {
@@ -470,7 +485,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
           new errors.ReservedKeywordVariable(command.srcNode, command.pat.name, 'builtin function')
         )
       }
-      defineVariable(context, command.env, command.pat.name, val, false)
+      defineVariable(context, command.env, command.pat.name, val,  command.smlType, false)
     } else if (command.pat.type === 'Literal') {
       // TODO: check that literal is the same
       stash.pop()
