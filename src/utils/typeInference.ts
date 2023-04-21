@@ -47,6 +47,7 @@ export interface InferResult {
   type: es.Type
   constraints: Constraint[]
   env: TypeEnv
+  pats?: es.Pattern[]
 }
 
 /**
@@ -93,14 +94,22 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
       const types = []
       for (const stmt of node.body) {
         const res = inferUnifySub(stmt, env)
-        types.push(cloneDeep(res.type))
         switch (stmt.type) {
           case 'ValueDeclaration':
           case 'RecValueDeclaration':
-          case 'FunctionDeclaration':
+          case 'FunctionDeclaration': {
+            types.push(cloneDeep(res.type))
             env = bind(stmt.pat, res.type, env)
-          case 'LocalDeclaration':
-          // TODO
+            break
+          }
+          case 'LocalDeclaration': {
+            let declTypes = (res.type as es.TupleType).elementTypes
+            for (let declType of declTypes) {
+              types.push(cloneDeep(declType))
+            }
+            env = res.env
+            break
+          }
           case 'EmptyStatement':
           // No binding required
           case 'DeclarationList':
@@ -168,36 +177,59 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
       }
     }
     case 'LocalDeclaration': {
-      // TODO
+      const resLocals = infer(node.local, env)
+      const resDecls = infer(node.body, resLocals.env)
+
+      const constraints = [
+        ...resLocals.constraints,
+        ...resDecls.constraints,
+        new Constraint(node.smlType, resDecls.type, node)
+      ]
+
+      if (node.annotatedType) {
+        constraints.push(new Constraint(node.smlType, node.annotatedType, node))
+      }
+
       return {
-        type: node.smlType,
-        constraints: [],
-        env
+        type: resDecls.type,
+        constraints,
+        env: resDecls.env,
+        pats: resDecls.pats
       }
     }
     case 'DeclarationList': {
-      let type = node.smlType
+      let types : es.Type[] = []
       const constraints: Constraint[] = []
+      const pats: es.Pattern[] = []
       for (const decl of node.body) {
         const res = inferUnifySub(decl, env)
         constraints.push(...res.constraints)
-        type = res.type
         switch (decl.type) {
           case 'ValueDeclaration':
           case 'RecValueDeclaration':
-          case 'FunctionDeclaration':
+          case 'FunctionDeclaration': {
+            types.push(res.type)
+            pats.push(decl.pat)
             env = bind(decl.pat, res.type, env)
+            break
+          }
+          case 'LocalDeclaration': {
+            let declTypes = (res.type as es.TupleType).elementTypes
+            for (let decl of declTypes) types.push(decl)
+            for (let pat of res.pats!) pats.push(pat)
+            env = res.env
+            break
+          }
           case 'DeclarationList':
           // Not possible
-          case 'LocalDeclaration':
-          // TODO
         }
       }
 
       return {
-        type,
+        type: tupleType(types),
         constraints,
-        env
+        env,
+        pats
       }
     }
     case 'ConditionalExpression': {
