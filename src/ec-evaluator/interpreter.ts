@@ -12,7 +12,13 @@ import * as es from '../ast'
 import * as errors from '../errors/errors'
 import { arity } from '../stdlib/misc'
 import { Context, Result, Value } from '../types'
-import { closure, expressionStatement, functionType, listType, tupleType } from '../utils/astCreator'
+import {
+  closure,
+  expressionStatement,
+  functionType,
+  listType,
+  tupleType
+} from '../utils/astCreator'
 import { applyBuiltin, builtinInfixFunctions, builtinMapping } from './builtin'
 import * as instr from './instrCreator'
 import {
@@ -382,13 +388,7 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     const env = cloneDeep(currentEnvironment(context))
     env.name += '_clone'
     if (command.recursiveId) {
-      defineVariable(
-        context,
-        env,
-        command.recursiveId.name,
-        closure(env, command),
-        command
-      )
+      defineVariable(context, env, command.recursiveId.name, closure(env, command), command)
     }
 
     stash.push(closure(env, command))

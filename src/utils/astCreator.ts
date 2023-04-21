@@ -91,10 +91,7 @@ export const list = (
   value
 })
 
-export const closure = (
-  env: Environment, 
-  srcNode: es.LambdaExpression
-): es.Closure => ({
+export const closure = (env: Environment, srcNode: es.LambdaExpression): es.Closure => ({
   instrType: InstrType.CLOSURE,
   type: 'Function',
   smlType: srcNode.smlType as es.FunctionType,
