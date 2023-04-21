@@ -71,8 +71,13 @@ const stringifyValue = (value: SmlValue, type: Type): Value => {
     case 'unit': {
       return '()'
     }
+    case 'int': {
+      const num = value.value as number
+      return (num < 0 ? '~' : '') + Math.abs(num)
+    }
     case 'real': {
-      return value.value + (isInteger(value.value) ? '.0' : '')
+      const num = value.value as number
+      return (num < 0 ? '~' : '') + Math.abs(num) + (isInteger(value.value) ? '.0' : '')
     }
     case 'list': {
       const list = value as List
@@ -101,7 +106,6 @@ const extractMatch = (name: string, value: Value, type: Type): DecResType => {
 }
 
 const extractDeclaration = (res: ResultType, type: Type): DecResType[] => {
-  console.log(res, type)
   if (res.pat.type === 'Identifier') {
     return [extractMatch(res.pat.name, res.value, type)]
   }
@@ -129,6 +133,7 @@ export const formatResults = (result: DecResType[]) => {
 }
 
 export const stringify = (value: Value): string => {
+  console.log(value)
   const programResult = value as ProgramResult
   const res = []
   for (let i = 0; i < programResult.values.length; i++) {

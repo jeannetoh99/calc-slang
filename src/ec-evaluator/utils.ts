@@ -161,10 +161,14 @@ function declareIdentifier(environment: Environment, name: string, node: es.Node
 }
 
 function declareVariables(environment: Environment, node: es.ValueDeclaration) {
-  for (const pat of node.pat.elements) {
-    if (pat.type === 'Identifier') {
-      declareIdentifier(environment, pat.name, node)
+  if (node.pat.type === 'TuplePattern') {
+    for (const pat of node.pat.elements) {
+      if (pat.type === 'Identifier') {
+        declareIdentifier(environment, pat.name, node)
+      }
     }
+  } else if (node.pat.type === 'Identifier') {
+    declareIdentifier(environment, node.pat.name, node)
   }
 }
 
@@ -178,7 +182,7 @@ export function declareFunctionsAndVariables(
         declareVariables(environment, statement)
         break
       case 'FunctionDeclaration':
-        declareIdentifier(environment, (statement.id as es.Identifier).name, statement)
+        declareIdentifier(environment, (statement.pat as es.Identifier).name, statement)
         break
     }
   }

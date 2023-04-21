@@ -96,8 +96,8 @@ interface BaseDeclaration extends BaseStatement {
 
 export interface ValueDeclaration extends BaseDeclaration {
   type: 'ValueDeclaration'
-  pat: TuplePattern
-  init: TupleExpression
+  pat: Pattern
+  init: Expression
 }
 
 export interface RecValueDeclaration extends BaseDeclaration {
@@ -108,7 +108,7 @@ export interface RecValueDeclaration extends BaseDeclaration {
 
 export interface FunctionDeclaration extends BaseDeclaration {
   type: 'FunctionDeclaration'
-  id: Identifier
+  pat: Identifier
   param: TuplePattern
   body: Expression
 }
@@ -173,7 +173,7 @@ export interface LambdaExpression extends BaseExpression {
   type: 'LambdaExpression'
   param: TuplePattern
   body: Expression
-  recursiveId?: string
+  recursiveId?: Identifier
 }
 
 export interface LetExpression extends BaseExpression {
@@ -209,6 +209,7 @@ export interface Wildcard extends BasePattern {
 export interface Identifier extends BaseExpression, BasePattern {
   type: 'Identifier'
   name: string
+  isPat: boolean
 }
 
 ////////////////////////////////// SML TYPES //////////////////////////////////

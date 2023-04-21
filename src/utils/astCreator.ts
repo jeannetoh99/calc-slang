@@ -58,12 +58,14 @@ export const locationDummyNode = (line: number, column: number) =>
 export const identifier = (
   name: string,
   smlType: es.Type,
-  loc?: es.SourceLocation | null
+  loc?: es.SourceLocation | null,
+  isPat: boolean = false
 ): es.Identifier => ({
   type: 'Identifier',
   smlType,
   name,
-  loc
+  loc,
+  isPat
 })
 
 export const literal = (

@@ -269,7 +269,6 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     agenda.push(
       instr.assmtInstr(command.pat, true, command, command.declEnv ?? currentEnvironment(context))
     )
-    command.init.recursiveId = command.pat.name
     command.init.smlType = command.smlType
     agenda.push(command.init)
   },
@@ -285,10 +284,10 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
       smlType: command.smlType,
       param: command.param,
       body: command.body,
-      recursiveId: command.id.name
+      recursiveId: command.pat
     }
     agenda.push(
-      instr.assmtInstr(command.id, true, command, command.declEnv ?? currentEnvironment(context))
+      instr.assmtInstr(command.pat, true, command, command.declEnv ?? currentEnvironment(context))
     )
     agenda.push(lambdaExpression)
   },
@@ -384,7 +383,13 @@ const cmdEvaluators: { [type: string]: CmdEvaluator } = {
     const env = cloneDeep(currentEnvironment(context))
     env.name += '_clone'
     if (command.recursiveId) {
-      defineVariable(context, env, command.recursiveId, instr.closureInstr(env, command), command)
+      defineVariable(
+        context,
+        env,
+        command.recursiveId.name,
+        instr.closureInstr(env, command),
+        command
+      )
     }
 
     stash.push(instr.closureInstr(env, command))
