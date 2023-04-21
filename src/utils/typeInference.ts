@@ -64,13 +64,13 @@ export function inferUnifySub(node: es.TypedNode, env: TypeEnv): InferResult {
 }
 
 export function bind(pat: es.Pattern, type: es.Type, env: TypeEnv): TypeEnv {
-  console.log("binding")
+  console.log('binding')
   console.log(pat)
   console.log(type)
   if (pat.type === 'TuplePattern' && type.type === 'tuple') {
     // TODO: check no duplicate identifiers in the same pat
     if (pat.elements.length != type.elementTypes.length) {
-      throw new TypeInferenceError("Mismatched lengths in pattern matching")
+      throw new TypeInferenceError('Mismatched lengths in pattern matching')
     }
     for (let i = 0; i < pat.elements.length; i++) {
       env = bind(pat.elements[i], type.elementTypes[i], env)
@@ -134,7 +134,7 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
         ...res3.constraints,
         new Constraint(res1.type, boolType(), node),
         new Constraint(node.smlType, res2.type, node),
-        new Constraint(node.smlType, res3.type, node),
+        new Constraint(node.smlType, res3.type, node)
       ]
 
       if (node.annotatedType) {
@@ -150,7 +150,7 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
     case 'LambdaExpression': {
       const extendedEnv = bind(node.param, node.param.smlType, env)
       const resBody = infer(node.body, extendedEnv)
-      const constraints = [...resBody.constraints];
+      const constraints = [...resBody.constraints]
 
       if (node.annotatedType) {
         constraints.push(new Constraint(node.smlType, node.annotatedType, node))
@@ -208,15 +208,13 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
     case 'TupleExpression': {
       const inferredElements = node.elements.map(elem => infer(elem, env))
       const inferredType = tupleType(inferredElements.map(elem => elem.type))
-      const constraints = [
-        ...inferredElements.flatMap(elem => elem.constraints),
-      ]
+      const constraints = [...inferredElements.flatMap(elem => elem.constraints)]
 
       if (node.annotatedType) {
         constraints.push(new Constraint(node.smlType, node.annotatedType, node))
       }
 
-      console.log("TupleExpression", constraints)
+      console.log('TupleExpression', constraints)
 
       return {
         type: inferredType,
@@ -236,7 +234,7 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
         constraints.push(new Constraint(node.smlType, node.annotatedType, node))
       }
 
-      console.log("TuplePattern", constraints)
+      console.log('TuplePattern', constraints)
 
       return {
         type: node.smlType,
@@ -245,7 +243,7 @@ export function infer(node: es.Node, env: TypeEnv): InferResult {
       }
     }
     case 'Wildcard': {
-      const constraints : Constraint[] = []
+      const constraints: Constraint[] = []
       if (node.annotatedType) {
         constraints.push(new Constraint(node.smlType, node.annotatedType, node))
       }

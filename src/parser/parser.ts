@@ -262,7 +262,7 @@ class AstConverter implements CalcVisitor<es.Node> {
     return this.visit(ctx.literal()) as es.Literal
   }
   visitIdentifierPattern(ctx: IdentifierPatternContext): es.Identifier {
-    let id = this.visit(ctx.identifier()) as es.Identifier
+    const id = this.visit(ctx.identifier()) as es.Identifier
     id.isPat = true
     return id
   }
@@ -285,7 +285,7 @@ class AstConverter implements CalcVisitor<es.Node> {
   visitExpressionStatement(ctx: ExpressionStatementContext): es.Statement {
     const loc = contextToLocation(ctx)
     const it = identifier('it', variableType(getNextVarId()), contextToLocation(ctx), true)
-    let init = this.visit(ctx.expression()) as es.Expression
+    const init = this.visit(ctx.expression()) as es.Expression
     return {
       type: 'ValueDeclaration',
       smlType: init.smlType,
@@ -347,8 +347,8 @@ class AstConverter implements CalcVisitor<es.Node> {
   }
   visitValueDeclaration(ctx: ValueDeclarationContext): es.ValueDeclaration {
     const loc = contextToLocation(ctx)
-    let pat = this.visit(ctx.pattern()) as es.Pattern
-    let init = this.visit(ctx.expression()) as es.Expression
+    const pat = this.visit(ctx.pattern()) as es.Pattern
+    const init = this.visit(ctx.expression()) as es.Expression
     return {
       type: 'ValueDeclaration',
       smlType: init.smlType,
@@ -358,7 +358,7 @@ class AstConverter implements CalcVisitor<es.Node> {
     }
   }
   visitRecursiveDeclaration(ctx: RecursiveDeclarationContext): es.RecValueDeclaration {
-    let id = this.visit(ctx.identifier()) as es.Identifier
+    const id = this.visit(ctx.identifier()) as es.Identifier
     id.isPat = true
     return {
       type: 'RecValueDeclaration',
@@ -374,7 +374,7 @@ class AstConverter implements CalcVisitor<es.Node> {
     if (param.type !== 'TuplePattern') {
       param = tuplePattern([param], loc)
     }
-    let id = this.visit(ctx.identifier()) as es.Identifier
+    const id = this.visit(ctx.identifier()) as es.Identifier
     id.isPat = true
     return {
       type: 'FunctionDeclaration',
